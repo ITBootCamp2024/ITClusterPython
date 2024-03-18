@@ -31,6 +31,13 @@ class CourseBlocksList(Resource):
         return course, 201
 
 
+def get_course_or_404(id):
+    course = CourseBlocks.query.get(id)
+    if not course:
+        abort(404, "Course not found")
+    return course
+
+
 @course_blocks.route("/<int:id>/")
 @course_blocks.response(404, "Course not found")
 @course_blocks.param("id", "The course unique identifier")
@@ -40,18 +47,13 @@ class CourseBlocksDetail(Resource):
     @course_blocks.marshal_with(course_blocks_model)
     def get(self, id):
         """Fetch a given course"""
-        course = CourseBlocks.query.get(id)
-        if not course:
-            abort(404, "Course not found")
-        return CourseBlocks.query.get(id)
+        return get_course_or_404(id)
 
     @course_blocks.expect(course_blocks_model)
     @course_blocks.marshal_list_with(course_blocks_model)
     def put(self, id):
         """Update a course given its identifier"""
-        course = CourseBlocks.query.get(id)
-        if not course:
-            abort(404, "Course not found")
+        course = get_course_or_404(id)
         course.name = course_blocks.payload["name"]
         course.description = course_blocks.payload["description"]
         db.session.commit()
@@ -59,9 +61,7 @@ class CourseBlocksDetail(Resource):
 
     def delete(self, id):
         """Delete a course given its identifier"""
-        course = CourseBlocks.query.get(id)
-        if not course:
-            abort(404, "Course not found")
+        course = get_course_or_404(id)
         db.session.delete(course)
         db.session.commit()
         return {}, 204

@@ -28,6 +28,13 @@ class ProgramLevelList(Resource):
         return program, 201
 
 
+def get_program_level_or_404(id):
+    program = ProgramLevel.query.get(id)
+    if not program:
+        abort(404, "Program level not found")
+    return program
+
+
 @program_level.route("/<int:id>/")
 @program_level.response(404, "Program level not found")
 @program_level.param("id", "The program level unique identifier")
@@ -37,27 +44,20 @@ class ProgramLevelDetail(Resource):
     @program_level.marshal_with(program_level_model)
     def get(self, id):
         """Fetch a given program level"""
-        program = ProgramLevel.query.get(id)
-        if not program:
-            abort(404, "Program level not found")
-        return program
+        return get_program_level_or_404(id)
 
     @program_level.expect(program_level_model)
     @program_level.marshal_list_with(program_level_model)
     def put(self, id):
         """Update a program level given its identifier"""
-        program = ProgramLevel.query.get(id)
-        if not program:
-            abort(404, "Program level not found")
+        program = get_program_level_or_404(id)
         program.name = program_level.payload["name"]
         db.session.commit()
         return program
 
     def delete(self, id):
         """Delete a program level given its identifier"""
-        program = ProgramLevel.query.get(id)
-        if not program:
-            abort(404, "Program level not found")
+        program = get_program_level_or_404(id)
         db.session.delete(program)
         db.session.commit()
         return {}, 204
