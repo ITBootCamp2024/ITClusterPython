@@ -25,4 +25,3 @@ referencing==0.34.0
 rpds-py==0.18.0
 SQLAlchemy==2.0.28
 typing_extensions==4.10.0
-Werkzeug==3.0.1
