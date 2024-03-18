@@ -1,4 +1,4 @@
-from app.extensions import db
+from project.extensions import db
 
 
 class ProgramLevel(db.Model):

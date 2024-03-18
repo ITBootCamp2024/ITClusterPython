@@ -1,9 +1,9 @@
 from flask import Flask
 
-from app.extensions import api, db, migrate
-from app.routes.programs_levels import program_level
-from app.routes.cities import city
-from app.models import ProgramLevel
+from project.extensions import api, db, migrate
+from project.routes.programs_levels import program_level
+from project.routes.cities import city
+from project.models import ProgramLevel
 
 
 def create_app():

@@ -1,4 +1,4 @@
-from app.extensions import api
+from project.extensions import api
 from flask_restx import fields
 
 program_level_model = api.model(

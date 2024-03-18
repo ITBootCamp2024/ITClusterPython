@@ -1,8 +1,8 @@
 from flask_restx import Resource, Namespace
 
-from app.extensions import db
-from app.schema import program_level_model
-from app.models import ProgramLevel
+from project.extensions import db
+from project.schema import program_level_model
+from project.models import ProgramLevel
 
 program_level = Namespace(
     name="programs_levels", description="Level of the educational program"
