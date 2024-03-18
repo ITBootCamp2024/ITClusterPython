@@ -12,3 +12,6 @@ program_level_model = api.model(
 )
 
 # program_level_input_model = api.model("ProgramLevelInput", {"name": fields.String})
+
+
+new_schema = api.model()
