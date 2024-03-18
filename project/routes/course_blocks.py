@@ -1,4 +1,4 @@
-from flask_restx import Resource, Namespace
+from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
 from project.schema import course_blocks_model
@@ -40,6 +40,9 @@ class CourseBlocksDetail(Resource):
     @course_blocks.marshal_with(course_blocks_model)
     def get(self, id):
         """Fetch a given course"""
+        course = CourseBlocks.query.get(id)
+        if not course:
+            abort(404, "Course not found")
         return CourseBlocks.query.get(id)
 
     @course_blocks.expect(course_blocks_model)
@@ -47,6 +50,8 @@ class CourseBlocksDetail(Resource):
     def put(self, id):
         """Update a course given its identifier"""
         course = CourseBlocks.query.get(id)
+        if not course:
+            abort(404, "Course not found")
         course.name = course_blocks.payload["name"]
         course.description = course_blocks.payload["description"]
         db.session.commit()
@@ -55,6 +60,8 @@ class CourseBlocksDetail(Resource):
     def delete(self, id):
         """Delete a course given its identifier"""
         course = CourseBlocks.query.get(id)
+        if not course:
+            abort(404, "Course not found")
         db.session.delete(course)
         db.session.commit()
         return {}, 204

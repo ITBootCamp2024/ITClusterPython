@@ -1,4 +1,4 @@
-from flask_restx import Resource, Namespace
+from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
 from project.schema import program_level_model
@@ -37,13 +37,18 @@ class ProgramLevelDetail(Resource):
     @program_level.marshal_with(program_level_model)
     def get(self, id):
         """Fetch a given program level"""
-        return ProgramLevel.query.get(id)
+        program = ProgramLevel.query.get(id)
+        if not program:
+            abort(404, "Program level not found")
+        return program
 
     @program_level.expect(program_level_model)
     @program_level.marshal_list_with(program_level_model)
     def put(self, id):
         """Update a program level given its identifier"""
         program = ProgramLevel.query.get(id)
+        if not program:
+            abort(404, "Program level not found")
         program.name = program_level.payload["name"]
         db.session.commit()
         return program
@@ -51,6 +56,8 @@ class ProgramLevelDetail(Resource):
     def delete(self, id):
         """Delete a program level given its identifier"""
         program = ProgramLevel.query.get(id)
+        if not program:
+            abort(404, "Program level not found")
         db.session.delete(program)
         db.session.commit()
         return {}, 204
