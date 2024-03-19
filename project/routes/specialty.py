@@ -45,6 +45,7 @@ def get_specialty_or_404(id):
 
 @specialty_ns.route("/<int:id>/")
 @specialty_ns.response(404, "Specialty not found")
+@specialty_ns.response(400, "Specialty already exists")
 @specialty_ns.param("id", "The specialty unique identifier")
 class SpecialtyDetail(Resource):
     """Show a single specialty and lets you delete it"""
