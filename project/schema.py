@@ -26,7 +26,7 @@ specialty_model = api.model(
     "Specialty",
     {
         "id": fields.Integer(
-            readonly=True, description="The specialty unique identifier"
+            required=True, description="The specialty unique identifier"
         ),
         "name": fields.String(required=True, description="The name of the specialty"),
         "link_standart": fields.String(

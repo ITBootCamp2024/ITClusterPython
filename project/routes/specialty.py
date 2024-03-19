@@ -22,7 +22,12 @@ class SpecialtyList(Resource):
     @specialty_ns.marshal_list_with(specialty_model)
     def post(self):
         """Create a new specialty"""
+        specialty_id = specialty_ns.payload["id"]
+        specialty = Specialty.query.get(specialty_id)
+        if specialty:
+            abort(400, "Specialty already exists")
         specialty = Specialty(
+            id=specialty_id,
             name=specialty_ns.payload["name"],
             link_standart=specialty_ns.payload["link_standart"],
         )
