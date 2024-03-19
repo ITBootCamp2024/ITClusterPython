@@ -14,4 +14,13 @@ program_level_model = api.model(
 # program_level_input_model = api.model("ProgramLevelInput", {"name": fields.String})
 
 
-new_schema = api.model()
+specialty_model = api.model(
+    "Specialty",
+    {
+        "id": fields.Integer(readonly=True, description="The specialty unique identifier"),
+        "name": fields.String(required=True, description="The name of the specialty"),
+        "link_standart": fields.String(
+            required=True, description="The link to the specialty"
+        ),
+    },
+)
