@@ -22,6 +22,15 @@ course_blocks_model = api.model(
     },
 )
 
+course_statuses_model = api.model(
+    "CourseStatuses",
+    {
+        "id": fields.Integer(readonly=True, description="The status unique identifier"),
+        "name": fields.String(required=True, description="The status name"),
+        "description": fields.String(description="The status description"),
+    },
+)
+
 specialty_model = api.model(
     "Specialty",
     {
