@@ -10,7 +10,6 @@ specialty_ns = Namespace(
 
 
 @specialty_ns.route("/")
-@specialty_ns.response(400, "Specialty already exists")
 class SpecialtyList(Resource):
     """Shows a list of all specialties, and lets you POST to add new specialties"""
 
@@ -21,6 +20,7 @@ class SpecialtyList(Resource):
 
     @specialty_ns.expect(specialty_model)
     @specialty_ns.marshal_list_with(specialty_model)
+    @specialty_ns.response(400, "Specialty already exists")
     def post(self):
         """Create a new specialty"""
         specialty_id = specialty_ns.payload["id"]
