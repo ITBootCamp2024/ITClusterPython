@@ -4,7 +4,7 @@ from project.extensions import api, db, migrate
 from project.routes.programs_levels import program_level
 from project.routes.cities import city
 from project.routes.specialty import specialty_ns
-from project.models import ProgramLevel
+from project.models import ProgramLevel, Specialty
 
 
 def create_app():
