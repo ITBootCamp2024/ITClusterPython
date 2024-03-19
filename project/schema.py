@@ -11,6 +11,17 @@ program_level_model = api.model(
     },
 )
 
+course_blocks_model = api.model(
+    "CourseBlocks",
+    {
+        "id": fields.Integer(readonly=True, description="The course unique identifier"),
+        "name": fields.String(required=True, description="The course name"),
+        "description": fields.String(
+            required=True, description="The course description"
+        ),
+    },
+)
+
 # program_level_input_model = api.model("ProgramLevelInput", {"name": fields.String})
 
 
