@@ -6,7 +6,6 @@ from flask import Flask
 from project.extensions import api, db, migrate
 from project.routes.course_blocks import course_blocks
 from project.routes.programs_levels import program_level
-from project.routes.cities import city
 from project.routes.specialty import specialty_ns
 from project.models import ProgramLevel, Specialty, CourseBlocks
 
@@ -23,6 +22,5 @@ def create_app():
 
     api.add_namespace(program_level)
     api.add_namespace(course_blocks)
-    api.add_namespace(city)
     api.add_namespace(specialty_ns)
     return app
