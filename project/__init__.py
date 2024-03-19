@@ -1,3 +1,6 @@
+from os import environ
+
+from dotenv import load_dotenv
 from flask import Flask
 
 from project.extensions import api, db, migrate
@@ -10,7 +13,8 @@ from project.models import ProgramLevel, CourseBlocks
 def create_app():
     app = Flask(__name__)
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
+    load_dotenv()
+    app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
 
     api.init_app(app)
     db.init_app(app)
