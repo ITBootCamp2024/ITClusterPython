@@ -16,6 +16,7 @@ def create_app():
 
     load_dotenv()
     app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
+    app.config["RESTX_VALIDATE"] = True
 
     api.init_app(app)
     db.init_app(app)
