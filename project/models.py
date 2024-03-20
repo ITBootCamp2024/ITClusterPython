@@ -4,7 +4,7 @@ from project.extensions import db
 class ProgramLevel(db.Model):
     __tablename__ = "programs_level"
     id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(255), nullable=False)
+    name: str = db.Column(db.String(100), nullable=False)
 
 
 class Specialty(db.Model):
@@ -17,12 +17,12 @@ class Specialty(db.Model):
 class CourseBlocks(db.Model):
     __tablename__ = "course_blocks"
     id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(255), nullable=False)
+    name: str = db.Column(db.String(100), nullable=False)
     description: str = db.Column(db.Text, nullable=False)
 
 
 class CourseStatuses(db.Model):
     __tablename__ = "course_statuses"
     id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(255), nullable=False)
-    description: str = db.Column(db.Text, nullable=True)
+    name: str = db.Column(db.String(100), nullable=False)
+    description: str = db.Column(db.Text, nullable=False)
