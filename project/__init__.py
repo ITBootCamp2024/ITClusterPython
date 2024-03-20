@@ -2,6 +2,7 @@ from os import environ
 
 from dotenv import load_dotenv
 from flask import Flask
+from flask_cors import CORS
 
 from project.extensions import api, db, migrate
 from project.routes.course_blocks import course_blocks
@@ -13,6 +14,7 @@ from project.models import ProgramLevel, Specialty, CourseBlocks, CourseStatuses
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
 
     load_dotenv()
     app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
