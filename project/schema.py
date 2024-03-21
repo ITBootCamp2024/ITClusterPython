@@ -44,11 +44,19 @@ specialty_model = api.model(
     "Specialty",
     {
         "id": fields.Integer(
-            required=True, description="The specialty unique identifier"
+            required=True, description="The specialty unique identifier", min=0, max=500
         ),
-        "name": fields.String(required=True, description="The name of the specialty"),
+        "name": fields.String(
+            required=True,
+            description="The name of the specialty",
+            min_length=1,
+            max_length=200,
+        ),
         "link_standart": fields.String(
-            required=True, description="The link to the specialty"
+            required=True,
+            description="The link to the specialty",
+            min_length=0,
+            max_length=200,
         ),
     },
 )
@@ -57,8 +65,7 @@ teacher_model = api.model(
     "Teacher",
     {
         "id": fields.Integer(
-            readonly=True,
-            description="The teacher unique identifier"
+            readonly=True, description="The teacher unique identifier"
         ),
         "name": fields.String(
             required=True,
