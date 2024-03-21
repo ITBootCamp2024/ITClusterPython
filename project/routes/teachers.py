@@ -33,7 +33,7 @@ class TeachersList(Resource):
         return teacher, 201
 
 
-def get_status_or_404(id):
+def get_teacher_or_404(id):
     teacher = Teacher.query.get(id)
     if not teacher:
         abort(404, "Teacher not found")
@@ -49,13 +49,13 @@ class TeachersDetail(Resource):
     @teachers_ns.marshal_with(teacher_model)
     def get(self, id):
         """Fetch the teacher with a given id"""
-        return get_status_or_404(id)
+        return get_teacher_or_404(id)
 
     @teachers_ns.expect(teacher_model)
     @teachers_ns.marshal_list_with(teacher_model)
     def put(self, id):
         """Update the teacher with a given id"""
-        teacher = get_status_or_404(id)
+        teacher = get_teacher_or_404(id)
         teacher.name = teachers_ns.payload["name"]
         teacher.role = teachers_ns.payload["role"]
         teacher.status = teachers_ns.payload["status"]
@@ -66,7 +66,7 @@ class TeachersDetail(Resource):
 
     def delete(self, id):
         """Delete the teacher with a given id"""
-        teacher = get_status_or_404(id)
+        teacher = get_teacher_or_404(id)
         db.session.delete(teacher)
         db.session.commit()
         return {}, 204
