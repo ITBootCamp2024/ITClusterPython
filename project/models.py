@@ -26,3 +26,13 @@ class CourseStatuses(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
     description: str = db.Column(db.Text, nullable=False)
+
+
+class Teacher(db.Model):
+    __tablename__ = "teachers"
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(50), nullable=False)
+    role: str = db.Column(db.String(50), nullable=False)
+    status: str = db.Column(db.String(100), nullable=False)
+    email: str = db.Column(db.String(100), nullable=False)
+    details: str = db.Column(db.Text, nullable=False)
