@@ -52,3 +52,43 @@ specialty_model = api.model(
         ),
     },
 )
+
+teacher_model = api.model(
+    "Teacher",
+    {
+        "id": fields.Integer(
+            readonly=True,
+            description="The teacher unique identifier"
+        ),
+        "name": fields.String(
+            required=True,
+            description="The name of the teacher",
+            min_length=1,
+            max_length=50,
+        ),
+        "role": fields.String(
+            required=True,
+            description="The role of the teacher",
+            min_length=1,
+            max_length=50,
+        ),
+        "status": fields.String(
+            required=True,
+            description="The status of the teacher",
+            min_length=0,
+            max_length=100,
+        ),
+        "email": fields.String(
+            required=True,
+            description="The email of the teacher",
+            min_length=0,
+            max_length=100,
+        ),
+        "details": fields.String(
+            required=True,
+            description="The details of the teacher",
+            min_length=0,
+            max_length=100,
+        ),
+    },
+)
