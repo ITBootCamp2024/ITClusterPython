@@ -40,6 +40,23 @@ course_statuses_model = api.model(
     },
 )
 
+course_groupes_model = api.model(
+    "CourseGroupes",
+    {
+        "id": fields.Integer(
+            readonly=True, description="The course_group unique identifier"
+        ),
+        "name": fields.String(
+            required=True,
+            description="The course_group name",
+            min_length=1,
+            max_length=100,
+        ),
+        "description": fields.String(description="The course_group description"),
+        "type_id": fields.Integer(min=1),
+    },
+)
+
 specialty_model = api.model(
     "Specialty",
     {
