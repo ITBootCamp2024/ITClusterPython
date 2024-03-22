@@ -1,25 +1,22 @@
 from flask_restx import Resource, Namespace, abort
 
-from project.extensions import db
-from project.schema import specialty_model
+from project.extensions import db, pagination
 from project.models import Specialty
+from project.schema import specialty_model, pagination_parser
 
-specialty_ns = Namespace(
-    name="specialty", description="Specialties"
-)
+specialty_ns = Namespace(name="specialty", description="Specialties")
 
 
 @specialty_ns.route("/")
 class SpecialtyList(Resource):
     """Shows a list of all specialties, and lets you POST to add new specialties"""
 
-    @specialty_ns.marshal_list_with(specialty_model)
+    @specialty_ns.expect(pagination_parser)
     def get(self):
         """List all specialties"""
-        return Specialty.query.all()
+        return pagination.paginate(Specialty, specialty_model)
 
-    @specialty_ns.expect(specialty_model)
-    @specialty_ns.marshal_list_with(specialty_model)
+    @specialty_ns.expect(specialty_model, pagination_parser)
     @specialty_ns.response(400, "Specialty already exists")
     def post(self):
         """Create a new specialty"""
@@ -34,7 +31,7 @@ class SpecialtyList(Resource):
         )
         db.session.add(specialty)
         db.session.commit()
-        return specialty, 201
+        return pagination.paginate(Specialty, specialty_model)
 
 
 def get_specialty_or_404(id):
@@ -55,19 +52,19 @@ class SpecialtyDetail(Resource):
         """Fetch specialty with the given identifier"""
         return get_specialty_or_404(id)
 
-    @specialty_ns.expect(specialty_model)
-    @specialty_ns.marshal_list_with(specialty_model)
+    @specialty_ns.expect(specialty_model, pagination_parser)
     def put(self, id):
         """Update a specialty with the given identifier"""
         specialty = get_specialty_or_404(id)
         specialty.name = specialty_ns.payload["name"]
         specialty.link_standart = specialty_ns.payload["link_standart"]
         db.session.commit()
-        return specialty
+        return pagination.paginate(Specialty, specialty_model)
 
+    @specialty_ns.expect(pagination_parser)
     def delete(self, id):
         """Delete a specialty given its identifier"""
         specialty = get_specialty_or_404(id)
         db.session.delete(specialty)
         db.session.commit()
-        return {}, 204
+        return pagination.paginate(Specialty, specialty_model)
