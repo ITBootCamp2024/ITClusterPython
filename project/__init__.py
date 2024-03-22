@@ -13,7 +13,7 @@ from project.models import (
     CourseGroupes,
     Teacher,
 )
-from project.routes.course_blocks import course_blocks
+from project.routes.course_blocks import course_blocks_ns
 from project.routes.course_groupes import course_groupes_ns
 from project.routes.programs_levels import program_level
 from project.routes.specialty import specialty_ns
@@ -34,7 +34,7 @@ def create_app():
     # app.config['PAGINATE_PAGE_PARAM'] = "pagenumber"
     # app.config['PAGINATE_SIZE_PARAM'] = "pagesize"
     # app.config['PAGINATE_RESOURCE_LINKS_ENABLED'] = False
-    app.config['PAGINATE_PAGINATION_OBJECT_KEY'] = None
+    app.config["PAGINATE_PAGINATION_OBJECT_KEY"] = None
     # app.config['PAGINATE_DATA_OBJECT_KEY'] = "data"
 
     api.init_app(app)
@@ -43,7 +43,7 @@ def create_app():
     pagination.init_app(app, db)
 
     api.add_namespace(program_level)
-    api.add_namespace(course_blocks)
+    api.add_namespace(course_blocks_ns)
     api.add_namespace(course_statuses_ns)
     api.add_namespace(course_groupes_ns)
     api.add_namespace(specialty_ns)
