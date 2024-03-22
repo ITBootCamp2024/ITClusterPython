@@ -116,3 +116,11 @@ teacher_model = api.model(
         ),
     },
 )
+
+pagination_parser = api.parser()
+pagination_parser.add_argument(
+    "page", type=int, required=False, default=1, help="Page number"
+)
+pagination_parser.add_argument(
+    "size", type=int, required=False, default=3, help="Page size (number of items per page)"
+)
