@@ -79,7 +79,7 @@ class TeachersDetail(Resource):
     @teachers_ns.expect(teacher_model)
     @teachers_ns.marshal_with(get_pagination_schema_for(teacher_model))
     def delete(self, id):
-        """Delete the teacher with a given id"""
+        """Delete the teacher with given id"""
         teacher = get_teacher_or_404(id)
         db.session.delete(teacher)
         db.session.commit()
