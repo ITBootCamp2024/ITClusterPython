@@ -139,3 +139,29 @@ def custom_schema_pagination(current_page, page_obj):
         "per_page": page_obj.per_page,
         "total": page_obj.total,
     }
+
+
+def get_pagination_schema_for(response_model: api.model):
+    return api.model(
+        "Pagination",
+        {
+            "data": fields.List(fields.Nested(response_model)),
+            "next": fields.String(
+                requred=True,
+                description="Link to the next page",
+                default='link/to/the/next/page'
+            ),
+            "prev": fields.String(
+                required=True,
+                description="Link to the previous page",
+                default='link/to/the/previous/page'
+            ),
+            "current": fields.String(
+                required=True,
+                description="Current page link",
+                default='link/to/the/current/page'),
+            "pages": fields.Integer(required=True, description="Total number of pages"),
+            "per_page": fields.Integer(required=True, description="Number of items per page"),
+            "total": fields.Integer(required=True, description="Total number of items"),
+        },
+    )
