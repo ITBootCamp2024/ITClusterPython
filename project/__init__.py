@@ -29,3 +29,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     pagination.init_app(app, db)
+
+    api.add_namespace(school_ns)
+    api.add_namespace(university_ns)
+    return app
