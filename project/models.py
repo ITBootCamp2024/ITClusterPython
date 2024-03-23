@@ -43,5 +43,5 @@ class Teacher(db.Model):
     name: str = db.Column(db.String(50), nullable=False)
     role: str = db.Column(db.String(50), nullable=False)
     status: str = db.Column(db.String(100), nullable=False)
-    email: str = db.Column(db.String(100), nullable=False)
+    email: str = db.Column(db.String(100), nullable=False, unique=True)
     details: str = db.Column(db.Text, nullable=False)
