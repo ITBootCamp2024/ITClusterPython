@@ -122,5 +122,20 @@ pagination_parser.add_argument(
     "page", type=int, required=False, default=1, help="Page number"
 )
 pagination_parser.add_argument(
-    "size", type=int, required=False, default=20, help="Page size (number of items per page)"
+    "size",
+    type=int,
+    required=False,
+    default=20,
+    help="Page size (number of items per page)",
 )
+
+
+def custom_schema_pagination(current_page, page_obj):
+    return {
+        "next": page_obj.has_next,
+        "prev": page_obj.has_prev,
+        "current": current_page,
+        "pages": page_obj.pages,
+        "per_page": page_obj.per_page,
+        "total": page_obj.total,
+    }
