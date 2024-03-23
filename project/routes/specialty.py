@@ -3,7 +3,12 @@ from sqlalchemy.exc import IntegrityError
 
 from project.extensions import db, pagination
 from project.models import Specialty
-from project.schema import specialty_model, pagination_parser, custom_schema_pagination
+from project.schema import (
+    specialty_model,
+    pagination_parser,
+    custom_schema_pagination,
+    get_pagination_schema_for,
+)
 
 specialty_ns = Namespace(name="specialty", description="Specialties")
 
@@ -13,6 +18,7 @@ class SpecialtyList(Resource):
     """Shows a list of all specialties, and lets you POST to add new specialties"""
 
     @specialty_ns.expect(pagination_parser)
+    @specialty_ns.marshal_with(get_pagination_schema_for(specialty_model))
     def get(self):
         """List all specialties"""
         return pagination.paginate(
@@ -21,6 +27,7 @@ class SpecialtyList(Resource):
 
     @specialty_ns.expect(specialty_model, pagination_parser)
     @specialty_ns.response(400, "Specialty already exists")
+    @specialty_ns.marshal_with(get_pagination_schema_for(specialty_model))
     def post(self):
         """Create a new specialty"""
         specialty_id = specialty_ns.payload["id"]
@@ -61,6 +68,7 @@ class SpecialtyDetail(Resource):
         return get_specialty_or_404(id)
 
     @specialty_ns.expect(specialty_model, pagination_parser)
+    @specialty_ns.marshal_with(get_pagination_schema_for(specialty_model))
     def put(self, id):
         """Update a specialty with the given identifier"""
         specialty = get_specialty_or_404(id)
@@ -72,6 +80,7 @@ class SpecialtyDetail(Resource):
         )
 
     @specialty_ns.expect(pagination_parser)
+    @specialty_ns.marshal_with(get_pagination_schema_for(specialty_model))
     def delete(self, id):
         """Delete a specialty given its identifier"""
         specialty = get_specialty_or_404(id)
