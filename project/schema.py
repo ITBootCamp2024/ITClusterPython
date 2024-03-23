@@ -4,7 +4,6 @@ from project.extensions import api
 from flask_restx import fields
 
 
-
 university_model = api.model(
     "University",
     {
