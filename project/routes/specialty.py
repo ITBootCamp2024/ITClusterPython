@@ -2,7 +2,7 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db, pagination
 from project.models import Specialty
-from project.schema import specialty_model, pagination_parser
+from project.schema import specialty_model, pagination_parser, custom_schema_pagination
 
 specialty_ns = Namespace(name="specialty", description="Specialties")
 
@@ -14,7 +14,9 @@ class SpecialtyList(Resource):
     @specialty_ns.expect(pagination_parser)
     def get(self):
         """List all specialties"""
-        return pagination.paginate(Specialty, specialty_model)
+        return pagination.paginate(
+            Specialty, specialty_model, pagination_schema_hook=custom_schema_pagination
+        )
 
     @specialty_ns.expect(specialty_model, pagination_parser)
     @specialty_ns.response(400, "Specialty already exists")
@@ -31,7 +33,9 @@ class SpecialtyList(Resource):
         )
         db.session.add(specialty)
         db.session.commit()
-        return pagination.paginate(Specialty, specialty_model)
+        return pagination.paginate(
+            Specialty, specialty_model, pagination_schema_hook=custom_schema_pagination
+        )
 
 
 def get_specialty_or_404(id):
@@ -59,7 +63,9 @@ class SpecialtyDetail(Resource):
         specialty.name = specialty_ns.payload["name"]
         specialty.link_standart = specialty_ns.payload["link_standart"]
         db.session.commit()
-        return pagination.paginate(Specialty, specialty_model)
+        return pagination.paginate(
+            Specialty, specialty_model, pagination_schema_hook=custom_schema_pagination
+        )
 
     @specialty_ns.expect(pagination_parser)
     def delete(self, id):
@@ -67,4 +73,6 @@ class SpecialtyDetail(Resource):
         specialty = get_specialty_or_404(id)
         db.session.delete(specialty)
         db.session.commit()
-        return pagination.paginate(Specialty, specialty_model)
+        return pagination.paginate(
+            Specialty, specialty_model, pagination_schema_hook=custom_schema_pagination
+        )
