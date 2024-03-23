@@ -1,4 +1,5 @@
 from flask_restx import Resource, Namespace, abort
+from sqlalchemy.exc import IntegrityError
 
 from project.extensions import db, pagination
 from project.models import Specialty
@@ -23,16 +24,19 @@ class SpecialtyList(Resource):
     def post(self):
         """Create a new specialty"""
         specialty_id = specialty_ns.payload["id"]
-        specialty = Specialty.query.get(specialty_id)
-        if specialty:
+        name = specialty_ns.payload["name"]
+        link_standart = specialty_ns.payload["link_standart"]
+        # TODO make link_standart verification as url
+        try:
+            specialty = Specialty(
+                id=specialty_id,
+                name=name,
+                link_standart=link_standart,
+            )
+            db.session.add(specialty)
+            db.session.commit()
+        except IntegrityError:
             abort(400, "Specialty already exists")
-        specialty = Specialty(
-            id=specialty_id,
-            name=specialty_ns.payload["name"],
-            link_standart=specialty_ns.payload["link_standart"],
-        )
-        db.session.add(specialty)
-        db.session.commit()
         return pagination.paginate(
             Specialty, specialty_model, pagination_schema_hook=custom_schema_pagination
         )
