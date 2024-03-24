@@ -165,3 +165,38 @@ def get_pagination_schema_for(response_model: api.model):
             "total": fields.Integer(required=True, description="Total number of items"),
         },
     )
+
+
+university_model = api.model(
+    "University",
+    {
+        "id": fields.Integer(
+            readonly=True, description="The program level unique identifier",
+        ),
+        "name": fields.String(required=True, description="The program level name",
+                              min_length=5, max_length=100,),
+        "shortname": fields.String(description="University abbreviation",
+                                   min_length=2, max_length=20,),
+        "sitelink": fields.String(description="University site", absolute=False),
+        "programs_list": fields.String(description="Url for the list of programs")
+    },
+)
+
+
+school_model = api.model(
+    "school",
+    {
+        "id": fields.Integer(
+            readonly=True, description="School ID"
+        ),
+        "name": fields.String(required=True, description="School name"),
+        "size": fields.String(required=False,  description="School size",
+                              min_length=2, max_length=100,),
+        "description": fields.String(required=False, description="Brief description",
+                                     min_length=20, max_length=400,),
+        "contact": fields.String(required=False, description="School contacts",
+                                 min_length=5, max_length=100,),
+        "university_id": fields.Integer(required=True, description="Related University ID",
+                                        min_length=1)
+    },
+)
