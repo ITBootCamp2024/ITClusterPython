@@ -3,7 +3,12 @@ from flask_restx import Resource, Namespace, abort
 from sqlalchemy.exc import IntegrityError
 
 from project.extensions import db, pagination
-from project.schema import university_model, pagination_parser
+from project.schema import (
+    university_model,
+    pagination_parser,
+    custom_schema_pagination,
+    get_pagination_schema_for,
+)
 from project.models import University
 
 
@@ -36,15 +41,18 @@ def validate_site(value: str, parametres: list):
 class UniversitylList(Resource):
     """Shows a list of all universities, available in our site """
 
-    @university_ns.marshal_list_with(university_model)
+    @university_ns.expect(pagination_parser)
+    @university_ns.marshal_with(get_pagination_schema_for(university_model))
     def get(self):
         """List of all universities"""
 
-        return University.query.all()
+        return pagination.paginate(
+            University, university_model, pagination_schema_hook=custom_schema_pagination
+        )
 
     @university_ns.expect(university_model)
-    @university_ns.marshal_list_with(university_model)
-    @validate_site('http://', ["sitelink", "programs_list"])
+    @university_ns.marshal_with(get_pagination_schema_for(university_model))
+    @validate_site('http', ["sitelink", "programs_list"])
     def post(self):
         """Create a new university"""
         university = University(name=university_ns.payload["name"],
@@ -57,8 +65,9 @@ class UniversitylList(Resource):
             db.session.commit()
         except IntegrityError:
             abort(400, "Name/shortname should be unique")
-        universities = University.query.all()
-        return universities, 200
+        return pagination.paginate(
+            University, university_model, pagination_schema_hook=custom_schema_pagination
+        )
 
 
 @university_ns.route("/<int:id>/")
@@ -73,7 +82,7 @@ class UniversityDetail(Resource):
         return get_uni_or_404(id)
 
     @university_ns.expect(university_model)
-    @university_ns.marshal_list_with(university_model)
+    @university_ns.marshal_with(get_pagination_schema_for(university_model))
     def put(self, id: int) -> tuple:
         """Update the University according to ID"""
         university = get_uni_or_404(id)
@@ -85,15 +94,17 @@ class UniversityDetail(Resource):
             db.session.commit()
         except IntegrityError:
             abort(400, "Name/shortname should be unique")
-        universities = University.query.all()
-        return universities, 200
+        return pagination.paginate(
+            University, university_model, pagination_schema_hook=custom_schema_pagination
+        )
 
-    @university_ns.marshal_list_with(university_model)
-    @university_ns.marshal_list_with(university_model)
+    @university_ns.expect(university_model)
+    @university_ns.marshal_with(get_pagination_schema_for(university_model))
     def delete(self, id: int):
         """Delete the University according to ID"""
         university = get_uni_or_404(id)
         db.session.delete(university)
         db.session.commit()
-        universities = University.query.all()
-        return universities, 200
+        return pagination.paginate(
+            University, university_model, pagination_schema_hook=custom_schema_pagination
+        )
