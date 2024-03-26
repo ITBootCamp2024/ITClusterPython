@@ -13,7 +13,7 @@ program_level_ns = Namespace(
 )
 
 
-@program_level_ns.route("/")
+@program_level_ns.route("")
 @program_level_ns.response(200, model=[program_level_model], description="Success")
 class ProgramLevelList(Resource):
     """Shows a list of all programs levels, and lets you POST to add new program level"""
@@ -47,7 +47,7 @@ def get_program_level_or_404(id):
     return program
 
 
-@program_level_ns.route("/<int:id>/")
+@program_level_ns.route("/<int:id>")
 @program_level_ns.response(200, model=[program_level_model], description="Success")
 @program_level_ns.response(404, "Program level not found")
 @program_level_ns.param("id", "The program level unique identifier")

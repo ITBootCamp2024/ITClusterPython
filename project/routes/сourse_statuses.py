@@ -13,7 +13,7 @@ course_statuses_ns = Namespace(
 )
 
 
-@course_statuses_ns.route("/")
+@course_statuses_ns.route("")
 @course_statuses_ns.response(200, model=[course_statuses_model], description="Success")
 class CourseStatusesList(Resource):
     """Shows a list of all statuses, and lets you POST to add new status"""
@@ -50,7 +50,7 @@ def get_status_or_404(id):
     return status
 
 
-@course_statuses_ns.route("/<int:id>/")
+@course_statuses_ns.route("/<int:id>")
 @course_statuses_ns.response(200, model=[course_statuses_model], description="Success")
 @course_statuses_ns.response(404, "Status not found")
 @course_statuses_ns.param("id", "The status unique identifier")

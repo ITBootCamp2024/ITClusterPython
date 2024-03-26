@@ -13,7 +13,7 @@ course_blocks_ns = Namespace(
 )
 
 
-@course_blocks_ns.route("/")
+@course_blocks_ns.route("")
 @course_blocks_ns.response(200, model=[course_blocks_model], description="Success")
 class CourseBlocksList(Resource):
     """Shows a list of all courses, and lets you POST to add new courses"""
@@ -50,7 +50,7 @@ def get_course_or_404(id):
     return course
 
 
-@course_blocks_ns.route("/<int:id>/")
+@course_blocks_ns.route("/<int:id>")
 @course_blocks_ns.response(200, model=[course_blocks_model], description="Success")
 @course_blocks_ns.response(404, "Course not found")
 @course_blocks_ns.param("id", "The course unique identifier")
