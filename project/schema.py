@@ -185,7 +185,7 @@ def custom_schema_pagination(current_page, page_obj):
 
 def get_pagination_schema_for(response_model: api.model):
     return api.model(
-        "Pagination",
+        f"Pagination({response_model.name})",
         {
             "data": fields.List(fields.Nested(response_model)),
             # "next": fields.String(
