@@ -6,19 +6,19 @@ from project.schema import (
     teacher_model,
     pagination_parser,
     custom_schema_pagination,
-    get_pagination_schema_for,
+    paginated_teacher_model,
 )
 
 
 teachers_ns = Namespace(name="teachers", description="info about teachers")
 
 
-@teachers_ns.route("/")
+@teachers_ns.route("")
 class TeachersList(Resource):
     """Shows a list of all teachers, and lets you POST to add new teacher"""
 
     @teachers_ns.expect(pagination_parser)
-    @teachers_ns.marshal_with(get_pagination_schema_for(teacher_model))
+    @teachers_ns.marshal_with(paginated_teacher_model)
     def get(self):
         """List all teachers"""
         return pagination.paginate(
@@ -26,7 +26,7 @@ class TeachersList(Resource):
         )
 
     @teachers_ns.expect(teacher_model)
-    @teachers_ns.marshal_with(get_pagination_schema_for(teacher_model))
+    @teachers_ns.marshal_with(paginated_teacher_model)
     def post(self):
         """Adds a new teacher"""
         teacher = Teacher(
@@ -35,6 +35,8 @@ class TeachersList(Resource):
             status=teachers_ns.payload["status"],
             email=teachers_ns.payload["email"],
             details=teachers_ns.payload["details"],
+            university=teachers_ns.payload["university"],
+            department=teachers_ns.payload["department"],
         )
         db.session.add(teacher)
         db.session.commit()
@@ -50,7 +52,7 @@ def get_teacher_or_404(id):
     return teacher
 
 
-@teachers_ns.route("/<int:id>/")
+@teachers_ns.route("/<int:id>")
 @teachers_ns.response(404, "Teacher not found")
 @teachers_ns.param("id", "The teacher's unique identifier")
 class TeachersDetail(Resource):
@@ -62,8 +64,8 @@ class TeachersDetail(Resource):
         return get_teacher_or_404(id)
 
     @teachers_ns.expect(teacher_model, pagination_parser)
-    @teachers_ns.marshal_with(get_pagination_schema_for(teacher_model))
-    def put(self, id):
+    @teachers_ns.marshal_with(paginated_teacher_model)
+    def patch(self, id):
         """Update the teacher with a given id"""
         teacher = get_teacher_or_404(id)
         teacher.name = teachers_ns.payload["name"]
@@ -71,13 +73,15 @@ class TeachersDetail(Resource):
         teacher.status = teachers_ns.payload["status"]
         teacher.email = teachers_ns.payload["email"]
         teacher.details = teachers_ns.payload["details"]
+        teacher.university = teachers_ns.payload["university"]
+        teacher.department = teachers_ns.payload["department"]
         db.session.commit()
         return pagination.paginate(
             Teacher, teacher_model, pagination_schema_hook=custom_schema_pagination
         )
 
-    @teachers_ns.expect(teacher_model)
-    @teachers_ns.marshal_with(get_pagination_schema_for(teacher_model))
+    @teachers_ns.expect(pagination_parser)
+    @teachers_ns.marshal_with(paginated_teacher_model)
     def delete(self, id):
         """Delete the teacher with given id"""
         teacher = get_teacher_or_404(id)
