@@ -8,7 +8,7 @@ from project.schema import (
     custom_schema_pagination,
     get_pagination_schema_for,
 )
-from project.models import School
+from project.models import School, University
 
 school_ns = Namespace(
     name="schools", description="schools involved in programs"
@@ -22,7 +22,18 @@ def get_school_or_404(id: int) -> School:
     return school
 
 
-@school_ns.route("/")
+def validate_uni_id(f):
+    def decorated_function(*args, **kwargs):
+        payload = school_ns.payload
+        university_id = payload.get('university_id')
+        # Check if university_id exists in the database
+        if not University.query.filter_by(id=university_id).first():
+            abort(400, "Invalid university ID")
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+@school_ns.route("")
 class SchoolList(Resource):
     """Read a list of all schools, available in our site """
     @school_ns.expect(pagination_parser)
@@ -33,8 +44,9 @@ class SchoolList(Resource):
             School, school_model, pagination_schema_hook=custom_schema_pagination
         )
 
-    @school_ns.expect(pagination_parser)
+    @school_ns.expect(school_model)
     @school_ns.marshal_with(get_pagination_schema_for(school_model))
+    @validate_uni_id
     def post(self) -> tuple:
         """Create a new school"""
         school = School(name=school_ns.payload["name"],
@@ -53,7 +65,7 @@ class SchoolList(Resource):
         )
 
 
-@school_ns.route("/<int:id>/")
+@school_ns.route("/<int:id>")
 @school_ns.response(404, "School not found")
 @school_ns.param("id", "School ID")
 class SchoolDetail(Resource):
@@ -66,23 +78,29 @@ class SchoolDetail(Resource):
 
     @school_ns.expect(school_model)
     @school_ns.marshal_with(get_pagination_schema_for(school_model))
-    def put(self, id: int) -> tuple:
+    def patch(self, id: int) -> tuple:
         """Update a certain school"""
         school = get_school_or_404(id)
+
+        fields_to_update = ["name", "size", "description", "contact", "university_id"]
+
         try:
-            school.name = school_ns.payload["name"]
-            school.name = school_ns.payload["size"]
-            school.name = school_ns.payload["description"]
-            school.name = school_ns.payload["contact"]
-            school.name = school_ns.payload["university_id"]
+            for field in fields_to_update:
+                if field in school_ns.payload:
+                    setattr(school, field, school_ns.payload[field])
+
             db.session.commit()
         except IntegrityError:
+            db.session.rollback()
             abort(400, "Name should be unique")
+        finally:
+            db.session.close()
+
         return pagination.paginate(
             School, school_model, pagination_schema_hook=custom_schema_pagination
         )
 
-    @school_ns.expect(school_model)
+    @school_ns.expect(pagination_parser)
     @school_ns.marshal_with(get_pagination_schema_for(school_model))
     def delete(self, id: int) -> tuple:
         """Delete a school according to ID"""
