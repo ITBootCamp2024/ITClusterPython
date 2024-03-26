@@ -116,6 +116,18 @@ teacher_model = api.model(
             min_length=0,
             max_length=100,
         ),
+        "university": fields.String(
+            required=True,
+            description="Teacher's university",
+            min_length=0,
+            max_length=100,
+        ),
+        "department": fields.String(
+            required=True,
+            description="Teacher's department",
+            min_length=0,
+            max_length=45,
+        )
     },
 )
 
@@ -209,4 +221,4 @@ def get_pagination_schema_for(response_model: api.model):
     )
 
 
-
+paginated_teacher_model = get_pagination_schema_for(teacher_model)
