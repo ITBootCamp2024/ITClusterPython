@@ -221,4 +221,5 @@ def get_pagination_schema_for(response_model: api.model):
     )
 
 
+paginated_specialty_model = get_pagination_schema_for(specialty_model)
 paginated_teacher_model = get_pagination_schema_for(teacher_model)
