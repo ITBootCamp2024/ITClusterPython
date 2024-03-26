@@ -37,7 +37,7 @@ def validate_site(value: str, parametres: list):
     return decorator
 
 
-@university_ns.route("/")
+@university_ns.route("")
 class UniversitylList(Resource):
     """Shows a list of all universities, available in our site """
 
@@ -70,7 +70,7 @@ class UniversitylList(Resource):
         )
 
 
-@university_ns.route("/<int:id>/")
+@university_ns.route("/<int:id>")
 @university_ns.response(404, "University not found")
 @university_ns.param("id", "University  ID")
 class UniversityDetail(Resource):
@@ -83,22 +83,29 @@ class UniversityDetail(Resource):
 
     @university_ns.expect(university_model)
     @university_ns.marshal_with(get_pagination_schema_for(university_model))
-    def put(self, id: int) -> tuple:
-        """Update the University according to ID"""
+    def patch(self, id: int) -> tuple:
+        """Update a certain university"""
         university = get_uni_or_404(id)
+
+        fields_to_update = ["name", "sitelink", "shortname", "programs_list"]
+
         try:
-            university.name = university_ns.payload["name"]
-            university.shortname = university_ns.payload["shortname"]
-            university.sitelink = university_ns.payload["sitelink"]
-            university.programs_list = university_ns.payload["programs_list"]
+            for field in fields_to_update:
+                if field in university_ns.payload:
+                    setattr(university, field, university_ns.payload[field])
+
             db.session.commit()
         except IntegrityError:
+            db.session.rollback()
             abort(400, "Name/shortname should be unique")
+        finally:
+            db.session.close()
+
         return pagination.paginate(
             University, university_model, pagination_schema_hook=custom_schema_pagination
         )
 
-    @university_ns.expect(university_model)
+    @university_ns.expect(pagination_parser)
     @university_ns.marshal_with(get_pagination_schema_for(university_model))
     def delete(self, id: int):
         """Delete the University according to ID"""
