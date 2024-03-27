@@ -13,15 +13,20 @@ from project.models import (
     CourseStatuses,
     CourseGroupes,
     Teacher,
+    School,
+    University,
+    Program,
 )
 from project.routes.course_blocks import course_blocks_ns
 from project.routes.course_groupes import course_groupes_ns
 from project.routes.programs_levels import program_level_ns
+from project.routes.service_info import service_info_ns
 from project.routes.specialty import specialty_ns
 from project.routes.сourse_statuses import course_statuses_ns
 from project.routes.teachers import teachers_ns
 from project.routes.schools import school_ns
 from project.routes.universities import university_ns
+from project.routes.programs import programs_ns
 
 
 def create_app():
@@ -78,4 +83,6 @@ def create_app():
     api.add_namespace(teachers_ns)
     api.add_namespace(school_ns)
     api.add_namespace(university_ns)
+    api.add_namespace(programs_ns)
+    api.add_namespace(service_info_ns)
     return app
