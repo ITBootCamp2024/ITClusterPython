@@ -3,7 +3,7 @@ from os import environ
 from dotenv import load_dotenv
 from flask import Flask, g, jsonify
 from flask_cors import CORS
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from project.extensions import api, db, migrate, pagination
 from project.models import (
@@ -56,6 +56,12 @@ def create_app():
         if db_session is not None:
             db_session.close()
         return response
+
+    @app.errorhandler(IntegrityError)
+    def handle_integrity_error(error):
+        if hasattr(g, "db"):
+            g.db.rollback()
+        return jsonify({"error": f"Integrity error occurred. {error}"}), 400
 
     @app.errorhandler(SQLAlchemyError)
     def handle_database_error(error):
