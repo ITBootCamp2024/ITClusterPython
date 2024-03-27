@@ -37,6 +37,7 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
     app.config["RESTX_VALIDATE"] = True
     app.config["RESTX_JSON"] = {"ensure_ascii": False}
+    app.config['DEBUG'] = True
 
     # Possible configurations for Paginate
     # app.config['PAGINATE_PAGE_SIZE'] = 20
