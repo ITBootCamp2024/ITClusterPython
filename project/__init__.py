@@ -1,8 +1,9 @@
 from os import environ
 
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, g, jsonify
 from flask_cors import CORS
+from sqlalchemy.exc import SQLAlchemyError
 
 from project.extensions import api, db, migrate, pagination
 from project.models import (
@@ -44,6 +45,23 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     pagination.init_app(app, db)
+
+    @app.before_request
+    def before_request():
+        g.db = db.session
+
+    @app.after_request
+    def after_request(response):
+        db_session = getattr(g, "db", None)
+        if db_session is not None:
+            db_session.close()
+        return response
+
+    @app.errorhandler(SQLAlchemyError)
+    def handle_database_error(error):
+        if hasattr(g, "db"):
+            g.db.rollback()
+        return jsonify({"error": f"Database error occurred. {error}"}), 500
 
     api.add_namespace(program_level_ns)
     api.add_namespace(course_blocks_ns)
