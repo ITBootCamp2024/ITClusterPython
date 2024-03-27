@@ -1,10 +1,10 @@
 from flask_restx import Resource, Namespace, abort
-from sqlalchemy.exc import IntegrityError
 
 from project.extensions import db, pagination
 from project.models import Program
 from project.schema import (
     program_model,
+    program_parser,
     pagination_parser,
     custom_schema_pagination,
     paginated_program_model
@@ -18,12 +18,25 @@ programs_ns = Namespace(name="programs", description="info about programs")
 class ProgramsList(Resource):
     """Shows a list of all programs, and lets you POST to add new program"""
 
-    @programs_ns.expect(pagination_parser)
+    @programs_ns.expect(pagination_parser, program_parser)
     @programs_ns.marshal_with(paginated_program_model)
     def get(self):
         """List all programs"""
+        parser = program_parser.parse_args()
+        specialty_id = parser.get("specialty_id")
+        university_id = parser.get("university_id")
+        level = parser.get("level")
+
+        programs = db.session.query(Program)
+        if specialty_id:
+            programs = programs.filter(Program.specialty_id == specialty_id)
+        if university_id:
+            programs = programs.filter(Program.university_id == university_id)
+        if level:
+            programs = programs.filter(Program.level == level)
+
         return pagination.paginate(
-            Program, program_model, pagination_schema_hook=custom_schema_pagination
+            programs, program_model, pagination_schema_hook=custom_schema_pagination
         )
 
     @programs_ns.expect(program_model, pagination_parser)
