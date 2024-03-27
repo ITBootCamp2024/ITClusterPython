@@ -45,7 +45,7 @@ def create_app():
     # app.config['PAGINATE_SIZE_PARAM'] = "pagesize"
     # app.config['PAGINATE_RESOURCE_LINKS_ENABLED'] = False
     app.config["PAGINATE_PAGINATION_OBJECT_KEY"] = None
-    # app.config['PAGINATE_DATA_OBJECT_KEY'] = "data"
+    app.config['PAGINATE_DATA_OBJECT_KEY'] = "content"
 
     api.init_app(app)
     db.init_app(app)
