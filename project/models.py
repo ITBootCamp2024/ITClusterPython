@@ -61,7 +61,7 @@ class University(db.Model):
 class School(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False, unique=True)
-    size: str = db.Column(db.Integer, nullable=False)
+    site: str = db.Column(db.String(100), nullable=False)
     description: str = db.Column(db.Text, nullable=False)
     contact: str = db.Column(db.String(100), nullable=False)
     university_id = db.Column(db.ForeignKey("university.id"))
