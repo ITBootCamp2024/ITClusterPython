@@ -90,29 +90,17 @@ teacher_model = api.model(
             required=True,
             description="The name of the teacher",
             min_length=1,
-            max_length=50,
+            max_length=100,
         ),
-        "role": fields.String(
+        "position": fields.String(
             required=True,
-            description="The role of the teacher",
+            description="The position of the teacher",
             min_length=1,
-            max_length=50,
-        ),
-        "status": fields.String(
-            required=True,
-            description="The status of the teacher",
-            min_length=0,
             max_length=100,
         ),
-        "email": fields.String(
+        "degree": fields.String(
             required=True,
-            description="The email of the teacher",
-            min_length=0,
-            max_length=100,
-        ),
-        "details": fields.String(
-            required=True,
-            description="The details of the teacher",
+            description="The teacher's degree",
             min_length=0,
             max_length=100,
         ),
@@ -126,8 +114,20 @@ teacher_model = api.model(
             required=True,
             description="Teacher's department",
             min_length=0,
-            max_length=45,
-        )
+            max_length=100,
+        ),
+        "email": fields.String(
+            required=True,
+            description="The teacher's email",
+            min_length=0,
+            max_length=100,
+        ),
+        "comments": fields.String(
+            required=True,
+            description="Some comments to the teacher",
+            min_length=0,
+            max_length=100,
+        ),
     },
 )
 
