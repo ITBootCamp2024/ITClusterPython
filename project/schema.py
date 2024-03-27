@@ -241,6 +241,18 @@ pagination_parser.add_argument(
 )
 
 
+program_parser = api.parser()
+program_parser.add_argument(
+    "specialty_id", type=int, required=False, default=0, help="Specialty ID"
+)
+program_parser.add_argument(
+    "university_id", type=int, required=False, default=0, help="University ID"
+)
+program_parser.add_argument(
+    "level", type=int, required=False, default=0, help="Level ID"
+)
+
+
 def custom_schema_pagination(current_page, page_obj):
     schema_pagination = {
         # "next": page_obj.has_next,
