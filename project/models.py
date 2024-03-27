@@ -40,13 +40,13 @@ class CourseGroupes(db.Model):
 class Teacher(db.Model):
     __tablename__ = "teachers"
     id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(50), nullable=False)
-    role: str = db.Column(db.String(50), nullable=False)
-    status: str = db.Column(db.String(100), nullable=False)
-    email: str = db.Column(db.String(100), nullable=False, unique=True)
-    details: str = db.Column(db.String(100), nullable=False)
+    name: str = db.Column(db.String(100), nullable=False)
+    position: str = db.Column(db.String(100), nullable=False)
+    degree: str = db.Column(db.String(100), nullable=False)
     university: str = db.Column(db.String(100), nullable=False)
-    department: str = db.Column(db.String(45), nullable=False)
+    department: str = db.Column(db.String(100), nullable=False)
+    email: str = db.Column(db.String(100), nullable=False, unique=True)
+    comments: str = db.Column(db.String(100), nullable=False)
 
 
 class University(db.Model):

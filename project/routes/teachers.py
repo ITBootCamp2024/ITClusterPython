@@ -27,20 +27,14 @@ class TeachersList(Resource):
         )
 
     @teachers_ns.response(400, "Email should be unique")
-    @teachers_ns.expect(teacher_model)
+    @teachers_ns.expect(teacher_model, pagination_parser)
     @teachers_ns.marshal_with(paginated_teacher_model)
     def post(self):
         """Adds a new teacher"""
         try:
-            teacher = Teacher(
-                name=teachers_ns.payload["name"],
-                role=teachers_ns.payload["role"],
-                status=teachers_ns.payload["status"],
-                email=teachers_ns.payload["email"],
-                details=teachers_ns.payload["details"],
-                university=teachers_ns.payload["university"],
-                department=teachers_ns.payload["department"],
-            )
+            teacher = Teacher()
+            for key, value in teachers_ns.payload.items():
+                setattr(teacher, key, value)
             db.session.add(teacher)
             db.session.commit()
         except IntegrityError:
