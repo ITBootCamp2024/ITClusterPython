@@ -1,4 +1,5 @@
 from flask_restx import Resource, Namespace, abort
+from sqlalchemy.exc import IntegrityError
 
 from project.extensions import db, pagination
 from project.models import Teacher
@@ -25,21 +26,26 @@ class TeachersList(Resource):
             Teacher, teacher_model, pagination_schema_hook=custom_schema_pagination
         )
 
+    @teachers_ns.response(400, "Email should be unique")
     @teachers_ns.expect(teacher_model)
     @teachers_ns.marshal_with(paginated_teacher_model)
     def post(self):
         """Adds a new teacher"""
-        teacher = Teacher(
-            name=teachers_ns.payload["name"],
-            role=teachers_ns.payload["role"],
-            status=teachers_ns.payload["status"],
-            email=teachers_ns.payload["email"],
-            details=teachers_ns.payload["details"],
-            university=teachers_ns.payload["university"],
-            department=teachers_ns.payload["department"],
-        )
-        db.session.add(teacher)
-        db.session.commit()
+        try:
+            teacher = Teacher(
+                name=teachers_ns.payload["name"],
+                role=teachers_ns.payload["role"],
+                status=teachers_ns.payload["status"],
+                email=teachers_ns.payload["email"],
+                details=teachers_ns.payload["details"],
+                university=teachers_ns.payload["university"],
+                department=teachers_ns.payload["department"],
+            )
+            db.session.add(teacher)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            abort(400, "Email should be unique")
         return pagination.paginate(
             Teacher, teacher_model, pagination_schema_hook=custom_schema_pagination
         )
@@ -63,19 +69,21 @@ class TeachersDetail(Resource):
         """Fetch the teacher with a given id"""
         return get_teacher_or_404(id)
 
-    @teachers_ns.expect(teacher_model, pagination_parser)
+    @teachers_ns.response(400, "Email should be unique")
+    @teachers_ns.expect(teacher_model, pagination_parser, validate=False)
     @teachers_ns.marshal_with(paginated_teacher_model)
     def patch(self, id):
         """Update the teacher with a given id"""
         teacher = get_teacher_or_404(id)
-        teacher.name = teachers_ns.payload["name"]
-        teacher.role = teachers_ns.payload["role"]
-        teacher.status = teachers_ns.payload["status"]
-        teacher.email = teachers_ns.payload["email"]
-        teacher.details = teachers_ns.payload["details"]
-        teacher.university = teachers_ns.payload["university"]
-        teacher.department = teachers_ns.payload["department"]
-        db.session.commit()
+        teacher_keys = teacher_model.keys()
+        try:
+            for key, value in teachers_ns.payload.items():
+                if key in teacher_keys:
+                    setattr(teacher, key, value)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            abort(400, "Email should be unique")
         return pagination.paginate(
             Teacher, teacher_model, pagination_schema_hook=custom_schema_pagination
         )
