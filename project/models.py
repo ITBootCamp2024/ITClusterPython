@@ -67,3 +67,21 @@ class School(db.Model):
     university_id = db.Column(db.ForeignKey("university.id"))
 
     university = db.relationship("University", back_populates="schools", cascade="all, delete")
+
+
+class Program(db.Model):
+    __tablename__ = "programs"
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(200), nullable=False)
+    specialty_id: int = db.Column(db.ForeignKey("specialty.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    program_link: str = db.Column(db.String(200), nullable=False)
+    university_id: int = db.Column(db.ForeignKey("university.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    level: int = db.Column(db.ForeignKey('programs_level.id', ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    garant: str = db.Column(db.String(100), nullable=False)
+    school_name: str = db.Column(db.String(200), nullable=False)
+    school_link: str = db.Column(db.String(200), nullable=False)
+    clabus_link: str = db.Column(db.String(200), nullable=False)
+
+    specialty = db.relationship(Specialty, backref="program_sp")
+    university = db.relationship(University, backref='program_un')
+    program_level = db.relationship(ProgramLevel, backref='program_pl')

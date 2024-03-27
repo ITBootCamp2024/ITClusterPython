@@ -167,6 +167,67 @@ school_model = api.model(
 )
 
 
+program_model = api.model(
+    "Program",
+    {
+        "id": fields.Integer(
+            readonly=True, description="The program's unique identifier"
+        ),
+        "name": fields.String(
+            required=True,
+            description="The name of the program",
+            min_length=1,
+            max_length=200,
+        ),
+        "specialty_id": fields.Integer(
+            required=True,
+            description="id of the specialty",
+            min=1
+        ),
+        "program_link": fields.String(
+            required=True,
+            description="The link to the program",
+            min_length=0,
+            max_length=200,
+        ),
+        "university_id": fields.Integer(
+            required=True,
+            description="id of the university",
+            min=1
+        ),
+        "level": fields.Integer(
+            required=True,
+            description="id of the level",
+            min=1
+        ),
+        "garant": fields.String(
+            required=True,
+            description="Garant's name",
+            min_length=0,
+            max_length=100,
+        ),
+        "school_name": fields.String(
+            required=True,
+            description="The name of the school",
+            min_length=0,
+            max_length=200,
+        ),
+        "school_link": fields.String(
+            required=True,
+            description="The school's link",
+            min_length=0,
+            max_length=200,
+        ),
+        "clabus_link": fields.String(
+            required=True,
+            description="The clabus's link",
+            min_length=0,
+            max_length=200,
+        )
+    }
+)
+
+
 pagination_parser = api.parser()
 pagination_parser.add_argument(
     "page", type=int, required=False, default=1, help="Page number"
@@ -184,14 +245,14 @@ def custom_schema_pagination(current_page, page_obj):
     schema_pagination = {
         # "next": page_obj.has_next,
         # "prev": page_obj.has_prev,
-        "current_page": current_page,
+        "pageNumber": current_page,
         # "pages": page_obj.pages,
         # "per_page": page_obj.per_page,
-        "total_records": page_obj.total,
+        "totalElements": page_obj.total,
     }
     page = re.search(r"page=(\d+)", current_page)
     if page:
-        schema_pagination["current_page"] = int(page.group(1))
+        schema_pagination["pageNumber"] = int(page.group(1))
     return schema_pagination
 
 
@@ -199,7 +260,7 @@ def get_pagination_schema_for(response_model: api.model):
     return api.model(
         f"Pagination({response_model.name})",
         {
-            "data": fields.List(fields.Nested(response_model)),
+            "content": fields.List(fields.Nested(response_model)),
             # "next": fields.String(
             #     requred=True,
             #     description="Link to the next page",
@@ -210,13 +271,13 @@ def get_pagination_schema_for(response_model: api.model):
             #     description="Link to the previous page",
             #     default='link/to/the/previous/page'
             # ),
-            "current_page": fields.Integer(
+            "pageNumber": fields.Integer(
                 required=True,
                 description="Current page number",
                 default=1),
             # "pages": fields.Integer(required=True, description="Total number of pages"),
             # "per_page": fields.Integer(required=True, description="Number of items per page"),
-            "total_records": fields.Integer(required=True, description="Total number of items"),
+            "totalElements": fields.Integer(required=True, description="Total number of items"),
         },
     )
 
@@ -225,3 +286,5 @@ paginated_specialty_model = get_pagination_schema_for(specialty_model)
 paginated_teacher_model = get_pagination_schema_for(teacher_model)
 paginated_university_model = get_pagination_schema_for(university_model)
 paginated_school_model = get_pagination_schema_for(school_model)
+paginated_program_model = get_pagination_schema_for(program_model)
+

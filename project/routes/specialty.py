@@ -43,6 +43,7 @@ class SpecialtyList(Resource):
             db.session.add(specialty)
             db.session.commit()
         except IntegrityError:
+            db.session.rollback()
             abort(400, "Specialty already exists")
         return pagination.paginate(
             Specialty, specialty_model, pagination_schema_hook=custom_schema_pagination
@@ -67,14 +68,21 @@ class SpecialtyDetail(Resource):
         """Fetch specialty with the given identifier"""
         return get_specialty_or_404(id)
 
-    @specialty_ns.expect(specialty_model, pagination_parser)
+    @specialty_ns.response(400, "Specialty already exists")
+    @specialty_ns.expect(specialty_model, pagination_parser, validate=False)
     @specialty_ns.marshal_with(paginated_specialty_model)
     def patch(self, id):
         """Update a specialty with the given identifier"""
         specialty = get_specialty_or_404(id)
-        specialty.name = specialty_ns.payload["name"]
-        specialty.link_standart = specialty_ns.payload["link_standart"]
-        db.session.commit()
+        specialty_keys = specialty_model.keys()
+        try:
+            for key, value in specialty_ns.payload.items():
+                if key in specialty_keys:
+                    setattr(specialty, key, value)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            abort(400, "Specialty already exists")
         return pagination.paginate(
             Specialty, specialty_model, pagination_schema_hook=custom_schema_pagination
         )

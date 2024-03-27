@@ -11,7 +11,7 @@ from project.models import CourseGroupes
 course_groupes_ns = Namespace(name="course_groupes", description="Course_groupes")
 
 
-@course_groupes_ns.route("/")
+@course_groupes_ns.route("")
 @course_groupes_ns.response(200, model=[course_groupes_model], description="Success")
 class CourseGroupesList(Resource):
     """Shows a list of all course_groupes, and lets you POST to add new program level"""
@@ -49,7 +49,7 @@ def get_course_groupes_or_404(id):
     return course_gp
 
 
-@course_groupes_ns.route("/<int:id>/")
+@course_groupes_ns.route("/<int:id>")
 @course_groupes_ns.response(200, model=[course_groupes_model], description="Success")
 @course_groupes_ns.response(404, "The course group not found")
 @course_groupes_ns.param("id", "The course group unique identifier")
