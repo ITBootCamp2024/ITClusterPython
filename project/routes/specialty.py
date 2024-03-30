@@ -10,7 +10,7 @@ from project.schema import (
     paginated_specialty_model
 )
 
-specialty_ns = Namespace(name="specialty", description="Specialties")
+specialty_ns = Namespace(name="specialties", description="Specialties")
 
 
 @specialty_ns.route("")
@@ -26,25 +26,14 @@ class SpecialtyList(Resource):
         )
 
     @specialty_ns.expect(specialty_model, pagination_parser)
-    @specialty_ns.response(400, "Specialty already exists")
     @specialty_ns.marshal_with(paginated_specialty_model)
     def post(self):
         """Create a new specialty"""
-        specialty_id = specialty_ns.payload["id"]
-        name = specialty_ns.payload["name"]
-        link_standart = specialty_ns.payload["link_standart"]
-        # TODO make link_standart verification as url
-        try:
-            specialty = Specialty(
-                id=specialty_id,
-                name=name,
-                link_standart=link_standart,
-            )
-            db.session.add(specialty)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            abort(400, "Specialty already exists")
+        specialty = Specialty()
+        for key, value in specialty_ns.payload.items():
+            setattr(specialty, key, value)
+        db.session.add(specialty)
+        db.session.commit()
         return pagination.paginate(
             Specialty, specialty_model, pagination_schema_hook=custom_schema_pagination
         )
@@ -68,21 +57,16 @@ class SpecialtyDetail(Resource):
         """Fetch specialty with the given identifier"""
         return get_specialty_or_404(id)
 
-    @specialty_ns.response(400, "Specialty already exists")
     @specialty_ns.expect(specialty_model, pagination_parser, validate=False)
     @specialty_ns.marshal_with(paginated_specialty_model)
     def patch(self, id):
         """Update a specialty with the given identifier"""
         specialty = get_specialty_or_404(id)
         specialty_keys = specialty_model.keys()
-        try:
-            for key, value in specialty_ns.payload.items():
-                if key in specialty_keys:
-                    setattr(specialty, key, value)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            abort(400, "Specialty already exists")
+        for key, value in specialty_ns.payload.items():
+            if key in specialty_keys:
+                setattr(specialty, key, value)
+        db.session.commit()
         return pagination.paginate(
             Specialty, specialty_model, pagination_schema_hook=custom_schema_pagination
         )
