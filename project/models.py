@@ -40,48 +40,71 @@ class CourseGroupes(db.Model):
 class Teacher(db.Model):
     __tablename__ = "teachers"
     id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(100), nullable=False)
-    position: str = db.Column(db.String(100), nullable=False)
-    degree: str = db.Column(db.String(100), nullable=False)
-    university: str = db.Column(db.String(100), nullable=False)
-    department: str = db.Column(db.String(100), nullable=False)
+    name: str = db.Column(db.String(50), nullable=False)
+    position_id: int = db.Column(db.ForeignKey("position.id"))
+    degree_id: int = db.Column(db.ForeignKey("degree.id"))
     email: str = db.Column(db.String(100), nullable=False, unique=True)
-    comments: str = db.Column(db.String(100), nullable=False)
+    department_id: int = db.Column(db.ForeignKey("department.id"))
+    comments: str = db.Column(db.Text)
+
+    position = db.relationship("Position", back_populates="teachers")
+    degree = db.relationship("Degree", back_populates="teachers")
+    department = db.relationship("Department", back_populates="teachers")
+
+    @property
+    def university(self):
+        return self.department.university if self.department else None
+
+
+class Position(db.Model):
+    __tablename__ = "position"
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(100), nullable=False)
+
+    teachers = db.relationship("Teacher", back_populates="position", cascade="all, delete")
+
+
+class Degree(db.Model):
+    __tablename__ = "degree"
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(45), nullable=False)
+
+    teachers = db.relationship("Teacher", back_populates="degree", cascade="all, delete")
 
 
 class University(db.Model):
+    __tablename__ = "university"
     id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(200), nullable=False, unique=True)
-    shortname: str = db.Column(db.String(20), nullable=False, unique=True)
-    sitelink: str = db.Column(db.String(100), nullable=False)
-    programs_list: str = db.Column(db.String(200), nullable=False)
-    schools = db.relationship("School", back_populates="university")
+    name: str = db.Column(db.String(100), nullable=False)
+    abbr: str = db.Column(db.String(45), nullable=False)
+    programs_list_url: str = db.Column(db.String(100), nullable=False)
+    url: str = db.Column(db.String(45), nullable=False)
+
+    department = db.relationship("Department", back_populates="university", cascade="all, delete")
 
 
-class School(db.Model):
+class Department(db.Model):
+    __tablename__ = "department"
     id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(100), nullable=False, unique=True)
-    site: str = db.Column(db.String(100), nullable=False)
-    description: str = db.Column(db.Text, nullable=False)
-    contact: str = db.Column(db.String(100), nullable=False)
-    university_id = db.Column(db.ForeignKey("university.id"))
+    name: str = db.Column(db.String(100), nullable=False)
+    university_id: int = db.Column(db.ForeignKey("university.id"))
+    description: str = db.Column(db.String(150), nullable=False)
+    address: str = db.Column(db.String(45), nullable=False)
+    email: str = db.Column(db.String(45), nullable=False)
+    phone: str = db.Column(db.String(45), nullable=False)
+    url: str = db.Column(db.String(45), nullable=False)
 
-    university = db.relationship("University", back_populates="schools", cascade="all, delete")
+    contacts = {
+        "address": address,
+        "email": email,
+        "phone": str(phone).split()
+    }
+
+    teachers = db.relationship("Teacher", back_populates="department", cascade="all, delete")
+    university = db.relationship("University", back_populates="department")
 
 
-class Program(db.Model):
-    __tablename__ = "programs"
+class EducationProgram(db.Model):
+    __tablename__ = "education_program"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(200), nullable=False)
-    specialty_id: int = db.Column(db.ForeignKey("specialty.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
-    program_link: str = db.Column(db.String(200), nullable=False)
-    university_id: int = db.Column(db.ForeignKey("university.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
-    level: int = db.Column(db.ForeignKey('programs_level.id', ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
-    garant: str = db.Column(db.String(100), nullable=False)
-    school_name: str = db.Column(db.String(200), nullable=False)
-    school_link: str = db.Column(db.String(200), nullable=False)
-    clabus_link: str = db.Column(db.String(200), nullable=False)
-
-    specialty = db.relationship(Specialty, backref="program_sp")
-    university = db.relationship(University, backref='program_un')
-    program_level = db.relationship(ProgramLevel, backref='program_pl')
