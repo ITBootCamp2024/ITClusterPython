@@ -9,9 +9,10 @@ class ProgramLevel(db.Model):
 
 class Specialty(db.Model):
     __tablename__ = "specialty"
-    id: int = db.Column(db.Integer, primary_key=True, autoincrement=False)
-    name: str = db.Column(db.String(200), nullable=False)
-    link_standart: str = db.Column(db.String(200), nullable=False)
+    id: int = db.Column(db.Integer, primary_key=True)
+    code: str = db.Column(db.String(45), nullable=False)
+    name: str = db.Column(db.String(100), nullable=False)
+    standard_url: str = db.Column(db.String(255))
 
 
 class CourseBlocks(db.Model):
@@ -94,11 +95,13 @@ class Department(db.Model):
     phone: str = db.Column(db.String(45), nullable=False)
     url: str = db.Column(db.String(45), nullable=False)
 
-    contacts = {
-        "address": address,
-        "email": email,
-        "phone": str(phone).split()
-    }
+    @property
+    def contacts(self):
+        return {
+            "address": self.address,
+            "email": self.email,
+            "phone": self.phone.split()
+        }
 
     teachers = db.relationship("Teacher", back_populates="department", cascade="all, delete")
     university = db.relationship("University", back_populates="department")
