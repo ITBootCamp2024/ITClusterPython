@@ -38,15 +38,15 @@ program_level_model = api.model(
     },
 )
 
-course_blocks_model = api.model(
-    "CourseBlocks",
+discipline_blocks_model = api.model(
+    "DisciplineBlock",
     {
-        "id": fields.Integer(readonly=True, description="The course unique identifier"),
+        "id": fields.Integer(readonly=True, description="The unique identifier of discipline block"),
         "name": fields.String(
-            required=True, description="The course name", min_length=1, max_length=100
+            required=True, description="The discipline block name", min_length=1, max_length=255
         ),
         "description": fields.String(
-            required=True, description="The course description"
+            description="The discipline block description"
         ),
     },
 )
@@ -382,8 +382,8 @@ def get_pagination_schema_for(response_model: api.model):
 paginated_specialty_model = get_pagination_schema_for(specialty_model)
 paginated_teacher_model = get_pagination_schema_for(teacher_model)
 paginated_university_model = get_pagination_schema_for(university_model)
-paginated_school_model = get_pagination_schema_for(school_model)
+paginated_school_model = get_pagination_schema_for(school_model)  # TODO delete this model
 paginated_program_model = get_pagination_schema_for(program_model)
 paginated_position_model = get_pagination_schema_for(position_model)
 paginated_degree_model = get_pagination_schema_for(degree_model)
-
+paginated_discipline_blocks_model = get_pagination_schema_for(discipline_blocks_model)
