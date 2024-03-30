@@ -55,19 +55,19 @@ class UniversitylList(Resource):
 
     @university_ns.expect(university_model)
     @university_ns.marshal_with(paginated_university_model)
-    @validate_site('http', ["url", "programs_list"])
+    @validate_site('http', ["url", "programs_list_url"])
     def post(self):
         """Create a new university"""
         university = University(name=university_ns.payload["name"],
                                 url=university_ns.payload["url"],
                                 abbr=university_ns.payload["abbr"],
-                                programs_list=university_ns.payload["programs_list"],
+                                programs_list_url=university_ns.payload["programs_list_url"],
                                 )
         try:
             db.session.add(university)
             db.session.commit()
         except IntegrityError:
-            abort(400, "Name/shortname should be unique")
+            abort(400, "Name/abbr should be unique")
         return pagination.paginate(
             University, university_model, pagination_schema_hook=custom_schema_pagination
         )
@@ -86,7 +86,7 @@ class UniversityDetail(Resource):
 
     @university_ns.expect(university_model, pagination_parser, validates=False)
     @university_ns.marshal_with(paginated_university_model)
-    @validate_site('http', ["url", "programs_list"])
+    @validate_site('http', ["url", "programs_list_url"])
     def patch(self, id: int) -> tuple:
         """Update a certain university"""
         university = get_uni_or_404(id)

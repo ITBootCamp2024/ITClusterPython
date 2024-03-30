@@ -143,7 +143,7 @@ university_model = api.model(
         "abbr": fields.String(description="University abbreviation",
                                    min_length=2, max_length=20,),
         "url": fields.String(description="University site"),
-        "programs_list": fields.String(description="Url for the list of programs")
+        "programs_list_url": fields.String(description="Url for the list of programs")
     },
 )
 
