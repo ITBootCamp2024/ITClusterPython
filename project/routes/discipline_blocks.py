@@ -55,7 +55,7 @@ def get_discipline_block_or_404(id):
 @discipline_blocks_ns.route("/<int:id>")
 # @discipline_blocks_ns.response(200, model=[discipline_blocks_model], description="Success")
 @discipline_blocks_ns.response(404, "Discipline block not found")
-@discipline_blocks_ns.param("id", "The course unique identifier")
+@discipline_blocks_ns.param("id", "The discipline block unique identifier")
 class DisciplineBlocksDetail(Resource):
     """Show a single discipline block and lets you delete them"""
 
