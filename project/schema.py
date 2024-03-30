@@ -140,9 +140,9 @@ university_model = api.model(
         ),
         "name": fields.String(description="The program level name",
                               min_length=5, max_length=100,),
-        "shortname": fields.String(description="University abbreviation",
+        "abbr": fields.String(description="University abbreviation",
                                    min_length=2, max_length=20,),
-        "sitelink": fields.String(description="University site"),
+        "url": fields.String(description="University site"),
         "programs_list": fields.String(description="Url for the list of programs")
     },
 )

@@ -9,15 +9,15 @@ from project.schema import (
     custom_schema_pagination,
     get_pagination_schema_for, paginated_school_model,
 )
-from project.models import School, University
+from project.models import Department, University
 
 school_ns = Namespace(
     name="schools", description="university's schools"
 )
 
 
-def get_school_or_404(id: int) -> School:
-    school = School.query.get(id)
+def get_school_or_404(id: int) -> Department:
+    school = Department.query.get(id)
     if not school:
         abort(404, "ID incorrect, school not found")
     return school
@@ -44,7 +44,7 @@ class SchoolList(Resource):
     def get(self):
         """List of all schools"""
         return pagination.paginate(
-            School, school_model, pagination_schema_hook=custom_schema_pagination
+            Department, school_model, pagination_schema_hook=custom_schema_pagination
         )
 
     @school_ns.expect(school_model)
@@ -53,7 +53,7 @@ class SchoolList(Resource):
     @validate_site('http', ["site"])
     def post(self) -> tuple:
         """Create a new school"""
-        school = School(name=school_ns.payload["name"],
+        school = Department(name=school_ns.payload["name"],
                         site=school_ns.payload["site"],
                         description=school_ns.payload["description"],
                         contact=school_ns.payload["contact"],
@@ -65,7 +65,7 @@ class SchoolList(Resource):
         except IntegrityError:
             abort(400, "Name should be unique")
         return pagination.paginate(
-            School, school_model, pagination_schema_hook=custom_schema_pagination
+            Department, school_model, pagination_schema_hook=custom_schema_pagination
         )
 
 
@@ -98,7 +98,7 @@ class SchoolDetail(Resource):
             db.session.rollback()
             abort(400, "Name should be unique")
         return pagination.paginate(
-            School, school_model, pagination_schema_hook=custom_schema_pagination
+            Department, school_model, pagination_schema_hook=custom_schema_pagination
         )
 
     @school_ns.expect(pagination_parser)
@@ -109,5 +109,5 @@ class SchoolDetail(Resource):
         db.session.delete(school)
         db.session.commit()
         return pagination.paginate(
-            School, school_model, pagination_schema_hook=custom_schema_pagination
+            Department, school_model, pagination_schema_hook=custom_schema_pagination
         )

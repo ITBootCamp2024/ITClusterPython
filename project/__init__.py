@@ -13,7 +13,7 @@ from project.models import (
     CourseStatuses,
     CourseGroupes,
     Teacher,
-    School,
+    Department,
     University,
     Program,
 )
