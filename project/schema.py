@@ -80,7 +80,40 @@ specialty_model = api.model(
     },
 )
 
-teacher_model = api.model(
+
+position_model = api.model(
+    "Position",
+    {
+        "id": fields.Integer(
+            readonly=True, description="Position unique identifier"
+        ),
+        "name": fields.String(
+            required=True,
+            description="Position name",
+            min_length=1,
+            max_length=100,
+        )
+    }
+)
+
+
+degree_model = api.model(
+    "Degree",
+    {
+        "id": fields.Integer(
+            readonly=True, description="Degree unique identifier"
+        ),
+        "name": fields.String(
+            required=True,
+            description="Degree name",
+            min_length=1,
+            max_length=45,
+        )
+    }
+)
+
+
+teacher_model = api.model(  # TODO: change model
     "Teacher",
     {
         "id": fields.Integer(
@@ -299,4 +332,6 @@ paginated_teacher_model = get_pagination_schema_for(teacher_model)
 paginated_university_model = get_pagination_schema_for(university_model)
 paginated_school_model = get_pagination_schema_for(school_model)
 paginated_program_model = get_pagination_schema_for(program_model)
+paginated_position_model = get_pagination_schema_for(position_model)
+paginated_degree_model = get_pagination_schema_for(degree_model)
 
