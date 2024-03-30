@@ -83,19 +83,22 @@ specialty_model = api.model(
     "Specialty",
     {
         "id": fields.Integer(
-            required=True, description="The specialty unique identifier", min=0, max=500
+            readonly=True, description="The specialty unique identifier"
+        ),
+        "code": fields.String(
+            required=True,
+            description="The code of the specialty",
+            max_length=45,
         ),
         "name": fields.String(
             required=True,
             description="The name of the specialty",
             min_length=1,
-            max_length=200,
+            max_length=100,
         ),
-        "link_standart": fields.String(
-            required=True,
+        "standard_url": fields.String(
             description="The link to the specialty",
-            min_length=0,
-            max_length=200,
+            max_length=255,
         ),
     },
 )
