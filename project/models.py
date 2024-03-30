@@ -75,7 +75,7 @@ class Degree(db.Model):
 class University(db.Model):
     __tablename__ = "university"
     id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(100), nullable=False)
+    name: str = db.Column(db.String(150), nullable=False)
     abbr: str = db.Column(db.String(45), nullable=False)
     programs_list_url: str = db.Column(db.String(100), nullable=False)
     url: str = db.Column(db.String(45), nullable=False)

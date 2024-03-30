@@ -3,6 +3,26 @@ import re
 from project.extensions import api
 from flask_restx import fields
 
+
+base_id_model = api.model(
+    "BaseID",
+    {
+        "id": fields.Integer(description="The unique identifier")
+    }
+)
+
+
+base_name_model = api.model(
+    "BaseName",
+    {
+        "name": fields.String(
+            required=True,
+            description="The name of the object",
+        )
+    }
+)
+
+
 program_level_model = api.model(
     "ProgramLevel",
     {
@@ -113,8 +133,40 @@ degree_model = api.model(
 )
 
 
-teacher_model = api.model(  # TODO: change model
-    "Teacher",
+short_university_model = api.model(
+    "ShortUniversity",
+    {
+        "id": fields.Integer(
+            readonly=True,
+            description="The unique identifier of the university",
+        ),
+        "name": fields.String(
+            required=True,
+            description="Name of the university",
+            min_length=5,
+            max_length=150,),
+    }
+)
+
+
+short_department_model = api.model(
+    "ShortDepartment",
+    {
+        "id": fields.Integer(
+            readonly=True,
+            description="The unique identifier of the department",
+        ),
+        "name": fields.String(
+            required=True,
+            description="Name of the department",
+            min_length=3,
+            max_length=100,),
+    }
+)
+
+
+base_teacher_model = api.model(
+    "BaseTeacher",
     {
         "id": fields.Integer(
             readonly=True, description="The teacher unique identifier"
@@ -123,30 +175,6 @@ teacher_model = api.model(  # TODO: change model
             required=True,
             description="The name of the teacher",
             min_length=1,
-            max_length=100,
-        ),
-        "position": fields.String(
-            required=True,
-            description="The position of the teacher",
-            min_length=1,
-            max_length=100,
-        ),
-        "degree": fields.String(
-            required=True,
-            description="The teacher's degree",
-            min_length=0,
-            max_length=100,
-        ),
-        "university": fields.String(
-            required=True,
-            description="Teacher's university",
-            min_length=0,
-            max_length=100,
-        ),
-        "department": fields.String(
-            required=True,
-            description="Teacher's department",
-            min_length=0,
             max_length=100,
         ),
         "email": fields.String(
@@ -158,10 +186,31 @@ teacher_model = api.model(  # TODO: change model
         "comments": fields.String(
             required=True,
             description="Some comments to the teacher",
-            min_length=0,
-            max_length=100,
-        ),
-    },
+            min_length=0
+        )
+    }
+)
+
+teacher_model = api.model(
+    "Teacher",
+    {
+        **base_teacher_model,
+        "position": fields.Nested(position_model),
+        "degree": fields.Nested(degree_model),
+        "university": fields.Nested(short_university_model),
+        "department": fields.Nested(short_department_model),
+    }
+)
+
+
+teacher_query_model = api.inherit(
+    "TeacherQuery",
+    {
+        **base_teacher_model,
+        "position": fields.Nested(base_id_model),
+        "degree": fields.Nested(base_id_model),
+        "department": fields.Nested(base_id_model)
+    }
 )
 
 
