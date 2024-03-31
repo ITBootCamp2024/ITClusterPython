@@ -61,6 +61,12 @@ class DisciplineGroup(db.Model):
     block = db.relationship("DisciplineBlock", back_populates="discipline_groups")
 
 
+class EducationLevel(db.Model):
+    __tablename__ = "education_levels"
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(45), nullable=False)
+
+
 class Position(db.Model):
     __tablename__ = "position"
     id: int = db.Column(db.Integer, primary_key=True)
