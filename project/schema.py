@@ -246,29 +246,29 @@ university_model = api.model(
         ),
         "name": fields.String(description="The program level name",
                               min_length=5, max_length=100,),
-        "shortname": fields.String(description="University abbreviation",
+        "abbr": fields.String(description="University abbreviation",
                                    min_length=2, max_length=20,),
-        "sitelink": fields.String(description="University site"),
-        "programs_list": fields.String(description="Url for the list of programs")
+        "programs_list_url": fields.String(description="Url for the list of programs"),
+        "url": fields.String(description="University site"),
     },
 )
 
 
-school_model = api.model(
+department_model = api.model(
     "school",
     {
         "id": fields.Integer(
             readonly=True, description="School ID"
         ),
         "name": fields.String(description="School name"),
-        "site": fields.String(required=False,  description="School site",
-                              min_length=10, max_length=100,),
+        "university_id": fields.Integer(description="Related University ID",
+                                        min_length=1),
         "description": fields.String(required=False, description="Brief description",
                                      min_length=20, max_length=400,),
+        "url": fields.String(required=False,  description="School site",
+                              min_length=10, max_length=100,),
         "contact": fields.String(required=False, description="School contacts",
                                  min_length=5, max_length=100,),
-        "university_id": fields.Integer(description="Related University ID",
-                                        min_length=1)
     },
 )
 
@@ -403,7 +403,7 @@ def get_pagination_schema_for(response_model: api.model):
 paginated_specialty_model = get_pagination_schema_for(specialty_model)
 paginated_teacher_model = get_pagination_schema_for(teacher_model)
 paginated_university_model = get_pagination_schema_for(university_model)
-paginated_school_model = get_pagination_schema_for(school_model)  # TODO delete this model
+paginated_school_model = get_pagination_schema_for(department_model)  # TODO delete this model
 paginated_program_model = get_pagination_schema_for(program_model)
 paginated_position_model = get_pagination_schema_for(position_model)
 paginated_degree_model = get_pagination_schema_for(degree_model)

@@ -6,7 +6,6 @@ from project.schema import (
     university_model,
     pagination_parser,
     custom_schema_pagination,
-    get_pagination_schema_for,
     paginated_university_model,
 )
 from project.models import University
@@ -40,19 +39,19 @@ class UniversitylList(Resource):
 
     @university_ns.expect(university_model)
     @university_ns.marshal_with(paginated_university_model)
-    @validate_site('http', ["sitelink", "programs_list"])
+    @validate_site('http', ["url", "programs_list_url"])
     def post(self):
         """Create a new university"""
         university = University(name=university_ns.payload["name"],
-                                sitelink=university_ns.payload["sitelink"],
-                                shortname=university_ns.payload["shortname"],
-                                programs_list=university_ns.payload["programs_list"],
+                                url=university_ns.payload["url"],
+                                abbr=university_ns.payload["abbr"],
+                                programs_list_url=university_ns.payload["programs_list_url"],
                                 )
         try:
             db.session.add(university)
             db.session.commit()
         except IntegrityError:
-            abort(400, "Name/shortname should be unique")
+            abort(400, "Name/abbr should be unique")
         return pagination.paginate(
             University, university_model, pagination_schema_hook=custom_schema_pagination
         )
@@ -71,7 +70,7 @@ class UniversityDetail(Resource):
 
     @university_ns.expect(university_model, pagination_parser, validates=False)
     @university_ns.marshal_with(paginated_university_model)
-    @validate_site('http', ["sitelink", "programs_list"])
+    @validate_site('http', ["url", "programs_list_url"])
     def patch(self, id: int) -> tuple:
         """Update a certain university"""
         university = get_uni_or_404(id)
@@ -85,7 +84,7 @@ class UniversityDetail(Resource):
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
-            abort(400, "Name/shortname should be unique")
+            abort(400, "Name/abbr should be unique")
         return pagination.paginate(
             University, university_model, pagination_schema_hook=custom_schema_pagination
         )
