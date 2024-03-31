@@ -1,12 +1,44 @@
 from project.extensions import db
 
 
-class Specialty(db.Model):
-    __tablename__ = "specialty"
+class Degree(db.Model):
+    __tablename__ = "degree"
     id: int = db.Column(db.Integer, primary_key=True)
-    code: str = db.Column(db.String(45), nullable=False)
+    name: str = db.Column(db.String(45), nullable=False)
+
+    teachers = db.relationship("Teacher", back_populates="degree", cascade="all, delete")
+
+
+class Department(db.Model):
+    __tablename__ = "department"
+    id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
-    standard_url: str = db.Column(db.String(255))
+    university_id: int = db.Column(db.ForeignKey("university.id"))
+    description: str = db.Column(db.Text, nullable=False)
+    address: str = db.Column(db.String(255), nullable=False)
+    email: str = db.Column(db.String(45), nullable=False)
+    phone: str = db.Column(db.String(45), nullable=False)
+    url: str = db.Column(db.String(255), nullable=False)
+
+    @property
+    def contacts(self):
+        return {
+            "address": self.address,
+            "email": self.email,
+            "phone": self.phone.split(", ")
+        }
+
+    @contacts.setter
+    def contacts(self, value):
+        if not value:
+            return
+        self.address = value.get("address") or self.address
+        self.email = value.get("email") or self.email
+        if value.get("phone") and isinstance(value.get("phone"), list):
+            self.phone = ", ".join(value.get("phone"))
+
+    teachers = db.relationship("Teacher", back_populates="department", cascade="all, delete")
+    university = db.relationship("University", back_populates="department")
 
 
 class DisciplineBlock(db.Model):
@@ -29,6 +61,22 @@ class DisciplineGroup(db.Model):
     block = db.relationship("DisciplineBlock", back_populates="discipline_groups")
 
 
+class Position(db.Model):
+    __tablename__ = "position"
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(100), nullable=False)
+
+    teachers = db.relationship("Teacher", back_populates="position", cascade="all, delete")
+
+
+class Specialty(db.Model):
+    __tablename__ = "specialty"
+    id: int = db.Column(db.Integer, primary_key=True)
+    code: str = db.Column(db.String(45), nullable=False)
+    name: str = db.Column(db.String(100), nullable=False)
+    standard_url: str = db.Column(db.String(255))
+
+
 class Teacher(db.Model):
     __tablename__ = "teachers"
     id: int = db.Column(db.Integer, primary_key=True)
@@ -48,22 +96,6 @@ class Teacher(db.Model):
         return self.department.university if self.department else None
 
 
-class Position(db.Model):
-    __tablename__ = "position"
-    id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(100), nullable=False)
-
-    teachers = db.relationship("Teacher", back_populates="position", cascade="all, delete")
-
-
-class Degree(db.Model):
-    __tablename__ = "degree"
-    id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(45), nullable=False)
-
-    teachers = db.relationship("Teacher", back_populates="degree", cascade="all, delete")
-
-
 class University(db.Model):
     __tablename__ = "university"
     id: int = db.Column(db.Integer, primary_key=True)
@@ -73,26 +105,3 @@ class University(db.Model):
     url: str = db.Column(db.String(255), nullable=False)
 
     department = db.relationship("Department", back_populates="university", cascade="all, delete")
-
-
-class Department(db.Model):
-    __tablename__ = "department"
-    id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(100), nullable=False)
-    university_id: int = db.Column(db.ForeignKey("university.id"))
-    description: str = db.Column(db.String(150), nullable=False)
-    address: str = db.Column(db.String(45), nullable=False)
-    email: str = db.Column(db.String(45), nullable=False)
-    phone: str = db.Column(db.String(45), nullable=False)
-    url: str = db.Column(db.String(45), nullable=False)
-
-    @property
-    def contacts(self):
-        return {
-            "address": self.address,
-            "email": self.email,
-            "phone": self.phone.split()
-        }
-
-    teachers = db.relationship("Teacher", back_populates="department", cascade="all, delete")
-    university = db.relationship("University", back_populates="department")
