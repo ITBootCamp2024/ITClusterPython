@@ -1,12 +1,6 @@
 from project.extensions import db
 
 
-class ProgramLevel(db.Model):
-    __tablename__ = "programs_level"
-    id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(100), nullable=False)
-
-
 class Specialty(db.Model):
     __tablename__ = "specialty"
     id: int = db.Column(db.Integer, primary_key=True)
@@ -75,8 +69,8 @@ class University(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(150), nullable=False)
     abbr: str = db.Column(db.String(45), nullable=False)
-    programs_list_url: str = db.Column(db.String(100), nullable=False)
-    url: str = db.Column(db.String(45), nullable=False)
+    programs_list_url: str = db.Column(db.String(255), nullable=False)
+    url: str = db.Column(db.String(255), nullable=False)
 
     department = db.relationship("Department", back_populates="university", cascade="all, delete")
 
@@ -102,9 +96,3 @@ class Department(db.Model):
 
     teachers = db.relationship("Teacher", back_populates="department", cascade="all, delete")
     university = db.relationship("University", back_populates="department")
-
-
-class EducationProgram(db.Model):
-    __tablename__ = "education_program"
-    id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(200), nullable=False)

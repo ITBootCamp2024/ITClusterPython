@@ -2,13 +2,9 @@ from flask_restx import Resource, Namespace, abort
 from sqlalchemy.exc import IntegrityError
 
 from project.extensions import db, pagination
-from project.schema import (
-    university_model,
-    pagination_parser,
-    custom_schema_pagination,
-    paginated_university_model,
-)
 from project.models import University
+from project.schemas.pagination import pagination_parser, custom_schema_pagination
+from project.schemas.universities import paginated_university_model, university_model
 from project.validators import validate_site
 
 university_ns = Namespace(
@@ -21,7 +17,6 @@ def get_uni_or_404(id):
     if not uni:
         abort(404, "Incorrect ID, not found")
     return uni
-
 
 
 @university_ns.route("")
@@ -51,6 +46,7 @@ class UniversitylList(Resource):
             db.session.add(university)
             db.session.commit()
         except IntegrityError:
+            db.rollback()
             abort(400, "Name/abbr should be unique")
         return pagination.paginate(
             University, university_model, pagination_schema_hook=custom_schema_pagination
@@ -58,7 +54,7 @@ class UniversitylList(Resource):
 
 
 @university_ns.route("/<int:id>")
-@university_ns.response(404, "University not found")
+@university_ns.response(404, "Incorrect ID, not found")
 @university_ns.param("id", "University  ID")
 class UniversityDetail(Resource):
     """Endpoints allow to retrieve detail info, updating and  deleting single university"""
@@ -68,7 +64,7 @@ class UniversityDetail(Resource):
         """Fetch a given University"""
         return get_uni_or_404(id)
 
-    @university_ns.expect(university_model, pagination_parser, validates=False)
+    @university_ns.expect(university_model, pagination_parser, validate=False)
     @university_ns.marshal_with(paginated_university_model)
     @validate_site('http', ["url", "programs_list_url"])
     def patch(self, id: int) -> tuple:

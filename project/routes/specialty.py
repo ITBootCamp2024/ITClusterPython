@@ -1,14 +1,9 @@
 from flask_restx import Resource, Namespace, abort
-from sqlalchemy.exc import IntegrityError
 
 from project.extensions import db, pagination
 from project.models import Specialty
-from project.schema import (
-    specialty_model,
-    pagination_parser,
-    custom_schema_pagination,
-    paginated_specialty_model
-)
+from project.schemas.pagination import pagination_parser, custom_schema_pagination
+from project.schemas.specialty import paginated_specialty_model, specialty_model
 
 specialty_ns = Namespace(name="specialties", description="Specialties")
 
