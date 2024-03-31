@@ -1,16 +1,9 @@
 from flask_restx import Resource, Namespace, abort
-from sqlalchemy.exc import IntegrityError
 
 from project.extensions import db, pagination
 from project.models import Teacher
-from project.schema import (
-    teacher_model,
-    teacher_query_model,
-    pagination_parser,
-    custom_schema_pagination,
-    paginated_teacher_model,
-)
-
+from project.schemas.pagination import pagination_parser, custom_schema_pagination
+from project.schemas.teachers import paginated_teacher_model, teacher_model, teacher_query_model
 
 teachers_ns = Namespace(name="teachers", description="info about teachers")
 
@@ -27,7 +20,6 @@ class TeachersList(Resource):
             Teacher, teacher_model, pagination_schema_hook=custom_schema_pagination
         )
 
-    @teachers_ns.response(400, "Email should be unique")
     @teachers_ns.expect(teacher_query_model, pagination_parser)
     @teachers_ns.marshal_with(paginated_teacher_model)
     def post(self):
@@ -40,12 +32,8 @@ class TeachersList(Resource):
                 setattr(teacher, key, value)
             elif key in nested_ids:
                 setattr(teacher, key + "_id", value.get("id"))
-        try:
-            db.session.add(teacher)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            abort(400, "Email should be unique")
+        db.session.add(teacher)
+        db.session.commit()
         return pagination.paginate(
             Teacher, teacher_model, pagination_schema_hook=custom_schema_pagination
         )
@@ -69,7 +57,6 @@ class TeachersDetail(Resource):
         """Fetch the teacher with a given id"""
         return get_teacher_or_404(id)
 
-    @teachers_ns.response(400, "Email should be unique")
     @teachers_ns.expect(teacher_query_model, pagination_parser, validate=False)
     @teachers_ns.marshal_with(paginated_teacher_model)
     def patch(self, id):

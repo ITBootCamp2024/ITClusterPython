@@ -1,14 +1,12 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db, pagination
-from project.schema import (
-    discipline_groups_model,
-    discipline_groups_query_model,
-    pagination_parser,
-    custom_schema_pagination,
-    paginated_discipline_groups_model,
-)
 from project.models import DisciplineGroup
+from project.schemas.discipline_groups import (
+    paginated_discipline_groups_model,
+    discipline_groups_model,
+    discipline_groups_query_model)
+from project.schemas.pagination import pagination_parser, custom_schema_pagination
 
 discipline_groups_ns = Namespace(name="discipline-groups", description="Discipline groups")
 
