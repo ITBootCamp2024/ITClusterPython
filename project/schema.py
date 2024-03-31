@@ -7,7 +7,7 @@ from flask_restx import fields
 base_id_model = api.model(
     "BaseID",
     {
-        "id": fields.Integer(description="The unique identifier")
+        "id": fields.Integer(description="The unique identifier", required=True, default=1),
     }
 )
 
@@ -38,18 +38,28 @@ program_level_model = api.model(
     },
 )
 
-discipline_blocks_model = api.model(
-    "DisciplineBlock",
+
+short_discipline_blocks_model = api.model(
+    "ShortDisciplineBlocks",
     {
         "id": fields.Integer(readonly=True, description="The unique identifier of discipline block"),
         "name": fields.String(
             required=True, description="The discipline block name", min_length=1, max_length=255
         ),
+    }
+)
+
+
+discipline_blocks_model = api.model(
+    "DisciplineBlock",
+    {
+        **short_discipline_blocks_model,
         "description": fields.String(
             description="The discipline block description"
         ),
     },
 )
+
 
 course_statuses_model = api.model(
     "CourseStatuses",
@@ -62,22 +72,45 @@ course_statuses_model = api.model(
     },
 )
 
-course_groupes_model = api.model(
-    "CourseGroupes",
+
+base_discipline_groups_model = api.model(
+    "BaseDisciplineGroups",
     {
         "id": fields.Integer(
-            readonly=True, description="The course_group unique identifier"
+            readonly=True, description="The unique identifier of discipline group"
         ),
         "name": fields.String(
             required=True,
-            description="The course_group name",
+            description="The discipline group name",
             min_length=1,
             max_length=100,
         ),
-        "description": fields.String(description="The course_group description"),
-        "type_id": fields.Integer(min=1),
+        "description": fields.String(description="The discipline group description"),
+        "discipline_url": fields.String(
+            description="The link to the discipline group",
+            max_length=255
+        )
+    }
+)
+
+
+discipline_groups_model = api.model(
+    "DisciplineGroup",
+    {
+        **base_discipline_groups_model,
+        "block": fields.Nested(short_discipline_blocks_model)
     },
 )
+
+
+discipline_groups_query_model = api.model(
+    "DisciplineGroupsQuery",
+    {
+        **base_discipline_groups_model,
+        "block": fields.Nested(base_id_model, required=True)
+    }
+)
+
 
 specialty_model = api.model(
     "Specialty",
@@ -210,9 +243,9 @@ teacher_query_model = api.inherit(
     "TeacherQuery",
     {
         **base_teacher_model,
-        "position": fields.Nested(base_id_model),
-        "degree": fields.Nested(base_id_model),
-        "department": fields.Nested(base_id_model)
+        "position": fields.Nested(base_id_model, required=True),
+        "degree": fields.Nested(base_id_model, required=True),
+        "department": fields.Nested(base_id_model, required=True)
     }
 )
 
@@ -387,3 +420,4 @@ paginated_program_model = get_pagination_schema_for(program_model)
 paginated_position_model = get_pagination_schema_for(position_model)
 paginated_degree_model = get_pagination_schema_for(degree_model)
 paginated_discipline_blocks_model = get_pagination_schema_for(discipline_blocks_model)
+paginated_discipline_groups_model = get_pagination_schema_for(discipline_groups_model)

@@ -21,6 +21,8 @@ class DisciplineBlock(db.Model):
     name: str = db.Column(db.String(255), nullable=False)
     description: str = db.Column(db.Text)
 
+    discipline_groups = db.relationship("DisciplineGroup", back_populates="block", cascade="all, delete")
+
 
 class CourseStatuses(db.Model):
     __tablename__ = "course_statuses"
@@ -29,13 +31,15 @@ class CourseStatuses(db.Model):
     description: str = db.Column(db.Text, nullable=False)
 
 
-class CourseGroupes(db.Model):
-    __tablename__ = "course_groupes"
+class DisciplineGroup(db.Model):
+    __tablename__ = "discipline_groups"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
-    description: str = db.Column(db.Text, nullable=False)
-    # TODO: Дописати зв'язок
-    type_id: int = db.Column(db.Integer, nullable=False)
+    description: str = db.Column(db.Text)
+    block_id: int = db.Column(db.ForeignKey("discipline_blocks.id"))
+    discipline_url: str = db.Column(db.String(255))
+
+    block = db.relationship("DisciplineBlock", back_populates="discipline_groups")
 
 
 class Teacher(db.Model):
