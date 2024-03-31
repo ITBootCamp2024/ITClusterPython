@@ -1,17 +1,16 @@
-from flask import request
 from flask_restx import Resource, Namespace, abort
 from sqlalchemy.exc import IntegrityError
-from typing_extensions import Optional, Union, List
 
 from project.extensions import db, pagination
 from project.schema import (
     university_model,
     pagination_parser,
     custom_schema_pagination,
-    get_pagination_schema_for, paginated_university_model,
+    get_pagination_schema_for,
+    paginated_university_model,
 )
 from project.models import University
-
+from project.validators import validate_site
 
 university_ns = Namespace(
     name="universities", description="university with appropriate programs"
@@ -24,20 +23,6 @@ def get_uni_or_404(id):
         abort(404, "Incorrect ID, not found")
     return uni
 
-
-def validate_site(value: Union[str, None], parametres: Union[List[str], None],):
-    """Decorator to validate if a parameter starts with a specified value."""
-    def decorator(f):
-        def decorated_function(*args, **kwargs):
-            for n in parametres:
-                param_value = request.json.get(n)
-                if not param_value:
-                    return f(*args, **kwargs)
-                if not param_value.startswith(value):
-                    abort(400, f"Invalid {n}. It must start with '{value}'.")
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
 
 
 @university_ns.route("")
