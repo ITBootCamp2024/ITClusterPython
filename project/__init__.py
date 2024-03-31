@@ -9,24 +9,24 @@ from project.extensions import api, db, migrate, pagination
 from project.models import (
     ProgramLevel,
     Specialty,
-    CourseBlocks,
-    CourseStatuses,
-    CourseGroupes,
+    DisciplineBlock,
+    DisciplineGroup,
     Teacher,
     Department,
     University,
-    Program,
+    EducationProgram,
+    Position,
+    Degree,
 )
-from project.routes.course_blocks import course_blocks_ns
-from project.routes.course_groupes import course_groupes_ns
+from project.routes.discipline_blocks import discipline_blocks_ns
+from project.routes.discipline_groupes import discipline_groups_ns
 from project.routes.programs_levels import program_level_ns
 from project.routes.service_info import service_info_ns
 from project.routes.specialty import specialty_ns
-from project.routes.сourse_statuses import course_statuses_ns
 from project.routes.teachers import teachers_ns
-from project.routes.schools import school_ns
 from project.routes.universities import university_ns
-from project.routes.programs import programs_ns
+from project.routes.position import position_ns
+from project.routes.degree import degree_ns
 
 
 def create_app():
@@ -77,14 +77,13 @@ def create_app():
         return jsonify({"error": f"Database error occurred. {error}"}), 500
 
     api.add_namespace(program_level_ns)
-    api.add_namespace(course_blocks_ns)
-    api.add_namespace(course_statuses_ns)
-    api.add_namespace(course_groupes_ns)
+    api.add_namespace(discipline_blocks_ns)
+    api.add_namespace(discipline_groups_ns)
     api.add_namespace(specialty_ns)
     api.add_namespace(teachers_ns)
     api.add_namespace(teachers_ns)
-    api.add_namespace(school_ns)
     api.add_namespace(university_ns)
-    api.add_namespace(programs_ns)
     api.add_namespace(service_info_ns)
+    api.add_namespace(position_ns)
+    api.add_namespace(degree_ns)
     return app
