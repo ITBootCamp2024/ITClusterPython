@@ -14,7 +14,9 @@ short_university_model = api.model(
             required=True,
             description="Name of the university",
             min_length=3,
-            max_length=150,),
+            max_length=150,
+            default="university name"
+        )
     }
 )
 
@@ -28,16 +30,19 @@ university_model = api.model(
             description="University abbreviation",
             min_length=1,
             max_length=45,
+            default="ABBR"
         ),
         "programs_list_url": fields.String(
             required=True,
             description="Url for the list of programs",
-            max_length=255
+            max_length=255,
+            default="http://programs-list-url"
         ),
         "url": fields.String(
             required=True,
             description="University site",
-            max_length=255
+            max_length=255,
+            default="http://example.com"
         )
     }
 )

@@ -1,65 +1,76 @@
 from flask_restx import fields
 
 from project.extensions import api
+from project.schemas.departments import short_department_model_with_url
+from project.schemas.education_levels import education_level_model
+from project.schemas.general import base_id_model
 from project.schemas.pagination import get_pagination_schema_for
+from project.schemas.specialty import short_specialty_model
+from project.schemas.universities import short_university_model
 
-program_model = api.model(
-    "Program",
+short_education_program_model = api.model(
+    "ShortEducationProgram",
     {
         "id": fields.Integer(
-            readonly=True, description="The program's unique identifier"
+            readonly=True,
+            description="Unique identifier of the education program"
         ),
         "name": fields.String(
             required=True,
-            description="The name of the program",
-            min_length=1,
-            max_length=200,
-        ),
-        "specialty_id": fields.Integer(
-            required=True,
-            description="id of the specialty",
-            min=1
-        ),
-        "program_link": fields.String(
-            required=True,
-            description="The link to the program",
-            min_length=0,
-            max_length=200,
-        ),
-        "university_id": fields.Integer(
-            required=True,
-            description="id of the university",
-            min=1
-        ),
-        "level": fields.Integer(
-            required=True,
-            description="id of the level",
-            min=1
-        ),
-        "garant": fields.String(
-            required=True,
-            description="Garant's name",
-            min_length=0,
+            description="Education program name",
+            min_length=2,
             max_length=100,
+            default="education program name"
         ),
-        "school_name": fields.String(
+        "program_url": fields.String(
             required=True,
-            description="The name of the school",
-            min_length=0,
-            max_length=200,
-        ),
-        "school_link": fields.String(
-            required=True,
-            description="The school's link",
-            min_length=0,
-            max_length=200,
-        ),
-        "clabus_link": fields.String(
-            required=True,
-            description="The clabus's link",
-            min_length=0,
-            max_length=200,
+            description="Education program url",
+            max_length=255,
+            default="http://education-program.url"
         )
+    }
+)
+
+
+base_education_program_model = api.model(
+    "BaseEducationProgram",
+    {
+        **short_education_program_model,
+        "guarantor": fields.String(
+            required=True,
+            description="Guarantor name",
+            max_length=100,
+            default="guarantor name"
+        ),
+        "syllabus_url": fields.String(
+            required=True,
+            description="Syllabus url",
+            max_length=255,
+            default="http://syllabus-url"
+        )
+    }
+)
+
+
+education_program_model = api.model(
+    "EducationProgram",
+    {
+        **base_education_program_model,
+        "specialty": fields.Nested(short_specialty_model, required=True),
+        "university": fields.Nested(short_university_model, required=True),
+        "education_level": fields.Nested(education_level_model, required=True),
+        "department": fields.Nested(short_department_model_with_url, required=True)
+    }
+)
+
+
+education_program_query_model = api.model(
+    "EducationProgramQuery",
+    {
+        **base_education_program_model,
+        "specialty": fields.Nested(base_id_model, required=True),
+        "education_level": fields.Nested(base_id_model, required=True),
+        "department": fields.Nested(base_id_model, required=True)
     }
 )
 
@@ -76,5 +87,4 @@ program_parser.add_argument(
 )
 
 
-paginated_program_model = get_pagination_schema_for(program_model)
-
+paginated_education_program_model = get_pagination_schema_for(education_program_model)

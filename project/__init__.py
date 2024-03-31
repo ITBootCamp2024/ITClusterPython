@@ -12,6 +12,7 @@ from project.models import (
     DisciplineBlock,
     DisciplineGroup,
     EducationLevel,
+    EducationProgram,
     Position,
     Specialty,
     Teacher,
@@ -22,6 +23,7 @@ from project.routes.departments import departments_ns
 from project.routes.discipline_blocks import discipline_blocks_ns
 from project.routes.discipline_groups import discipline_groups_ns
 from project.routes.education_levels import education_levels_ns
+from project.routes.education_programs import education_programs_ns
 from project.routes.position import position_ns
 from project.routes.service_info import service_info_ns
 from project.routes.specialty import specialty_ns
@@ -81,6 +83,7 @@ def create_app():
     api.add_namespace(discipline_blocks_ns)
     api.add_namespace(discipline_groups_ns)
     api.add_namespace(education_levels_ns)
+    api.add_namespace(education_programs_ns)
     api.add_namespace(position_ns)
     api.add_namespace(service_info_ns)
     api.add_namespace(specialty_ns)
