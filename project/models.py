@@ -24,13 +24,6 @@ class DisciplineBlock(db.Model):
     discipline_groups = db.relationship("DisciplineGroup", back_populates="block", cascade="all, delete")
 
 
-class CourseStatuses(db.Model):
-    __tablename__ = "course_statuses"
-    id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(100), nullable=False)
-    description: str = db.Column(db.Text, nullable=False)
-
-
 class DisciplineGroup(db.Model):
     __tablename__ = "discipline_groups"
     id: int = db.Column(db.Integer, primary_key=True)
