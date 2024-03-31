@@ -54,8 +54,8 @@ class University(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(150), nullable=False)
     abbr: str = db.Column(db.String(45), nullable=False)
-    url: str = db.Column(db.String(255), nullable=False)
     programs_list_url: str = db.Column(db.String(255))
+    url: str = db.Column(db.String(255), nullable=False)
 
     departments = db.relationship("Department", back_populates="university")
 
@@ -63,12 +63,12 @@ class University(db.Model):
 class Department(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
-    url: str = db.Column(db.String(100), nullable=False)
+    university_id = db.Column(db.ForeignKey("university.id", ondelete="CASCADE", onupdate="CASCADE"))
     description: str = db.Column(db.Text, nullable=False)
     address: str = db.Column(db.String(255), nullable=False)
     email: str = db.Column(db.String(45), nullable=False)
     phone: str = db.Column(db.String(45), nullable=False)
-    university_id = db.Column(db.ForeignKey("university.id", ondelete="CASCADE", onupdate="CASCADE"))
+    url: str = db.Column(db.String(100), nullable=False)
 
     university = db.relationship("University", back_populates="departments", cascade="all, delete")
 

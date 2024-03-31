@@ -142,27 +142,27 @@ university_model = api.model(
                               min_length=5, max_length=100,),
         "abbr": fields.String(description="University abbreviation",
                                    min_length=2, max_length=20,),
+        "programs_list_url": fields.String(description="Url for the list of programs"),
         "url": fields.String(description="University site"),
-        "programs_list_url": fields.String(description="Url for the list of programs")
     },
 )
 
 
-school_model = api.model(
+department_model = api.model(
     "school",
     {
         "id": fields.Integer(
             readonly=True, description="School ID"
         ),
         "name": fields.String(description="School name"),
-        "site": fields.String(required=False,  description="School site",
-                              min_length=10, max_length=100,),
+        "university_id": fields.Integer(description="Related University ID",
+                                        min_length=1),
         "description": fields.String(required=False, description="Brief description",
                                      min_length=20, max_length=400,),
+        "url": fields.String(required=False,  description="School site",
+                              min_length=10, max_length=100,),
         "contact": fields.String(required=False, description="School contacts",
                                  min_length=5, max_length=100,),
-        "university_id": fields.Integer(description="Related University ID",
-                                        min_length=1)
     },
 )
 
