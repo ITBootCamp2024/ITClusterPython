@@ -1,6 +1,37 @@
 from flask_restx import fields
 
 from project.extensions import api
+from project.schemas.general import base_id_model
+from project.schemas.pagination import get_pagination_schema_for
+from project.schemas.universities import short_university_model
+
+
+contacts_model = api.model(
+    "Contacts",
+    {
+        "address": fields.String(
+            required=True,
+            description="department address",
+            max_length=255,
+            default="address"
+        ),
+        "email": fields.String(
+            required=True,
+            description="email of the department",
+            max_length=45,
+            default="email@email.com"
+        ),
+        "phone": fields.List(
+            fields.String(
+                required=True,
+                description="phone number of the department",
+                max_length=45,
+                default="+00(000)000-00-00"
+            ),
+            required=True
+        )
+    }
+)
 
 
 short_department_model = api.model(
@@ -13,25 +44,50 @@ short_department_model = api.model(
         "name": fields.String(
             required=True,
             description="Name of the department",
-            min_length=3,
-            max_length=100,),
+            min_length=2,
+            max_length=100,
+            default="name"
+        ),
     }
 )
 
-department_model = api.model(
-    "school",
+
+base_department_model = api.model(
+    "BaseDepartment",
     {
-        "id": fields.Integer(
-            readonly=True, description="School ID"
+        **short_department_model,
+        "description": fields.String(
+            required=True,
+            description="description of the department",
+            default="description"
         ),
-        "name": fields.String(description="School name"),
-        "university_id": fields.Integer(description="Related University ID",
-                                        min_length=1),
-        "description": fields.String(required=False, description="Brief description",
-                                     min_length=20, max_length=400,),
-        "url": fields.String(required=False,  description="School site",
-                              min_length=10, max_length=100,),
-        "contact": fields.String(required=False, description="School contacts",
-                                 min_length=5, max_length=100,),
-    },
+        "contacts": fields.Nested(contacts_model, required=True),
+        "url": fields.String(
+            required=True,
+            description="link to the department",
+            max_length=255,
+            default="http://example.com"
+        )
+    }
 )
+
+
+department_model = api.model(
+    "Department",
+    {
+        **base_department_model,
+        "university": fields.Nested(short_university_model, required=True),
+    }
+)
+
+
+department_query_model = api.model(
+    "DepartmentQuery",
+    {
+        **base_department_model,
+        "university": fields.Nested(base_id_model, required=True)
+    }
+)
+
+
+paginated_department_model = get_pagination_schema_for(department_model)
