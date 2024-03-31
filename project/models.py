@@ -112,8 +112,8 @@ class Teacher(db.Model):
     __tablename__ = "teachers"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(50), nullable=False)
-    position_id: int = db.Column(db.ForeignKey("position.id"), nullable=True)
-    degree_id: int = db.Column(db.ForeignKey("degree.id"), nullable=True)
+    position_id: int = db.Column(db.ForeignKey("position.id"), nullable=False)
+    degree_id: int = db.Column(db.ForeignKey("degree.id"), nullable=False)
     email: str = db.Column(db.String(100), nullable=False, unique=True)
     department_id: int = db.Column(db.ForeignKey("department.id"))
     comments: str = db.Column(db.Text)
