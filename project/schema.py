@@ -61,18 +61,6 @@ discipline_blocks_model = api.model(
 )
 
 
-course_statuses_model = api.model(
-    "CourseStatuses",
-    {
-        "id": fields.Integer(readonly=True, description="The status unique identifier"),
-        "name": fields.String(
-            required=True, description="The status name", min_length=1, max_length=100
-        ),
-        "description": fields.String(description="The status description"),
-    },
-)
-
-
 base_discipline_groups_model = api.model(
     "BaseDisciplineGroups",
     {
