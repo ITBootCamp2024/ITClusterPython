@@ -52,22 +52,30 @@ short_department_model = api.model(
 )
 
 
-base_department_model = api.model(
-    "BaseDepartment",
+short_department_model_with_url = api.model(
+    "ShortDepartmentWithUrl",
     {
         **short_department_model,
-        "description": fields.String(
-            required=True,
-            description="description of the department",
-            default="description"
-        ),
-        "contacts": fields.Nested(contacts_model, required=True),
         "url": fields.String(
             required=True,
             description="link to the department",
             max_length=255,
             default="http://example.com"
         )
+    }
+)
+
+
+base_department_model = api.model(
+    "BaseDepartment",
+    {
+        **short_department_model_with_url,
+        "description": fields.String(
+            required=True,
+            description="description of the department",
+            default="description"
+        ),
+        "contacts": fields.Nested(contacts_model, required=True),
     }
 )
 

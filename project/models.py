@@ -37,6 +37,7 @@ class Department(db.Model):
         if value.get("phone") and isinstance(value.get("phone"), list):
             self.phone = ", ".join(value.get("phone"))
 
+    education_programs = db.relationship("EducationProgram", back_populates="department", cascade="all, delete")
     teachers = db.relationship("Teacher", back_populates="department", cascade="all, delete")
     university = db.relationship("University", back_populates="department")
 
@@ -66,6 +67,28 @@ class EducationLevel(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(45), nullable=False)
 
+    education_programs = db.relationship("EducationProgram", back_populates="education_level", cascade="all, delete")
+
+
+class EducationProgram(db.Model):
+    __tablename__ = "education_programs"
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(255), nullable=False)
+    education_level_id: int = db.Column(db.ForeignKey("education_levels.id"), nullable=True)
+    guarantor: str = db.Column(db.String(100), nullable=False)
+    department_id: int = db.Column(db.ForeignKey("department.id"), nullable=True)
+    program_url: str = db.Column(db.String(255), nullable=False)
+    syllabus_url: str = db.Column(db.String(255), nullable=False)
+    specialty_id: str = db.Column(db.ForeignKey("specialty.id"), nullable=True)
+
+    education_level = db.relationship("EducationLevel", back_populates="education_programs")
+    department = db.relationship("Department", back_populates="education_programs")
+    specialty = db.relationship("Specialty", back_populates="education_programs")
+
+    @property
+    def university(self):
+        return self.department.university if self.department else None
+
 
 class Position(db.Model):
     __tablename__ = "position"
@@ -82,13 +105,15 @@ class Specialty(db.Model):
     name: str = db.Column(db.String(100), nullable=False)
     standard_url: str = db.Column(db.String(255))
 
+    education_programs = db.relationship("EducationProgram", back_populates="specialty", cascade="all, delete")
+
 
 class Teacher(db.Model):
     __tablename__ = "teachers"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(50), nullable=False)
-    position_id: int = db.Column(db.ForeignKey("position.id"))
-    degree_id: int = db.Column(db.ForeignKey("degree.id"))
+    position_id: int = db.Column(db.ForeignKey("position.id"), nullable=True)
+    degree_id: int = db.Column(db.ForeignKey("degree.id"), nullable=True)
     email: str = db.Column(db.String(100), nullable=False, unique=True)
     department_id: int = db.Column(db.ForeignKey("department.id"))
     comments: str = db.Column(db.Text)
