@@ -15,11 +15,11 @@ class Specialty(db.Model):
     standard_url: str = db.Column(db.String(255))
 
 
-class CourseBlocks(db.Model):
-    __tablename__ = "course_blocks"
+class DisciplineBlock(db.Model):
+    __tablename__ = "discipline_blocks"
     id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(100), nullable=False)
-    description: str = db.Column(db.Text, nullable=False)
+    name: str = db.Column(db.String(255), nullable=False)
+    description: str = db.Column(db.Text)
 
 
 class CourseStatuses(db.Model):
