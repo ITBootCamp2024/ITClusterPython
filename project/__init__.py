@@ -9,7 +9,7 @@ from project.extensions import api, db, migrate, pagination
 from project.models import (
     ProgramLevel,
     Specialty,
-    CourseBlocks,
+    DisciplineBlock,
     CourseStatuses,
     CourseGroupes,
     Teacher,
@@ -19,7 +19,7 @@ from project.models import (
     Position,
     Degree,
 )
-from project.routes.course_blocks import course_blocks_ns
+from project.routes.discipline_blocks import discipline_blocks_ns
 from project.routes.course_groupes import course_groupes_ns
 from project.routes.programs_levels import program_level_ns
 from project.routes.service_info import service_info_ns
@@ -79,7 +79,7 @@ def create_app():
         return jsonify({"error": f"Database error occurred. {error}"}), 500
 
     api.add_namespace(program_level_ns)
-    api.add_namespace(course_blocks_ns)
+    api.add_namespace(discipline_blocks_ns)
     api.add_namespace(course_statuses_ns)
     api.add_namespace(course_groupes_ns)
     api.add_namespace(specialty_ns)
