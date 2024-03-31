@@ -9,7 +9,6 @@ from project.schema import (
     pagination_parser,
     custom_schema_pagination,
     paginated_teacher_model,
-    base_name_model
 )
 
 
@@ -34,12 +33,13 @@ class TeachersList(Resource):
     def post(self):
         """Adds a new teacher"""
         teacher = Teacher()
-        teacher.name = teachers_ns.payload.get("name")
-        teacher.position_id = teachers_ns.payload.get("position").get("id")
-        teacher.degree_id = teachers_ns.payload.get("degree").get("id")
-        teacher.email = teachers_ns.payload.get("email")
-        teacher.department_id = teachers_ns.payload.get("department").get("id")
-        teacher.comments = teachers_ns.payload.get("comments")
+        plain_params = ["name", "email", "comments"]
+        nested_ids = ["position", "degree", "department"]
+        for key, value in teachers_ns.payload.items():
+            if key in plain_params:
+                setattr(teacher, key, value)
+            elif key in nested_ids:
+                setattr(teacher, key + "_id", value.get("id"))
         try:
             db.session.add(teacher)
             db.session.commit()
@@ -70,12 +70,18 @@ class TeachersDetail(Resource):
         return get_teacher_or_404(id)
 
     @teachers_ns.response(400, "Email should be unique")
-    @teachers_ns.expect(base_name_model, pagination_parser, validate=False)
+    @teachers_ns.expect(teacher_query_model, pagination_parser, validate=False)
     @teachers_ns.marshal_with(paginated_teacher_model)
     def patch(self, id):
         """Update the teacher with a given id"""
         teacher = get_teacher_or_404(id)
-        teacher.name = teachers_ns.payload.get("name")
+        plain_params = ["name", "email", "comments"]
+        nested_ids = ["position", "degree", "department"]
+        for key, value in teachers_ns.payload.items():
+            if key in plain_params:
+                setattr(teacher, key, value)
+            elif key in nested_ids:
+                setattr(teacher, key + "_id", value.get("id"))
         db.session.commit()
         return pagination.paginate(
             Teacher, teacher_model, pagination_schema_hook=custom_schema_pagination
