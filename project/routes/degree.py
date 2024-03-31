@@ -2,13 +2,8 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db, pagination
 from project.models import Degree
-from project.schema import (
-    degree_model,
-    pagination_parser,
-    custom_schema_pagination,
-    paginated_degree_model,
-)
-
+from project.schemas.degree import paginated_degree_model, degree_model
+from project.schemas.pagination import pagination_parser, custom_schema_pagination
 
 degree_ns = Namespace(name="degree", description="degree of teachers")
 

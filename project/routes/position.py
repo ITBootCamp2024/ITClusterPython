@@ -2,13 +2,8 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db, pagination
 from project.models import Position
-from project.schema import (
-    position_model,
-    pagination_parser,
-    custom_schema_pagination,
-    paginated_position_model,
-)
-
+from project.schemas.pagination import pagination_parser, custom_schema_pagination
+from project.schemas.position import paginated_position_model, position_model
 
 position_ns = Namespace(name="position", description="positions of teachers")
 

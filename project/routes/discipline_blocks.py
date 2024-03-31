@@ -1,13 +1,9 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db, pagination
-from project.schema import (
-    discipline_blocks_model,
-    pagination_parser,
-    custom_schema_pagination,
-    paginated_discipline_blocks_model
-)
 from project.models import DisciplineBlock
+from project.schemas.discipline_blocks import paginated_discipline_blocks_model, discipline_blocks_model
+from project.schemas.pagination import pagination_parser, custom_schema_pagination
 
 discipline_blocks_ns = Namespace(
     name="discipline-blocks", description="Discipline blocks info"
