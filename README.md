@@ -35,6 +35,15 @@
 
 ---
 ## 2. Endpoints
-> https://itclusterpython2024.onrender.com/programs_levels/ - програмні рівні
-> https://itclusterpython2024.onrender.com/course_blocks/ - силабуси
-> https://itclusterpython2024.onrender.com/specialty/ - спеціалізації
+> https://itclusterpython2024.onrender.com/degree - Наукові ступені
+> https://itclusterpython2024.onrender.com/department - Кафедри
+> https://itclusterpython2024.onrender.com/disciplines - Дисципліни і курси
+> https://itclusterpython2024.onrender.com/discipline-blocks - Блоки дисциплін
+> https://itclusterpython2024.onrender.com/discipline-groups - Групи дисциплін
+> https://itclusterpython2024.onrender.com/education-levels - Освітні рівні
+> https://itclusterpython2024.onrender.com/education-programs - Освітні програми
+> https://itclusterpython2024.onrender.com/position - Посади викладачів
+> https://itclusterpython2024.onrender.com/service_info - Сервісна інформація
+> https://itclusterpython2024.onrender.com/specialties - Спеціальності
+> https://itclusterpython2024.onrender.com/teachers - Викладачі
+> https://itclusterpython2024.onrender.com/universities - Університети
