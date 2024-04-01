@@ -20,8 +20,9 @@ short_specialty_model = api.model(
     }
 )
 
-specialty_model = api.model(
-    "Specialty",
+
+base_specialty_model = api.model(
+    "BaseSpecialty",
     {
         **short_specialty_model,
         "code": fields.String(
@@ -29,7 +30,15 @@ specialty_model = api.model(
             description="The code of the specialty",
             max_length=45,
             default="specialty code"
-        ),
+        )
+    }
+)
+
+
+specialty_model = api.model(
+    "Specialty",
+    {
+        **base_specialty_model,
         "standard_url": fields.String(
             description="The link to the specialty",
             max_length=255,
