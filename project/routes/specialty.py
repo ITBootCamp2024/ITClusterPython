@@ -4,6 +4,8 @@ from project.extensions import db, pagination
 from project.models import Specialty
 from project.schemas.pagination import pagination_parser, custom_schema_pagination
 from project.schemas.specialty import paginated_specialty_model, specialty_model
+from project.validators import validate_site
+
 
 specialty_ns = Namespace(name="specialties", description="Specialties")
 
@@ -22,6 +24,7 @@ class SpecialtyList(Resource):
 
     @specialty_ns.expect(specialty_model, pagination_parser)
     @specialty_ns.marshal_with(paginated_specialty_model)
+    @validate_site('http', ["standard_url"])
     def post(self):
         """Create a new specialty"""
         specialty = Specialty()
@@ -54,6 +57,7 @@ class SpecialtyDetail(Resource):
 
     @specialty_ns.expect(specialty_model, pagination_parser, validate=False)
     @specialty_ns.marshal_with(paginated_specialty_model)
+    @validate_site('http', ["standard_url"])
     def patch(self, id):
         """Update a specialty with the given identifier"""
         specialty = get_specialty_or_404(id)
