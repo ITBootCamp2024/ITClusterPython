@@ -8,7 +8,11 @@ short_discipline_blocks_model = api.model(
     {
         "id": fields.Integer(readonly=True, description="The unique identifier of discipline block"),
         "name": fields.String(
-            required=True, description="The discipline block name", min_length=1, max_length=255
+            required=True,
+            description="The discipline block name",
+            min_length=1,
+            max_length=255,
+            default="discipline block name"
         ),
     }
 )
@@ -19,7 +23,8 @@ discipline_blocks_model = api.model(
     {
         **short_discipline_blocks_model,
         "description": fields.String(
-            description="The discipline block description"
+            description="The discipline block description",
+            default="discipline block description"
         ),
     },
 )

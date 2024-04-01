@@ -7,12 +7,13 @@ from project.schemas.discipline_groups import (
     discipline_groups_model,
     discipline_groups_query_model)
 from project.schemas.pagination import pagination_parser, custom_schema_pagination
+from project.validators import validate_site
+
 
 discipline_groups_ns = Namespace(name="discipline-groups", description="Discipline groups")
 
 
 @discipline_groups_ns.route("")
-# @discipline_groups_ns.response(200, model=[discipline_groups_model], description="Success")
 class DisciplineGroupsList(Resource):
     """Shows a list of all discipline groups, and lets you POST to add new discipline group"""
 
@@ -28,6 +29,7 @@ class DisciplineGroupsList(Resource):
 
     @discipline_groups_ns.expect(discipline_groups_query_model, pagination_parser)
     @discipline_groups_ns.marshal_with(paginated_discipline_groups_model)
+    @validate_site('http', ["discipline_url"])
     def post(self):
         """Create a new discipline group"""
         discipline_group = DisciplineGroup()
@@ -56,7 +58,6 @@ def get_discipline_group_or_404(id):
 
 
 @discipline_groups_ns.route("/<int:id>")
-# @discipline_groups_ns.response(200, model=[discipline_groups_model], description="Success")
 @discipline_groups_ns.response(404, "The discipline group not found")
 @discipline_groups_ns.param("id", "The discipline group unique identifier")
 class DisciplineGroupsDetail(Resource):
@@ -69,6 +70,7 @@ class DisciplineGroupsDetail(Resource):
 
     @discipline_groups_ns.expect(discipline_groups_query_model, pagination_parser, validate=False)
     @discipline_groups_ns.marshal_with(paginated_discipline_groups_model)
+    @validate_site('http', ["discipline_url"])
     def patch(self, id):
         """Update a discipline group with given id"""
         discipline_group = get_discipline_group_or_404(id)
