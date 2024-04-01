@@ -1,5 +1,4 @@
 from flask_restx import Resource, Namespace, abort
-from sqlalchemy.exc import IntegrityError
 
 from project.extensions import db, pagination
 from project.models import University
@@ -42,12 +41,8 @@ class UniversitylList(Resource):
                                 abbr=university_ns.payload["abbr"],
                                 programs_list_url=university_ns.payload["programs_list_url"],
                                 )
-        try:
-            db.session.add(university)
-            db.session.commit()
-        except IntegrityError:
-            db.rollback()
-            abort(400, "Name/abbr should be unique")
+        db.session.add(university)
+        db.session.commit()
         return pagination.paginate(
             University, university_model, pagination_schema_hook=custom_schema_pagination
         )
@@ -72,15 +67,11 @@ class UniversityDetail(Resource):
         university = get_uni_or_404(id)
         uni_keys = university_model.keys()
 
-        try:
-            for key, value in university_ns.payload.items():
-                if key in uni_keys:
-                    setattr(university, key, value)
+        for key, value in university_ns.payload.items():
+            if key in uni_keys:
+                setattr(university, key, value)
 
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            abort(400, "Name/abbr should be unique")
+        db.session.commit()
         return pagination.paginate(
             University, university_model, pagination_schema_hook=custom_schema_pagination
         )

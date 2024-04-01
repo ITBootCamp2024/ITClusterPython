@@ -14,6 +14,7 @@ degree_model = api.model(
             description="Degree name",
             min_length=1,
             max_length=45,
+            default="degree name",
         )
     }
 )

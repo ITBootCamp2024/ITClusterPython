@@ -8,8 +8,9 @@ from project.schemas.pagination import get_pagination_schema_for
 from project.schemas.position import position_model
 from project.schemas.universities import short_university_model
 
-base_teacher_model = api.model(
-    "BaseTeacher",
+
+teacher_short_model = api.model(
+    "TeacherShort",
     {
         "id": fields.Integer(
             readonly=True, description="The teacher unique identifier"
@@ -19,17 +20,26 @@ base_teacher_model = api.model(
             description="The name of the teacher",
             min_length=1,
             max_length=100,
-        ),
+            default="Teacher Name"
+        )
+    }
+)
+
+base_teacher_model = api.model(
+    "BaseTeacher",
+    {
+        **teacher_short_model,
         "email": fields.String(
             required=True,
             description="The teacher's email",
             min_length=0,
             max_length=100,
+            default="teacher@email.com"
         ),
         "comments": fields.String(
             required=True,
             description="Some comments to the teacher",
-            min_length=0
+            default="Some comments to the teacher"
         )
     }
 )
@@ -38,10 +48,10 @@ teacher_model = api.model(
     "Teacher",
     {
         **base_teacher_model,
-        "position": fields.Nested(position_model),
-        "degree": fields.Nested(degree_model),
-        "university": fields.Nested(short_university_model),
-        "department": fields.Nested(short_department_model),
+        "position": fields.Nested(position_model, required=True),
+        "degree": fields.Nested(degree_model, required=True),
+        "university": fields.Nested(short_university_model, required=True),
+        "department": fields.Nested(short_department_model, required=True),
     }
 )
 

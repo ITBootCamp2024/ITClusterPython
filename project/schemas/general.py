@@ -17,6 +17,7 @@ base_name_model = api.model(
         "name": fields.String(
             required=True,
             description="The name of the object",
+            default="Some name",
         )
     }
 )

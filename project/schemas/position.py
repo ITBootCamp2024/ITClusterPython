@@ -14,6 +14,7 @@ position_model = api.model(
             description="Position name",
             min_length=1,
             max_length=100,
+            default="Position name"
         )
     }
 )

@@ -34,12 +34,34 @@ class Department(db.Model):
             return
         self.address = value.get("address") or self.address
         self.email = value.get("email") or self.email
-        if value.get("phone") and isinstance(value.get("phone"), list):
-            self.phone = ", ".join(value.get("phone"))
+        phones = value.get("phone")
+        if isinstance(phones, list):
+            self.phone = ", ".join(phones)
+        elif isinstance(phones, str):
+            self.phone = phones
 
     education_programs = db.relationship("EducationProgram", back_populates="department", cascade="all, delete")
     teachers = db.relationship("Teacher", back_populates="department", cascade="all, delete")
     university = db.relationship("University", back_populates="department")
+
+
+class Discipline(db.Model):
+    __tablename__ = "disciplines"
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(100), nullable=False)
+    teacher_id: int = db.Column(db.ForeignKey("teachers.id"))
+    discipline_group_id: int = db.Column(db.ForeignKey("discipline_groups.id"))
+    education_program_id: int = db.Column(db.ForeignKey("education_programs.id"))
+    syllabus_url: str = db.Column(db.String(255))
+    education_plan_url: str = db.Column(db.String(255))
+
+    teacher = db.relationship("Teacher", back_populates="disciplines")
+    discipline_group = db.relationship("DisciplineGroup", back_populates="disciplines")
+    education_program = db.relationship("EducationProgram", back_populates="disciplines")
+
+    @property
+    def discipline_block(self):
+        return self.discipline_group.block
 
 
 class DisciplineBlock(db.Model):
@@ -59,6 +81,7 @@ class DisciplineGroup(db.Model):
     block_id: int = db.Column(db.ForeignKey("discipline_blocks.id"))
     discipline_url: str = db.Column(db.String(255))
 
+    disciplines = db.relationship("Discipline", back_populates="discipline_group", cascade="all, delete")
     block = db.relationship("DisciplineBlock", back_populates="discipline_groups")
 
 
@@ -81,6 +104,7 @@ class EducationProgram(db.Model):
     syllabus_url: str = db.Column(db.String(255), nullable=False)
     specialty_id: str = db.Column(db.ForeignKey("specialty.id"), nullable=True)
 
+    disciplines = db.relationship("Discipline", back_populates="education_program", cascade="all, delete")
     education_level = db.relationship("EducationLevel", back_populates="education_programs")
     department = db.relationship("Department", back_populates="education_programs")
     specialty = db.relationship("Specialty", back_populates="education_programs")
@@ -118,6 +142,7 @@ class Teacher(db.Model):
     department_id: int = db.Column(db.ForeignKey("department.id"))
     comments: str = db.Column(db.Text)
 
+    disciplines = db.relationship("Discipline", back_populates="teacher", cascade="all, delete")
     position = db.relationship("Position", back_populates="teachers")
     degree = db.relationship("Degree", back_populates="teachers")
     department = db.relationship("Department", back_populates="teachers")

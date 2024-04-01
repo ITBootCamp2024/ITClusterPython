@@ -9,6 +9,7 @@ from project.extensions import api, db, migrate, pagination
 from project.models import (
     Degree,
     Department,
+    Discipline,
     DisciplineBlock,
     DisciplineGroup,
     EducationLevel,
@@ -20,6 +21,7 @@ from project.models import (
 )
 from project.routes.degree import degree_ns
 from project.routes.departments import departments_ns
+from project.routes.disciplines import disciplines_ns
 from project.routes.discipline_blocks import discipline_blocks_ns
 from project.routes.discipline_groups import discipline_groups_ns
 from project.routes.education_levels import education_levels_ns
@@ -80,6 +82,7 @@ def create_app():
 
     api.add_namespace(degree_ns)
     api.add_namespace(departments_ns)
+    api.add_namespace(disciplines_ns)
     api.add_namespace(discipline_blocks_ns)
     api.add_namespace(discipline_groups_ns)
     api.add_namespace(education_levels_ns)
