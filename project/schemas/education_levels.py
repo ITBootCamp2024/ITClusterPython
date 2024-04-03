@@ -9,12 +9,17 @@ education_level_model = api.model(
         "id": fields.Integer(
             readonly=True, description="Unique identifier of the education level"
         ),
+        "education_level": fields.String(
+            required=True,
+            description="Education level",
+            max_length=45,
+            default="education level",
+        ),
         "name": fields.String(
             required=True,
             description="Education level name",
-            min_length=1,
             max_length=45,
-            default="education level",
+            default="education level name",
         )
     }
 )
