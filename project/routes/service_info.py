@@ -1,7 +1,6 @@
 from flask_restx import Resource, Namespace
 
 from project.models import (
-    Degree,
     Discipline,
     DisciplineBlock,
     DisciplineGroup,
@@ -20,7 +19,6 @@ class ServiceInfo(Resource):
     @service_info_ns.marshal_with(service_info_model)
     def get(self):
         positions = Position.query.all()
-        degrees = Degree.query.all()
         universities = University.query.all()
         specialties = Specialty.query.all()
         education_levels = EducationLevel.query.all()
@@ -30,7 +28,6 @@ class ServiceInfo(Resource):
 
         return {
             "position": positions,
-            "degree": degrees,
             "university": universities,
             "specialty": specialties,
             "educationLevels": education_levels,

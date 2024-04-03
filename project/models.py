@@ -1,14 +1,6 @@
 from project.extensions import db
 
 
-class Degree(db.Model):
-    __tablename__ = "degree"
-    id: int = db.Column(db.Integer, primary_key=True)
-    name: str = db.Column(db.String(45), nullable=False)
-
-    teachers = db.relationship("Teacher", back_populates="degree", cascade="all, delete")
-
-
 class Department(db.Model):
     __tablename__ = "department"
     id: int = db.Column(db.Integer, primary_key=True)
@@ -137,14 +129,12 @@ class Teacher(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(50), nullable=False)
     position_id: int = db.Column(db.ForeignKey("position.id"), nullable=False)
-    degree_id: int = db.Column(db.ForeignKey("degree.id"), nullable=False)
     email: str = db.Column(db.String(100), nullable=False, unique=True)
     department_id: int = db.Column(db.ForeignKey("department.id"))
     comments: str = db.Column(db.Text)
 
     disciplines = db.relationship("Discipline", back_populates="teacher", cascade="all, delete")
     position = db.relationship("Position", back_populates="teachers")
-    degree = db.relationship("Degree", back_populates="teachers")
     department = db.relationship("Department", back_populates="teachers")
 
     @property
