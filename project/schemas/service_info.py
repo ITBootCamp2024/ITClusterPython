@@ -1,7 +1,6 @@
 from flask_restx import fields
 
 from project.extensions import api
-from project.schemas.degree import degree_model
 from project.schemas.departments import short_department_model
 from project.schemas.discipline_blocks import short_discipline_blocks_model
 from project.schemas.discipline_groups import short_discipline_groups_model
@@ -32,7 +31,6 @@ service_info_model = api.model(
     "ServiceInfo",
     {
         "position": fields.List(fields.Nested(position_model)),
-        "degree": fields.List(fields.Nested(degree_model)),
         "university": fields.List(fields.Nested(university_service_model)),
         "specialty": fields.List(fields.Nested(base_specialty_model)),
         "educationLevels": fields.List(fields.Nested(education_level_model)),

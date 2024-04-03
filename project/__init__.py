@@ -7,7 +7,6 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from project.extensions import api, db, migrate, pagination
 from project.models import (
-    Degree,
     Department,
     Discipline,
     DisciplineBlock,
@@ -19,7 +18,6 @@ from project.models import (
     Teacher,
     University,
 )
-from project.routes.degree import degree_ns
 from project.routes.departments import departments_ns
 from project.routes.disciplines import disciplines_ns
 from project.routes.discipline_blocks import discipline_blocks_ns
@@ -80,7 +78,6 @@ def create_app():
             g.db.rollback()
         return jsonify({"error": f"Database error occurred. {error}"}), 500
 
-    api.add_namespace(degree_ns)
     api.add_namespace(departments_ns)
     api.add_namespace(disciplines_ns)
     api.add_namespace(discipline_blocks_ns)
