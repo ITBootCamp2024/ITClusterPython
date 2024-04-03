@@ -7,7 +7,7 @@ from project.models import (
     EducationLevel,
     Position,
     Specialty,
-    University,
+    University, Teacher,
 )
 from project.schemas.service_info import service_info_model
 
@@ -23,15 +23,15 @@ class ServiceInfo(Resource):
         specialties = Specialty.query.all()
         education_levels = EducationLevel.query.all()
         disciplines = Discipline.query.all()
-        discipline_groups = DisciplineGroup.query.all()
         discipline_blocks = DisciplineBlock.query.all()
+        teachers = Teacher.query.all()
 
         return {
             "position": positions,
+            "education_levels": education_levels,
+            "teachers": teachers,
             "university": universities,
             "specialty": specialties,
-            "educationLevels": education_levels,
             "discipline": disciplines,
-            "disciplineGroups": discipline_groups,
             "disciplineBlocks": discipline_blocks
         }, 200
