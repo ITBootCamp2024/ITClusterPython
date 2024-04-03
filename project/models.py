@@ -81,6 +81,7 @@ class EducationLevel(db.Model):
     __tablename__ = "education_levels"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(45), nullable=False)
+    education_level: str = db.Column(db.String(45), nullable=False)
 
     education_programs = db.relationship("EducationProgram", back_populates="education_level", cascade="all, delete")
 
