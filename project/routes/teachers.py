@@ -26,7 +26,7 @@ class TeachersList(Resource):
         """Adds a new teacher"""
         teacher = Teacher()
         plain_params = ["name", "email", "comments"]
-        nested_ids = ["position", "degree", "department"]
+        nested_ids = ["position", "education_level", "department"]
         for key, value in teachers_ns.payload.items():
             if key in plain_params:
                 setattr(teacher, key, value)
@@ -63,7 +63,7 @@ class TeachersDetail(Resource):
         """Update the teacher with a given id"""
         teacher = get_teacher_or_404(id)
         plain_params = ["name", "email", "comments"]
-        nested_ids = ["position", "degree", "department"]
+        nested_ids = ["position", "education_level", "department"]
         for key, value in teachers_ns.payload.items():
             if key in plain_params:
                 setattr(teacher, key, value)
