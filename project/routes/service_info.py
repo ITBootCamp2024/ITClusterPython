@@ -3,11 +3,11 @@ from flask_restx import Resource, Namespace
 from project.models import (
     Discipline,
     DisciplineBlock,
-    DisciplineGroup,
     EducationLevel,
     Position,
     Specialty,
-    University, Teacher,
+    University,
+    Teacher,
 )
 from project.schemas.service_info import service_info_model
 
