@@ -10,12 +10,11 @@ short_specialty_model = api.model(
         "id": fields.Integer(
             readonly=True, description="The specialty unique identifier"
         ),
-        "name": fields.String(
+        "code": fields.String(
             required=True,
-            description="The name of the specialty",
-            min_length=1,
-            max_length=100,
-            default="specialty name"
+            description="The code of the specialty",
+            max_length=45,
+            default="specialty code"
         )
     }
 )
@@ -25,11 +24,12 @@ base_specialty_model = api.model(
     "BaseSpecialty",
     {
         **short_specialty_model,
-        "code": fields.String(
+        "name": fields.String(
             required=True,
-            description="The code of the specialty",
-            max_length=45,
-            default="specialty code"
+            description="The name of the specialty",
+            min_length=1,
+            max_length=100,
+            default="specialty name"
         )
     }
 )
