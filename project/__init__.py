@@ -30,6 +30,8 @@ from project.routes.specialty import specialty_ns
 from project.routes.teachers import teachers_ns
 from project.routes.universities import university_ns
 
+from project.routes.test_jwt_education_levels import education_levels_ns as test_jwt
+
 
 def create_app():
     app = Flask(__name__)
@@ -39,7 +41,7 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
     app.config["RESTX_VALIDATE"] = True
     app.config["RESTX_JSON"] = {"ensure_ascii": False}
-    app.config['DEBUG'] = True
+    app.config["DEBUG"] = True
 
     # Possible configurations for Paginate
     # app.config['PAGINATE_PAGE_SIZE'] = 20
@@ -47,8 +49,14 @@ def create_app():
     # app.config['PAGINATE_SIZE_PARAM'] = "pagesize"
     # app.config['PAGINATE_RESOURCE_LINKS_ENABLED'] = False
     app.config["PAGINATE_PAGINATION_OBJECT_KEY"] = None
-    app.config['PAGINATE_DATA_OBJECT_KEY'] = "content"
-    app.config['JSON_AS_ASCII'] = False
+    app.config["PAGINATE_DATA_OBJECT_KEY"] = "content"
+    app.config["JSON_AS_ASCII"] = False
+
+    # TODO згенерувати JWT_SECRET_KEY для прода. інструкція у пайтон консоль:
+    #  import secrets
+    #  print(secrets.token_hex(16))
+    app.config["JWT_SECRET_KEY"] = environ.get("JWT_SECRET_KEY")
+    app.config["JWT_ALGORITHM"] = "HS256"
 
     api.init_app(app)
     db.init_app(app)
@@ -90,4 +98,6 @@ def create_app():
     api.add_namespace(specialty_ns)
     api.add_namespace(teachers_ns)
     api.add_namespace(university_ns)
+    # TODO цей неймспейс для тесту JWT, потім його видалити і його ендпойнти і сам модуль test_jwt_education_levels
+    api.add_namespace(test_jwt)
     return app
