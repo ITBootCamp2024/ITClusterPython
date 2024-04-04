@@ -1,3 +1,4 @@
+from flask_jwt_extended import jwt_required
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db, pagination
@@ -5,11 +6,12 @@ from project.models import University
 from project.schemas.pagination import pagination_parser, custom_schema_pagination
 from project.schemas.universities import paginated_university_model, university_model
 from project.validators import validate_site
-
+from project.extensions import authorizations
 university_ns = Namespace(
     name="universities", description="university with appropriate programs"
 )
 
+authorizations=authorizations
 
 def get_uni_or_404(id):
     uni = University.query.get(id)
@@ -21,7 +23,9 @@ def get_uni_or_404(id):
 @university_ns.route("")
 class UniversitylList(Resource):
     """Shows a list of all universities, available in our site """
+    method_decorators = [jwt_required()]
 
+    @university_ns.doc(security="jsonWebToken")
     @university_ns.expect(pagination_parser)
     @university_ns.marshal_with(paginated_university_model)
     def get(self):

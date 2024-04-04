@@ -5,7 +5,7 @@ from flask import Flask, g, jsonify
 from flask_cors import CORS
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-from project.extensions import api, db, migrate, pagination
+from project.extensions import api, db, migrate, pagination, jwt
 from project.models import (
     Department,
     Discipline,
@@ -16,7 +16,7 @@ from project.models import (
     Position,
     Specialty,
     Teacher,
-    University,
+    University, User,
 )
 from project.routes.departments import departments_ns
 from project.routes.disciplines import disciplines_ns
@@ -24,6 +24,7 @@ from project.routes.discipline_blocks import discipline_blocks_ns
 from project.routes.discipline_groups import discipline_groups_ns
 from project.routes.education_levels import education_levels_ns
 from project.routes.education_programs import education_programs_ns
+from project.routes.login import user_ns
 from project.routes.position import position_ns
 from project.routes.service_info import service_info_ns
 from project.routes.specialty import specialty_ns
@@ -40,6 +41,7 @@ def create_app():
     app.config["RESTX_VALIDATE"] = True
     app.config["RESTX_JSON"] = {"ensure_ascii": False}
     app.config['DEBUG'] = True
+    app.config["JWT_SECRET_KEY"] = environ.get("SECRET_KEY")
 
     # Possible configurations for Paginate
     # app.config['PAGINATE_PAGE_SIZE'] = 20
@@ -54,6 +56,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     pagination.init_app(app, db)
+    jwt.init_app(app)
 
     @app.before_request
     def before_request():
@@ -89,4 +92,15 @@ def create_app():
     api.add_namespace(specialty_ns)
     api.add_namespace(teachers_ns)
     api.add_namespace(university_ns)
+    api.add_namespace(user_ns)
+    #
+    # @jwt.user_identity_loader
+    # def user_identity_lookup(user):
+    #     return user.id
+    #
+    # @jwt.user_lookup_loader
+    # def user_lookup_callback(_jwt_header, jwt_data):
+    #     identity = jwt_data["sub"]
+    #     return User.query.filter_by(id=identity).first()
+
     return app

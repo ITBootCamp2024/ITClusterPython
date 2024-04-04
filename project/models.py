@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from project.extensions import db
 
 
@@ -155,3 +157,14 @@ class University(db.Model):
     url: str = db.Column(db.String(255), nullable=False)
 
     department = db.relationship("Department", back_populates="university", cascade="all, delete")
+
+
+class User(db.Model):
+    id: int = db.Column(db.Integer, primary_key=True)
+    first_name: str = db.Column(db.String(100), nullable=True)
+    last_name: str = db.Column(db.String(100), nullable=True)
+    parent_name: str = db.Column(db.String(100), nullable=True)
+    email: str = db.Column(db.String(45), unique=True)
+    passwword_hash: str = db.Column(db.String(255), nullable=False)
+    phone: str = db.Column(db.String(45), nullable=True)
+    created_at = db.Column(db.Date, default=datetime.utcnow().date)
