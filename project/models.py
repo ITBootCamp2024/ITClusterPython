@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from project.extensions import db
 
 
@@ -7,9 +9,10 @@ class User(db.Model):
     last_name: str = db.Column(db.String(100), nullable=False)
     parent_name: str = db.Column(db.String(100))
     email: str = db.Column(db.String(45), unique=True)
-    passwword_hash: str = db.Column(db.String(255), nullable=False)
+    password_hash: str = db.Column(db.String(255), nullable=False)
     phone: str = db.Column(db.String(45), nullable=False)
-    #role:
+    created_at = db.Column(db.Date, default=datetime.utcnow().date)
+    # role:
 
 
 class Department(db.Model):
@@ -28,7 +31,7 @@ class Department(db.Model):
         return {
             "address": self.address,
             "email": self.email,
-            "phone": self.phone.split(", ")
+            "phone": self.phone.split(", "),
         }
 
     @contacts.setter
@@ -43,8 +46,12 @@ class Department(db.Model):
         elif isinstance(phones, str):
             self.phone = phones
 
-    education_programs = db.relationship("EducationProgram", back_populates="department", cascade="all, delete")
-    teachers = db.relationship("Teacher", back_populates="department", cascade="all, delete")
+    education_programs = db.relationship(
+        "EducationProgram", back_populates="department", cascade="all, delete"
+    )
+    teachers = db.relationship(
+        "Teacher", back_populates="department", cascade="all, delete"
+    )
     university = db.relationship("University", back_populates="department")
 
 
@@ -60,7 +67,9 @@ class Discipline(db.Model):
 
     teacher = db.relationship("Teacher", back_populates="disciplines")
     discipline_group = db.relationship("DisciplineGroup", back_populates="disciplines")
-    education_program = db.relationship("EducationProgram", back_populates="disciplines")
+    education_program = db.relationship(
+        "EducationProgram", back_populates="disciplines"
+    )
 
     @property
     def discipline_block(self):
@@ -73,7 +82,9 @@ class DisciplineBlock(db.Model):
     name: str = db.Column(db.String(255), nullable=False)
     description: str = db.Column(db.Text)
 
-    disciplineGroups = db.relationship("DisciplineGroup", back_populates="disciplineBlocks", cascade="all, delete")
+    disciplineGroups = db.relationship(
+        "DisciplineGroup", back_populates="disciplineBlocks", cascade="all, delete"
+    )
 
 
 class DisciplineGroup(db.Model):
@@ -84,8 +95,12 @@ class DisciplineGroup(db.Model):
     block_id: int = db.Column(db.ForeignKey("discipline_blocks.id"))
     discipline_url: str = db.Column(db.String(255))
 
-    disciplines = db.relationship("Discipline", back_populates="discipline_group", cascade="all, delete")
-    disciplineBlocks = db.relationship("DisciplineBlock", back_populates="disciplineGroups")
+    disciplines = db.relationship(
+        "Discipline", back_populates="discipline_group", cascade="all, delete"
+    )
+    disciplineBlocks = db.relationship(
+        "DisciplineBlock", back_populates="disciplineGroups"
+    )
 
 
 class EducationLevel(db.Model):
@@ -94,23 +109,33 @@ class EducationLevel(db.Model):
     name: str = db.Column(db.String(45), nullable=False)
     education_level: str = db.Column(db.String(45), nullable=False)
 
-    education_programs = db.relationship("EducationProgram", back_populates="education_level", cascade="all, delete")
-    teachers = db.relationship("Teacher", back_populates="education_level", cascade="all, delete")
+    education_programs = db.relationship(
+        "EducationProgram", back_populates="education_level", cascade="all, delete"
+    )
+    teachers = db.relationship(
+        "Teacher", back_populates="education_level", cascade="all, delete"
+    )
 
 
 class EducationProgram(db.Model):
     __tablename__ = "education_programs"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(255), nullable=False)
-    education_level_id: int = db.Column(db.ForeignKey("education_levels.id"), nullable=True)
+    education_level_id: int = db.Column(
+        db.ForeignKey("education_levels.id"), nullable=True
+    )
     guarantor: str = db.Column(db.String(100), nullable=False)
     department_id: int = db.Column(db.ForeignKey("department.id"), nullable=True)
     program_url: str = db.Column(db.String(255), nullable=False)
     syllabus_url: str = db.Column(db.String(255), nullable=False)
     specialty_id: str = db.Column(db.ForeignKey("specialty.id"), nullable=True)
 
-    disciplines = db.relationship("Discipline", back_populates="education_program", cascade="all, delete")
-    education_level = db.relationship("EducationLevel", back_populates="education_programs")
+    disciplines = db.relationship(
+        "Discipline", back_populates="education_program", cascade="all, delete"
+    )
+    education_level = db.relationship(
+        "EducationLevel", back_populates="education_programs"
+    )
     department = db.relationship("Department", back_populates="education_programs")
     specialty = db.relationship("Specialty", back_populates="education_programs")
 
@@ -124,7 +149,9 @@ class Position(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
 
-    teachers = db.relationship("Teacher", back_populates="position", cascade="all, delete")
+    teachers = db.relationship(
+        "Teacher", back_populates="position", cascade="all, delete"
+    )
 
 
 class Specialty(db.Model):
@@ -134,7 +161,9 @@ class Specialty(db.Model):
     name: str = db.Column(db.String(100), nullable=False)
     standard_url: str = db.Column(db.String(255))
 
-    education_programs = db.relationship("EducationProgram", back_populates="specialty", cascade="all, delete")
+    education_programs = db.relationship(
+        "EducationProgram", back_populates="specialty", cascade="all, delete"
+    )
 
 
 class Teacher(db.Model):
@@ -147,7 +176,9 @@ class Teacher(db.Model):
     comments: str = db.Column(db.Text)
     education_level_id = db.Column(db.ForeignKey("education_levels.id"), nullable=False)
 
-    disciplines = db.relationship("Discipline", back_populates="teacher", cascade="all, delete")
+    disciplines = db.relationship(
+        "Discipline", back_populates="teacher", cascade="all, delete"
+    )
     position = db.relationship("Position", back_populates="teachers")
     department = db.relationship("Department", back_populates="teachers")
     education_level = db.relationship("EducationLevel", back_populates="teachers")
@@ -165,4 +196,6 @@ class University(db.Model):
     programs_list_url: str = db.Column(db.String(255), nullable=False)
     url: str = db.Column(db.String(255), nullable=False)
 
-    department = db.relationship("Department", back_populates="university", cascade="all, delete")
+    department = db.relationship(
+        "Department", back_populates="university", cascade="all, delete"
+    )
