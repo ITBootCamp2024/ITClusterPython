@@ -1,5 +1,6 @@
 from project.extensions import db
 
+
 class User(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     first_name: str = db.Column(db.String(100), nullable=False)
@@ -9,8 +10,6 @@ class User(db.Model):
     passwword_hash: str = db.Column(db.String(255), nullable=False)
     phone: str = db.Column(db.String(45), nullable=False)
     #role:
-
-
 
 
 class Department(db.Model):
