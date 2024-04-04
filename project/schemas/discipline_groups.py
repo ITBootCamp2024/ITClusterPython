@@ -10,7 +10,9 @@ short_discipline_groups_model = api.model(
     "ShortDisciplineGroups",
     {
         "id": fields.Integer(
-            readonly=True, description="The unique identifier of discipline group"
+            readonly=True,
+            description="The unique identifier of discipline group",
+            default=1
         ),
         "name": fields.String(
             required=True,
@@ -28,12 +30,10 @@ base_discipline_groups_model = api.model(
         **short_discipline_groups_model,
         "description": fields.String(
             description="The discipline group description",
-            default="discipline group description"
         ),
         "discipline_url": fields.String(
             description="The link to the discipline group",
             max_length=255,
-            default="http://discipline-group.url"
         )
     }
 )

@@ -14,7 +14,7 @@ short_specialty_model = api.model(
             required=True,
             description="The code of the specialty",
             max_length=45,
-            default="specialty code"
+            default="999"
         )
     }
 )
@@ -42,7 +42,6 @@ specialty_model = api.model(
         "standard_url": fields.String(
             description="The link to the specialty",
             max_length=255,
-            default="http://standard-url"
         ),
     },
 )

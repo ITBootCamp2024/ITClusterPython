@@ -24,7 +24,6 @@ discipline_blocks_model = api.model(
         **short_discipline_blocks_model,
         "description": fields.String(
             description="The discipline block description",
-            default="discipline block description"
         ),
     },
 )
