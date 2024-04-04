@@ -2,7 +2,12 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db, pagination
 from project.models import Department
-from project.schemas.departments import paginated_department_model, department_model, department_query_model
+from project.schemas.departments import (
+    paginated_department_model,
+    department_model,
+    department_query_model,
+    contacts_model
+)
 from project.schemas.pagination import pagination_parser, custom_schema_pagination
 from project.validators import validate_site
 
@@ -34,7 +39,7 @@ class DepartmentsList(Resource):
                 setattr(department, key, value)
             elif key in nested_ids:
                 setattr(department, key + "_id", value.get("id"))
-        department.contacts = departments_ns.payload.get("contacts")
+        department.contacts = {key: departments_ns.payload.get(key) for key in contacts_model.keys()}
         db.session.add(department)
         db.session.commit()
         return pagination.paginate(
@@ -73,7 +78,7 @@ class DepartmentDetail(Resource):
                 setattr(department, key, value)
             elif key in nested_ids:
                 setattr(department, key + "_id", value.get("id"))
-        department.contacts = departments_ns.payload.get("contacts")
+        department.contacts = {key: departments_ns.payload.get(key) for key in contacts_model.keys()}
         db.session.commit()
         return pagination.paginate(
             Department, department_model, pagination_schema_hook=custom_schema_pagination
