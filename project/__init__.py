@@ -1,3 +1,4 @@
+from datetime import timedelta
 from os import environ
 
 from dotenv import load_dotenv
@@ -31,6 +32,7 @@ from project.routes.teachers import teachers_ns
 from project.routes.universities import university_ns
 
 from project.routes.test_jwt_education_levels import education_levels_ns as test_jwt
+from project.routes.users import user_ns
 
 
 def create_app():
@@ -57,6 +59,7 @@ def create_app():
     #  print(secrets.token_hex(16))
     app.config["JWT_SECRET_KEY"] = environ.get("JWT_SECRET_KEY")
     app.config["JWT_ALGORITHM"] = "HS256"
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
     api.init_app(app)
     db.init_app(app)
@@ -98,6 +101,7 @@ def create_app():
     api.add_namespace(specialty_ns)
     api.add_namespace(teachers_ns)
     api.add_namespace(university_ns)
+    api.add_namespace(user_ns)
     # TODO цей неймспейс для тесту JWT, потім його видалити і його ендпойнти і сам модуль test_jwt_education_levels
     api.add_namespace(test_jwt)
     return app
