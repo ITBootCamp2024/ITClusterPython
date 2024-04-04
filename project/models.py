@@ -5,7 +5,7 @@ class Department(db.Model):
     __tablename__ = "department"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
-    university_id: int = db.Column(db.ForeignKey("university.id"))
+    university_id: int = db.Column(db.ForeignKey("university.id"), nullable=False)
     description: str = db.Column(db.Text, nullable=False)
     address: str = db.Column(db.String(255), nullable=False)
     email: str = db.Column(db.String(45), nullable=False)
@@ -41,9 +41,9 @@ class Discipline(db.Model):
     __tablename__ = "disciplines"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
-    teacher_id: int = db.Column(db.ForeignKey("teachers.id"))
-    discipline_group_id: int = db.Column(db.ForeignKey("discipline_groups.id"))
-    education_program_id: int = db.Column(db.ForeignKey("education_programs.id"))
+    teacher_id: int = db.Column(db.ForeignKey("teachers.id"), nullable=False)
+    discipline_group_id: int = db.Column(db.ForeignKey("discipline_groups.id"), nullable=False)
+    education_program_id: int = db.Column(db.ForeignKey("education_programs.id"), nullable=False)
     syllabus_url: str = db.Column(db.String(255))
     education_plan_url: str = db.Column(db.String(255))
 
@@ -70,7 +70,7 @@ class DisciplineGroup(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
     description: str = db.Column(db.Text)
-    block_id: int = db.Column(db.ForeignKey("discipline_blocks.id"))
+    block_id: int = db.Column(db.ForeignKey("discipline_blocks.id"), nullable=False)
     discipline_url: str = db.Column(db.String(255))
 
     disciplines = db.relationship("Discipline", back_populates="discipline_group", cascade="all, delete")
@@ -91,12 +91,12 @@ class EducationProgram(db.Model):
     __tablename__ = "education_programs"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(255), nullable=False)
-    education_level_id: int = db.Column(db.ForeignKey("education_levels.id"), nullable=True)
+    education_level_id: int = db.Column(db.ForeignKey("education_levels.id"), nullable=False)
     guarantor: str = db.Column(db.String(100), nullable=False)
-    department_id: int = db.Column(db.ForeignKey("department.id"), nullable=True)
+    department_id: int = db.Column(db.ForeignKey("department.id"), nullable=False)
     program_url: str = db.Column(db.String(255), nullable=False)
     syllabus_url: str = db.Column(db.String(255), nullable=False)
-    specialty_id: str = db.Column(db.ForeignKey("specialty.id"), nullable=True)
+    specialty_id: str = db.Column(db.ForeignKey("specialty.id"), nullable=False)
 
     disciplines = db.relationship("Discipline", back_populates="education_program", cascade="all, delete")
     education_level = db.relationship("EducationLevel", back_populates="education_programs")

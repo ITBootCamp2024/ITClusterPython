@@ -28,7 +28,6 @@ position_model = api.model(
         **short_position_model,
         "description": fields.String(
             description="Position description",
-            default="position description"
         ),
     }
 )
