@@ -1,5 +1,17 @@
 from project.extensions import db
 
+class User(db.Model):
+    id: int = db.Column(db.Integer, primary_key=True)
+    first_name: str = db.Column(db.String(100), nullable=False)
+    last_name: str = db.Column(db.String(100), nullable=False)
+    parent_name: str = db.Column(db.String(100))
+    email: str = db.Column(db.String(45), unique=True)
+    passwword_hash: str = db.Column(db.String(255), nullable=False)
+    phone: str = db.Column(db.String(45), nullable=False)
+    #role:
+
+
+
 
 class Department(db.Model):
     __tablename__ = "department"
