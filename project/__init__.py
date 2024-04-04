@@ -3,6 +3,7 @@ from os import environ
 from dotenv import load_dotenv
 from flask import Flask, g, jsonify
 from flask_cors import CORS
+from flask_wtf import CSRFProtect
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from project.extensions import api, db, migrate, pagination
@@ -25,6 +26,7 @@ from project.routes.discipline_groups import discipline_groups_ns
 from project.routes.education_levels import education_levels_ns
 from project.routes.education_programs import education_programs_ns
 from project.routes.position import position_ns
+from project.routes.registration import user
 from project.routes.service_info import service_info_ns
 from project.routes.specialty import specialty_ns
 from project.routes.teachers import teachers_ns
@@ -49,6 +51,9 @@ def create_app():
     app.config["PAGINATE_PAGINATION_OBJECT_KEY"] = None
     app.config['PAGINATE_DATA_OBJECT_KEY'] = "content"
     app.config['JSON_AS_ASCII'] = False
+
+    # app.config['SECRET_KEY'] = "SECRET_KEY"
+    # csrf = CSRFProtect(app)
 
     api.init_app(app)
     db.init_app(app)
@@ -89,4 +94,5 @@ def create_app():
     api.add_namespace(specialty_ns)
     api.add_namespace(teachers_ns)
     api.add_namespace(university_ns)
+    api.add_namespace(user)
     return app

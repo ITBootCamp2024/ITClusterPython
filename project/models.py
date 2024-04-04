@@ -155,3 +155,14 @@ class University(db.Model):
     url: str = db.Column(db.String(255), nullable=False)
 
     department = db.relationship("Department", back_populates="university", cascade="all, delete")
+
+
+class User(db.Model):
+    __tablename__ = "user"
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    middle_name = db.Column(db.String(50), nullable=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    phone_number = db.Column(db.String(20), nullable=True)
+    password = db.Column(db.String(128), nullable=False)
