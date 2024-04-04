@@ -5,7 +5,7 @@ from project.schemas.departments import short_department_model
 from project.schemas.education_levels import short_education_level_model
 from project.schemas.general import base_id_model
 from project.schemas.pagination import get_pagination_schema_for
-from project.schemas.position import position_model
+from project.schemas.position import short_position_model
 from project.schemas.universities import short_university_model
 
 
@@ -48,7 +48,7 @@ teacher_model = api.model(
     "Teacher",
     {
         **base_teacher_model,
-        "position": fields.Nested(position_model, required=True),
+        "position": fields.Nested(short_position_model, required=True),
         "education_level": fields.Nested(short_education_level_model, required=True),
         "university": fields.Nested(short_university_model, required=True),
         "department": fields.Nested(short_department_model, required=True),

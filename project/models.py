@@ -112,6 +112,7 @@ class Position(db.Model):
     __tablename__ = "position"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
+    description: str = db.Column(db.Text)
 
     teachers = db.relationship("Teacher", back_populates="position", cascade="all, delete")
 
