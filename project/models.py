@@ -62,7 +62,7 @@ class DisciplineBlock(db.Model):
     name: str = db.Column(db.String(255), nullable=False)
     description: str = db.Column(db.Text)
 
-    disciplineGroups = db.relationship("DisciplineGroup", back_populates="disciplineBlocks", cascade="all, delete")
+    disciplineGroups = db.relationship("DisciplineGroup", back_populates="block", cascade="all, delete")
 
 
 class DisciplineGroup(db.Model):
@@ -74,7 +74,7 @@ class DisciplineGroup(db.Model):
     discipline_url: str = db.Column(db.String(255))
 
     disciplines = db.relationship("Discipline", back_populates="discipline_group", cascade="all, delete")
-    disciplineBlocks = db.relationship("DisciplineBlock", back_populates="disciplineGroups")
+    block = db.relationship("DisciplineBlock", back_populates="disciplineGroups")
 
 
 class EducationLevel(db.Model):
