@@ -75,7 +75,6 @@ base_department_model = api.model(
             description="description of the department",
             default="description"
         ),
-        "contacts": fields.Nested(contacts_model, required=True),
     }
 )
 
@@ -85,6 +84,7 @@ department_model = api.model(
     {
         **base_department_model,
         "university": fields.Nested(short_university_model, required=True),
+        "contacts": fields.Nested(contacts_model, required=True),
     }
 )
 
@@ -93,6 +93,7 @@ department_query_model = api.model(
     "DepartmentQuery",
     {
         **base_department_model,
+        **contacts_model,
         "university": fields.Nested(base_id_model, required=True)
     }
 )

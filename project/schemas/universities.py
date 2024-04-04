@@ -9,6 +9,7 @@ short_university_model = api.model(
         "id": fields.Integer(
             readonly=True,
             description="The unique identifier of the university",
+            default=1
         ),
         "name": fields.String(
             required=True,
