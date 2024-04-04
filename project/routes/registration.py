@@ -1,9 +1,9 @@
-from flask import request
+from flask import request, jsonify
 from flask_restx import Resource, Namespace
-from project.extensions import db
+from project.extensions import db, api
 from project.models import User
 from flask_bcrypt import generate_password_hash
-from project.schemas.registration import user_registration_schema
+from project.schemas.registration import user_registration_schema, user_schema
 
 user = Namespace(name="signup", description="User registration")
 
@@ -27,4 +27,5 @@ class UserRegistration(Resource):
         )
         db.session.add(user)
         db.session.commit()
-        return {"message": "User registered successfully"}, 201
+        return {"user": api.marshal(user, user_schema)}
+

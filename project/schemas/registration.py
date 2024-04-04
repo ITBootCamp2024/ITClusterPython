@@ -44,3 +44,13 @@ user_registration_schema = api.model(
         )
     }
 )
+
+
+user_schema = {
+    "id": fields.Integer(description="The user unique identifier"),
+    "first_name": fields.String(description="The first name of the user"),
+    "last_name": fields.String(description="The last name of the user"),
+    "middle_name": fields.String(description="The middle name of the user"),
+    "email": fields.String(description="The email of the user"),
+    "phone_number": fields.String(description="The phone number of the user"),
+}
