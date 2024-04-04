@@ -5,7 +5,7 @@ from flask import Flask, g, jsonify
 from flask_cors import CORS
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-from project.extensions import api, db, migrate, pagination
+from project.extensions import api, db, migrate, pagination, jwt
 from project.models import (
     Department,
     Discipline,
@@ -54,6 +54,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     pagination.init_app(app, db)
+    jwt.init_app(app)
 
     @app.before_request
     def before_request():
