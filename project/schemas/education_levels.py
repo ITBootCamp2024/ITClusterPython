@@ -8,7 +8,9 @@ short_education_level_model = api.model(
     "ShortEducationLevel",
     {
         "id": fields.Integer(
-            readonly=True, description="Unique identifier of the education level"
+            readonly=True,
+            description="Unique identifier of the education level",
+            default=1
         ),
         "name": fields.String(
             required=True,

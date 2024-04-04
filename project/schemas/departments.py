@@ -73,7 +73,7 @@ base_department_model = api.model(
         "description": fields.String(
             required=True,
             description="description of the department",
-            default="description"
+            default="department description"
         ),
     }
 )

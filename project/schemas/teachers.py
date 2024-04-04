@@ -13,7 +13,9 @@ teacher_short_model = api.model(
     "TeacherShort",
     {
         "id": fields.Integer(
-            readonly=True, description="The teacher unique identifier"
+            readonly=True,
+            description="The teacher unique identifier",
+            default=1
         ),
         "name": fields.String(
             required=True,
@@ -39,7 +41,6 @@ base_teacher_model = api.model(
         "comments": fields.String(
             required=True,
             description="Some comments to the teacher",
-            default="Some comments to the teacher"
         )
     }
 )
