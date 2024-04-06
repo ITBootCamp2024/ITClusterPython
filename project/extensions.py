@@ -8,6 +8,6 @@ api = Api(
     version="1.0",
     description="All API metadatas",
 )
-db = SQLAlchemy()
+db = SQLAlchemy(session_options={"autoflush": False})
 migrate = Migrate()
 pagination = Pagination()
