@@ -2,7 +2,7 @@ from flask_restx import fields
 
 from project.extensions import api
 from project.schemas.departments import short_department_model, department_model
-from project.schemas.discipline_blocks import short_discipline_blocks_model
+from project.schemas.discipline_blocks import short_discipline_blocks_model, discipline_blocks_model
 from project.schemas.discipline_groups import short_discipline_groups_model
 from project.schemas.disciplines import short_discipline_model
 from project.schemas.education_levels import education_level_model
@@ -86,6 +86,15 @@ serviced_department_model = api.model(
         "content": fields.List(fields.Nested(department_model)),
         "service_info": fields.Nested(service_info_for_department),
         "totalElements": fields.Integer(description="The total number of departments")
+    }
+)
+
+
+serviced_discipline_blocks_model = api.model(
+    "ServicedDisciplineBlocks",
+    {
+        "content": fields.List(fields.Nested(discipline_blocks_model)),
+        "totalElements": fields.Integer(description="The total number of discipline blocks")
     }
 )
 
