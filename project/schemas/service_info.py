@@ -71,6 +71,14 @@ serviced_education_level_model = api.model(
 )
 
 
+serviced_position_model = api.model(
+    "ServicedPosition",
+    {
+        "content": fields.List(fields.Nested(position_model)),
+        "totalElements": fields.Integer(description="The total number of positions")
+    }
+)
+
 serviced_specialty_model = api.model(
     "ServicedSpecialty",
     {
