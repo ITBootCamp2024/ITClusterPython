@@ -15,6 +15,7 @@ departments_ns = Namespace(name="department", description="info about department
 
 def get_department_or_404(id):
     department = Department.query.get(id)
+    department.phone = department.phone.split(", ")
     if not department:
         abort(404, "Department not found")
     return department
@@ -22,6 +23,8 @@ def get_department_or_404(id):
 
 def get_department_response():
     departments = Department.query.all()
+    for department in departments:
+        department.phone = department.phone.split(", ")
     universities = University.query.all()
     return {
         "content": departments,
