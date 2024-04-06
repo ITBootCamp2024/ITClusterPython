@@ -7,9 +7,9 @@ from project.schemas.discipline_groups import short_discipline_groups_model
 from project.schemas.disciplines import short_discipline_model
 from project.schemas.education_levels import education_level_model
 from project.schemas.education_programs import short_education_program_model
-from project.schemas.position import position_model
+from project.schemas.position import position_model, short_position_model
 from project.schemas.specialty import base_specialty_model
-from project.schemas.teachers import teacher_short_model
+from project.schemas.teachers import teacher_short_model, teacher_model
 from project.schemas.universities import short_university_model
 
 
@@ -50,4 +50,24 @@ service_info_model = api.model(
         "disciplineBlocks": fields.List(fields.Nested(discipline_blocks_service_model)),
         "education_program": fields.List(fields.Nested(short_education_program_model)),
     },
+)
+
+
+service_info_for_teacher = api.model(
+    "TeacherService",
+    {
+        "position": fields.List(fields.Nested(short_position_model)),
+        "education_levels": fields.List(fields.Nested(education_level_model)),
+        "university": fields.List(fields.Nested(university_service_model)),
+    }
+)
+
+
+serviced_teacher_model = api.model(
+    "ServicedTeacher",
+    {
+        "content": fields.List(fields.Nested(teacher_model)),
+        "service_info": fields.Nested(service_info_for_teacher),
+        "totalElements": fields.Integer(description="The total number of teachers")
+    }
 )
