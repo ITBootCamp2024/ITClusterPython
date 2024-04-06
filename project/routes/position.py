@@ -1,37 +1,11 @@
 from flask_restx import Resource, Namespace, abort
 
-from project.extensions import db, pagination
+from project.extensions import db
 from project.models import Position
-from project.schemas.pagination import pagination_parser, custom_schema_pagination
-from project.schemas.position import paginated_position_model, position_model
+from project.schemas.position import position_model
+from project.schemas.service_info import serviced_position_model
 
 position_ns = Namespace(name="position", description="positions of teachers")
-
-
-@position_ns.route("")
-class PositionList(Resource):
-    """Shows a list of all positions, and lets you POST to add new position"""
-
-    @position_ns.expect(pagination_parser)
-    @position_ns.marshal_with(paginated_position_model)
-    def get(self):
-        """List all positions"""
-        return pagination.paginate(
-            Position, position_model, pagination_schema_hook=custom_schema_pagination
-        )
-
-    @position_ns.expect(position_model, pagination_parser)
-    @position_ns.marshal_with(paginated_position_model)
-    def post(self):
-        """Adds a new position"""
-        position = Position()
-        for key, value in position_ns.payload.items():
-            setattr(position, key, value)
-        db.session.add(position)
-        db.session.commit()
-        return pagination.paginate(
-            Position, position_model, pagination_schema_hook=custom_schema_pagination
-        )
 
 
 def get_position_or_404(id):
@@ -39,6 +13,35 @@ def get_position_or_404(id):
     if not position:
         abort(404, "Position not found")
     return position
+
+
+def get_position_response():
+    positions = Position.query.all()
+    return {
+        "content": positions,
+        "totalElements": len(positions)
+    }
+
+
+@position_ns.route("")
+class PositionList(Resource):
+    """Shows a list of all positions, and lets you POST to add new position"""
+
+    @position_ns.marshal_with(serviced_position_model)
+    def get(self):
+        """List all positions"""
+        return get_position_response()
+
+    @position_ns.expect(position_model)
+    @position_ns.marshal_with(serviced_position_model)
+    def post(self):
+        """Adds a new position"""
+        position = Position()
+        for key, value in position_ns.payload.items():
+            setattr(position, key, value)
+        db.session.add(position)
+        db.session.commit()
+        return get_position_response()
 
 
 @position_ns.route("/<int:id>")
@@ -52,8 +55,8 @@ class PositionsDetail(Resource):
         """Fetch the position with a given id"""
         return get_position_or_404(id)
 
-    @position_ns.expect(position_model, pagination_parser, validate=False)
-    @position_ns.marshal_with(paginated_position_model)
+    @position_ns.expect(position_model, validate=False)
+    @position_ns.marshal_with(serviced_position_model)
     def patch(self, id):
         """Update the position with a given id"""
         position = get_position_or_404(id)
@@ -62,17 +65,12 @@ class PositionsDetail(Resource):
             if key in position_keys:
                 setattr(position, key, value)
         db.session.commit()
-        return pagination.paginate(
-            Position, position_model, pagination_schema_hook=custom_schema_pagination
-        )
+        return get_position_response()
 
-    @position_ns.expect(pagination_parser)
-    @position_ns.marshal_with(paginated_position_model)
+    @position_ns.marshal_with(serviced_position_model)
     def delete(self, id):
         """Delete the position with a given id"""
         position = get_position_or_404(id)
         db.session.delete(position)
         db.session.commit()
-        return pagination.paginate(
-            Position, position_model, pagination_schema_hook=custom_schema_pagination
-        )
+        return get_position_response()
