@@ -6,7 +6,7 @@ from project.schemas.discipline_blocks import short_discipline_blocks_model
 from project.schemas.discipline_groups import short_discipline_groups_model
 from project.schemas.disciplines import short_discipline_model
 from project.schemas.education_levels import education_level_model
-from project.schemas.education_programs import short_education_program_model
+from project.schemas.education_programs import short_education_program_model, education_program_model
 from project.schemas.position import position_model, short_position_model
 from project.schemas.specialty import base_specialty_model, specialty_model
 from project.schemas.teachers import teacher_short_model, teacher_model
@@ -52,8 +52,18 @@ service_info_model = api.model(
 )
 
 
+service_info_for_education_program = api.model(
+    "ServiceInfoForEducationProgram",
+    {
+        "specialty": fields.List(fields.Nested(base_specialty_model)),
+        "university": fields.List(fields.Nested(university_service_model)),
+        "education_levels": fields.List(fields.Nested(education_level_model)),
+    }
+)
+
+
 service_info_for_teacher = api.model(
-    "TeacherService",
+    "ServiceInfoForTeacher",
     {
         "position": fields.List(fields.Nested(short_position_model)),
         "education_levels": fields.List(fields.Nested(education_level_model)),
@@ -67,6 +77,16 @@ serviced_education_level_model = api.model(
     {
         "content": fields.List(fields.Nested(education_level_model)),
         "totalElements": fields.Integer(description="The total number of education levels")
+    }
+)
+
+
+serviced_education_program_model = api.model(
+    "ServicedEducationProgram",
+    {
+        "content": fields.List(fields.Nested(education_program_model)),
+        "service_info": fields.Nested(service_info_for_education_program),
+        "totalElements": fields.Integer(description="The total number of education programs")
     }
 )
 
