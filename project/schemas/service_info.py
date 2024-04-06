@@ -10,8 +10,7 @@ from project.schemas.education_programs import short_education_program_model
 from project.schemas.position import position_model, short_position_model
 from project.schemas.specialty import base_specialty_model
 from project.schemas.teachers import teacher_short_model, teacher_model
-from project.schemas.universities import short_university_model
-
+from project.schemas.universities import short_university_model, university_model
 
 university_service_model = api.model(
     "UniversityService",
@@ -69,5 +68,14 @@ serviced_teacher_model = api.model(
         "content": fields.List(fields.Nested(teacher_model)),
         "service_info": fields.Nested(service_info_for_teacher),
         "totalElements": fields.Integer(description="The total number of teachers")
+    }
+)
+
+
+serviced_university_model = api.model(
+    "ServicedUniversity",
+    {
+        "content": fields.List(fields.Nested(university_model)),
+        "totalElements": fields.Integer(description="The total number of universities")
     }
 )
