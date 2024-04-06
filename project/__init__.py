@@ -37,6 +37,7 @@ def create_app():
 
     load_dotenv()
     app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config["RESTX_VALIDATE"] = True
     app.config["RESTX_JSON"] = {"ensure_ascii": False}
     app.config['DEBUG'] = True

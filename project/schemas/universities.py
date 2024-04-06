@@ -22,8 +22,8 @@ short_university_model = api.model(
 )
 
 
-university_model = api.model(
-    "University",
+base_university_model = api.model(
+    "BaseUniversity",
     {
         **short_university_model,
         "abbr": fields.String(
@@ -33,6 +33,13 @@ university_model = api.model(
             max_length=45,
             default="ABBR"
         ),
+    }
+)
+
+university_model = api.model(
+    "University",
+    {
+        **base_university_model,
         "programs_list_url": fields.String(
             required=True,
             description="Url for the list of programs",
