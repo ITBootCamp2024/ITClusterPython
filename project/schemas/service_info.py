@@ -4,7 +4,7 @@ from project.extensions import api
 from project.schemas.departments import short_department_model, department_model
 from project.schemas.discipline_blocks import short_discipline_blocks_model, discipline_blocks_model
 from project.schemas.discipline_groups import short_discipline_groups_model
-from project.schemas.disciplines import short_discipline_model
+from project.schemas.disciplines import short_discipline_model, discipline_model
 from project.schemas.education_levels import education_level_model
 from project.schemas.education_programs import short_education_program_model, education_program_model
 from project.schemas.position import position_model, short_position_model
@@ -60,6 +60,16 @@ service_info_for_department = api.model(
 )
 
 
+service_info_for_discipline = api.model(
+    "ServiceInfoForDiscipline",
+    {
+        "teachers": fields.List(fields.Nested(teacher_short_model)),
+        "education_program": fields.List(fields.Nested(short_education_program_model)),
+        "disciplineBlocks": fields.List(fields.Nested(discipline_blocks_service_model)),
+    }
+)
+
+
 service_info_for_education_program = api.model(
     "ServiceInfoForEducationProgram",
     {
@@ -98,6 +108,15 @@ serviced_discipline_blocks_model = api.model(
     }
 )
 
+
+serviced_discipline_model = api.model(
+    "ServicedDiscipline",
+    {
+        "content": fields.List(fields.Nested(discipline_model)),
+        "service_info": fields.Nested(service_info_for_discipline),
+        "totalElements": fields.Integer(description="The total number of disciplines")
+    }
+)
 
 serviced_education_level_model = api.model(
     "ServicedEducationLevel",
