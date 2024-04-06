@@ -1,7 +1,7 @@
 from flask_restx import fields
 
 from project.extensions import api
-from project.schemas.departments import short_department_model
+from project.schemas.departments import short_department_model, department_model
 from project.schemas.discipline_blocks import short_discipline_blocks_model
 from project.schemas.discipline_groups import short_discipline_groups_model
 from project.schemas.disciplines import short_discipline_model
@@ -10,7 +10,7 @@ from project.schemas.education_programs import short_education_program_model, ed
 from project.schemas.position import position_model, short_position_model
 from project.schemas.specialty import base_specialty_model, specialty_model
 from project.schemas.teachers import teacher_short_model, teacher_model
-from project.schemas.universities import short_university_model, university_model
+from project.schemas.universities import short_university_model, university_model, base_university_model
 
 university_service_model = api.model(
     "UniversityService",
@@ -52,6 +52,14 @@ service_info_model = api.model(
 )
 
 
+service_info_for_department = api.model(
+    "ServiceInfoForDepartment",
+    {
+        "university": fields.List(fields.Nested(base_university_model))
+    }
+)
+
+
 service_info_for_education_program = api.model(
     "ServiceInfoForEducationProgram",
     {
@@ -68,6 +76,16 @@ service_info_for_teacher = api.model(
         "position": fields.List(fields.Nested(short_position_model)),
         "education_levels": fields.List(fields.Nested(education_level_model)),
         "university": fields.List(fields.Nested(university_service_model)),
+    }
+)
+
+
+serviced_department_model = api.model(
+    "ServicedDepartment",
+    {
+        "content": fields.List(fields.Nested(department_model)),
+        "service_info": fields.Nested(service_info_for_department),
+        "totalElements": fields.Integer(description="The total number of departments")
     }
 )
 

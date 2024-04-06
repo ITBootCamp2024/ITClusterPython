@@ -1,33 +1,48 @@
 from flask_restx import Resource, Namespace, abort
 
-from project.extensions import db, pagination
-from project.models import Department
+from project.extensions import db
+from project.models import Department, University
 from project.schemas.departments import (
-    paginated_department_model,
     department_model,
     department_query_model,
     contacts_model
 )
-from project.schemas.pagination import pagination_parser, custom_schema_pagination
+from project.schemas.service_info import serviced_department_model
 from project.validators import validate_site
 
 departments_ns = Namespace(name="department", description="info about departments")
+
+
+def get_department_or_404(id):
+    department = Department.query.get(id)
+    if not department:
+        abort(404, "Department not found")
+    return department
+
+
+def get_department_response():
+    departments = Department.query.all()
+    universities = University.query.all()
+    return {
+        "content": departments,
+        "service_info": {
+            "university": universities,
+        },
+        "totalElements": len(departments)
+    }
 
 
 @departments_ns.route("")
 class DepartmentsList(Resource):
     """Shows a list of all departments, and lets you POST to add new department"""
 
-    @departments_ns.expect(pagination_parser)
-    @departments_ns.marshal_with(paginated_department_model)
+    @departments_ns.marshal_with(serviced_department_model)
     def get(self):
         """List all departments"""
-        return pagination.paginate(
-            Department, department_model, pagination_schema_hook=custom_schema_pagination
-        )
+        return get_department_response()
 
-    @departments_ns.expect(department_query_model, pagination_parser)
-    @departments_ns.marshal_with(paginated_department_model)
+    @departments_ns.expect(department_query_model)
+    @departments_ns.marshal_with(serviced_department_model)
     @validate_site('http', ["url"])
     def post(self):
         """Adds a new department"""
@@ -42,16 +57,7 @@ class DepartmentsList(Resource):
         department.contacts = {key: departments_ns.payload.get(key) for key in contacts_model.keys()}
         db.session.add(department)
         db.session.commit()
-        return pagination.paginate(
-            Department, department_model, pagination_schema_hook=custom_schema_pagination
-        )
-
-
-def get_department_or_404(id):
-    department = Department.query.get(id)
-    if not department:
-        abort(404, "Department not found")
-    return department
+        return get_department_response()
 
 
 @departments_ns.route("/<int:id>")
@@ -65,8 +71,8 @@ class DepartmentDetail(Resource):
         """Fetch the department with a given id"""
         return get_department_or_404(id)
 
-    @departments_ns.expect(department_query_model, pagination_parser, validate=False)
-    @departments_ns.marshal_with(paginated_department_model)
+    @departments_ns.expect(department_query_model, validate=False)
+    @departments_ns.marshal_with(serviced_department_model)
     @validate_site('http', ["url"])
     def patch(self, id):
         """Update the department with a given id"""
@@ -80,17 +86,12 @@ class DepartmentDetail(Resource):
                 setattr(department, key + "_id", value.get("id"))
         department.contacts = {key: departments_ns.payload.get(key) for key in contacts_model.keys()}
         db.session.commit()
-        return pagination.paginate(
-            Department, department_model, pagination_schema_hook=custom_schema_pagination
-        )
+        return get_department_response()
 
-    @departments_ns.expect(pagination_parser)
-    @departments_ns.marshal_with(paginated_department_model)
+    @departments_ns.marshal_with(serviced_department_model)
     def delete(self, id):
         """Delete the department with given id"""
         department = get_department_or_404(id)
         db.session.delete(department)
         db.session.commit()
-        return pagination.paginate(
-            Department, department_model, pagination_schema_hook=custom_schema_pagination
-        )
+        return get_department_response()
