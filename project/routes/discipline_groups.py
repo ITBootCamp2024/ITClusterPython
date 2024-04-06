@@ -1,34 +1,45 @@
 from flask_restx import Resource, Namespace, abort
 
-from project.extensions import db, pagination
-from project.models import DisciplineGroup
-from project.schemas.discipline_groups import (
-    paginated_discipline_groups_model,
-    discipline_groups_model,
-    discipline_groups_query_model)
-from project.schemas.pagination import pagination_parser, custom_schema_pagination
+from project.extensions import db
+from project.models import DisciplineGroup, DisciplineBlock
+from project.schemas.discipline_groups import discipline_groups_model, discipline_groups_query_model
+from project.schemas.service_info import serviced_discipline_groups_model
 from project.validators import validate_site
 
 
 discipline_groups_ns = Namespace(name="discipline-groups", description="Discipline groups")
 
 
+def get_discipline_group_or_404(id):
+    discipline_group = DisciplineGroup.query.get(id)
+    if not discipline_group:
+        abort(404, "The discipline group not found")
+    return discipline_group
+
+
+def get_discipline_group_response():
+    discipline_groups = DisciplineGroup.query.all()
+    discipline_blocks = DisciplineBlock.query.all()
+    return {
+        "content": discipline_groups,
+        "service_info": {
+            "disciplineBlocks": discipline_blocks,
+        },
+        "totalElements": len(discipline_groups)
+    }
+
+
 @discipline_groups_ns.route("")
 class DisciplineGroupsList(Resource):
     """Shows a list of all discipline groups, and lets you POST to add new discipline group"""
 
-    @discipline_groups_ns.expect(pagination_parser)
-    @discipline_groups_ns.marshal_with(paginated_discipline_groups_model)
+    @discipline_groups_ns.marshal_with(serviced_discipline_groups_model)
     def get(self):
         """List all discipline groups"""
-        return pagination.paginate(
-            DisciplineGroup,
-            discipline_groups_model,
-            pagination_schema_hook=custom_schema_pagination,
-        )
+        return get_discipline_group_response()
 
-    @discipline_groups_ns.expect(discipline_groups_query_model, pagination_parser)
-    @discipline_groups_ns.marshal_with(paginated_discipline_groups_model)
+    @discipline_groups_ns.expect(discipline_groups_query_model)
+    @discipline_groups_ns.marshal_with(serviced_discipline_groups_model)
     @validate_site('http', ["discipline_url"])
     def post(self):
         """Create a new discipline group"""
@@ -43,18 +54,7 @@ class DisciplineGroupsList(Resource):
 
         db.session.add(discipline_group)
         db.session.commit()
-        return pagination.paginate(
-            DisciplineGroup,
-            discipline_groups_model,
-            pagination_schema_hook=custom_schema_pagination,
-        )
-
-
-def get_discipline_group_or_404(id):
-    discipline_group = DisciplineGroup.query.get(id)
-    if not discipline_group:
-        abort(404, "The discipline group not found")
-    return discipline_group
+        return get_discipline_group_response()
 
 
 @discipline_groups_ns.route("/<int:id>")
@@ -68,8 +68,8 @@ class DisciplineGroupsDetail(Resource):
         """Fetch a discipline group with given id"""
         return get_discipline_group_or_404(id)
 
-    @discipline_groups_ns.expect(discipline_groups_query_model, pagination_parser, validate=False)
-    @discipline_groups_ns.marshal_with(paginated_discipline_groups_model)
+    @discipline_groups_ns.expect(discipline_groups_query_model, validate=False)
+    @discipline_groups_ns.marshal_with(serviced_discipline_groups_model)
     @validate_site('http', ["discipline_url"])
     def patch(self, id):
         """Update a discipline group with given id"""
@@ -82,21 +82,12 @@ class DisciplineGroupsDetail(Resource):
             elif key in nested_ids:
                 setattr(discipline_group, key + "_id", value.get("id"))
         db.session.commit()
-        return pagination.paginate(
-            DisciplineGroup,
-            discipline_groups_model,
-            pagination_schema_hook=custom_schema_pagination,
-        )
+        return get_discipline_group_response()
 
-    @discipline_groups_ns.expect(pagination_parser)
-    @discipline_groups_ns.marshal_with(paginated_discipline_groups_model)
+    @discipline_groups_ns.marshal_with(serviced_discipline_groups_model)
     def delete(self, id):
         """Delete a discipline group with given id"""
         discipline_block = get_discipline_group_or_404(id)
         db.session.delete(discipline_block)
         db.session.commit()
-        return pagination.paginate(
-            DisciplineGroup,
-            discipline_groups_model,
-            pagination_schema_hook=custom_schema_pagination,
-        )
+        return get_discipline_group_response()
