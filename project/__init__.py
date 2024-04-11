@@ -36,7 +36,7 @@ def create_app():
     CORS(app)
 
     load_dotenv()
-    app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
+    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://Python_healththee:7bb73aee46fd73bd7cd9377a2be48e436e419712@cqa.h.filess.io:3307/Python_healththee"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config["RESTX_VALIDATE"] = True
     app.config["RESTX_JSON"] = {"ensure_ascii": False}
