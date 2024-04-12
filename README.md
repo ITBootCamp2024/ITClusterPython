@@ -35,7 +35,6 @@
 
 ---
 ## 2. Endpoints
-> https://itclusterpython2024.onrender.com/degree - Наукові ступені
 > https://itclusterpython2024.onrender.com/department - Кафедри
 > https://itclusterpython2024.onrender.com/disciplines - Дисципліни і курси
 > https://itclusterpython2024.onrender.com/discipline-blocks - Блоки дисциплін
