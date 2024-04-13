@@ -13,7 +13,8 @@ short_education_program_model = api.model(
     {
         "id": fields.Integer(
             readonly=True,
-            description="Unique identifier of the education program"
+            description="Unique identifier of the education program",
+            default=1
         ),
         "name": fields.String(
             required=True,
@@ -75,16 +76,16 @@ education_program_query_model = api.model(
 )
 
 
-program_parser = api.parser()
-program_parser.add_argument(
-    "specialty_id", type=int, required=False, default=0, help="Specialty ID"
-)
-program_parser.add_argument(
-    "university_id", type=int, required=False, default=0, help="University ID"
-)
-program_parser.add_argument(
-    "level", type=int, required=False, default=0, help="Level ID"
-)
+# program_parser = api.parser()
+# program_parser.add_argument(
+#     "specialty_id", type=int, required=False, default=0, help="Specialty ID"
+# )
+# program_parser.add_argument(
+#     "university_id", type=int, required=False, default=0, help="University ID"
+# )
+# program_parser.add_argument(
+#     "level", type=int, required=False, default=0, help="Level ID"
+# )
 
 
 paginated_education_program_model = get_pagination_schema_for(education_program_model)

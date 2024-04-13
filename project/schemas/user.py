@@ -1,9 +1,8 @@
 from flask_restx import fields
 
 from project.extensions import api
-from project.schemas.pagination import get_pagination_schema_for
 
-
+# TODO: replace this models with x-www-form-urlencoded parsers
 login_model = api.model(
     "LoginModel",
     {
@@ -25,7 +24,7 @@ register_model = api.model(
             required=True,
             description="Email",
             min_length=1,
-            max_length=45,
+            max_length=100,
             default="example@mail.com",
         ),
         "password": fields.String,
@@ -47,6 +46,3 @@ user_model = api.model(
         "phone": fields.String,
     },
 )
-
-
-# paginated_university_model = get_pagination_schema_for(university_model)

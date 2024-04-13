@@ -3,23 +3,11 @@ from datetime import datetime
 from project.extensions import db
 
 
-class User(db.Model):
-    id: int = db.Column(db.Integer, primary_key=True)
-    first_name: str = db.Column(db.String(100), nullable=False)
-    last_name: str = db.Column(db.String(100), nullable=False)
-    parent_name: str = db.Column(db.String(100))
-    email: str = db.Column(db.String(45), unique=True)
-    password_hash: str = db.Column(db.String(255), nullable=False)
-    phone: str = db.Column(db.String(45), nullable=False)
-    created_at = db.Column(db.Date, default=datetime.utcnow().date)
-    # role:
-
-
 class Department(db.Model):
     __tablename__ = "department"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
-    university_id: int = db.Column(db.ForeignKey("university.id"))
+    university_id: int = db.Column(db.ForeignKey("university.id"), nullable=False)
     description: str = db.Column(db.Text, nullable=False)
     address: str = db.Column(db.String(255), nullable=False)
     email: str = db.Column(db.String(45), nullable=False)
@@ -59,9 +47,9 @@ class Discipline(db.Model):
     __tablename__ = "disciplines"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
-    teacher_id: int = db.Column(db.ForeignKey("teachers.id"))
-    discipline_group_id: int = db.Column(db.ForeignKey("discipline_groups.id"))
-    education_program_id: int = db.Column(db.ForeignKey("education_programs.id"))
+    teacher_id: int = db.Column(db.ForeignKey("teachers.id"), nullable=False)
+    discipline_group_id: int = db.Column(db.ForeignKey("discipline_groups.id"), nullable=False)
+    education_program_id: int = db.Column(db.ForeignKey("education_programs.id"), nullable=False)
     syllabus_url: str = db.Column(db.String(255))
     education_plan_url: str = db.Column(db.String(255))
 
@@ -83,7 +71,7 @@ class DisciplineBlock(db.Model):
     description: str = db.Column(db.Text)
 
     disciplineGroups = db.relationship(
-        "DisciplineGroup", back_populates="disciplineBlocks", cascade="all, delete"
+        "DisciplineGroup", back_populates="block", cascade="all, delete"
     )
 
 
@@ -92,13 +80,13 @@ class DisciplineGroup(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
     description: str = db.Column(db.Text)
-    block_id: int = db.Column(db.ForeignKey("discipline_blocks.id"))
+    block_id: int = db.Column(db.ForeignKey("discipline_blocks.id"), nullable=False)
     discipline_url: str = db.Column(db.String(255))
 
     disciplines = db.relationship(
         "Discipline", back_populates="discipline_group", cascade="all, delete"
     )
-    disciplineBlocks = db.relationship(
+    block = db.relationship(
         "DisciplineBlock", back_populates="disciplineGroups"
     )
 
@@ -122,13 +110,13 @@ class EducationProgram(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(255), nullable=False)
     education_level_id: int = db.Column(
-        db.ForeignKey("education_levels.id"), nullable=True
+        db.ForeignKey("education_levels.id"), nullable=False
     )
     guarantor: str = db.Column(db.String(100), nullable=False)
-    department_id: int = db.Column(db.ForeignKey("department.id"), nullable=True)
+    department_id: int = db.Column(db.ForeignKey("department.id"), nullable=False)
     program_url: str = db.Column(db.String(255), nullable=False)
     syllabus_url: str = db.Column(db.String(255), nullable=False)
-    specialty_id: str = db.Column(db.ForeignKey("specialty.id"), nullable=True)
+    specialty_id: str = db.Column(db.ForeignKey("specialty.id"), nullable=False)
 
     disciplines = db.relationship(
         "Discipline", back_populates="education_program", cascade="all, delete"
@@ -148,10 +136,20 @@ class Position(db.Model):
     __tablename__ = "position"
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
+    description: str = db.Column(db.Text)
 
     teachers = db.relationship(
         "Teacher", back_populates="position", cascade="all, delete"
     )
+
+
+class Role(db.Model):
+    __tablename__ = "role"
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(45), nullable=False)
+
+    teachers = db.relationship("Teacher", back_populates="role", cascade="all, delete")
+    users = db.relationship("User", back_populates="role", cascade="all, delete")
 
 
 class Specialty(db.Model):
@@ -175,6 +173,7 @@ class Teacher(db.Model):
     department_id: int = db.Column(db.ForeignKey("department.id"), nullable=False)
     comments: str = db.Column(db.Text)
     education_level_id = db.Column(db.ForeignKey("education_levels.id"), nullable=False)
+    role_id = db.Column(db.ForeignKey("role.id"), nullable=False)
 
     disciplines = db.relationship(
         "Discipline", back_populates="teacher", cascade="all, delete"
@@ -182,6 +181,7 @@ class Teacher(db.Model):
     position = db.relationship("Position", back_populates="teachers")
     department = db.relationship("Department", back_populates="teachers")
     education_level = db.relationship("EducationLevel", back_populates="teachers")
+    role = db.relationship("Role", back_populates="teachers")
 
     @property
     def university(self):
@@ -199,3 +199,20 @@ class University(db.Model):
     department = db.relationship(
         "Department", back_populates="university", cascade="all, delete"
     )
+
+
+class User(db.Model):
+    __tablename__ = "users"
+    id: int = db.Column(db.Integer, primary_key=True)
+    first_name: str = db.Column(db.String(100), nullable=False)
+    last_name: str = db.Column(db.String(100), nullable=False)
+    parent_name: str = db.Column(db.String(100))
+    email: str = db.Column(db.String(100), unique=True)
+    password_hash: str = db.Column(db.String(255), nullable=False)
+    phone: str = db.Column(db.String(45), nullable=False)
+    created_at = db.Column(db.Date, default=datetime.utcnow())
+    role_id: int = db.Column(db.ForeignKey("role.id"), nullable=False)
+    email_confirmed: bool = db.Column(db.Boolean, default=False, nullable=False)
+    active_status: bool = db.Column(db.Boolean, default=True, nullable=False)
+
+    role = db.relationship("Role", back_populates="users")

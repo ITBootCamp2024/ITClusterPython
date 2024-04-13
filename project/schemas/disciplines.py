@@ -13,7 +13,8 @@ short_discipline_model = api.model(
     {
         "id": fields.Integer(
             readonly=True,
-            description="Unique identifier of the discipline"
+            description="Unique identifier of the discipline",
+            default=1
         ),
         "name": fields.String(
             required=True,
@@ -34,13 +35,11 @@ base_discipline_model = api.model(
             required=True,
             description="Syllabus url",
             max_length=255,
-            default="http://syllabus-url"
         ),
         "education_plan_url": fields.String(
             required=True,
             description="Education plan url",
             max_length=255,
-            default="http://education-plan-url"
         )
     }
 )

@@ -70,12 +70,12 @@ base_department_model = api.model(
     "BaseDepartment",
     {
         **short_department_model_with_url,
+        **contacts_model,
         "description": fields.String(
             required=True,
             description="description of the department",
-            default="description"
+            default="department description"
         ),
-        "contacts": fields.Nested(contacts_model, required=True),
     }
 )
 

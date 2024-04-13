@@ -9,6 +9,7 @@ short_university_model = api.model(
         "id": fields.Integer(
             readonly=True,
             description="The unique identifier of the university",
+            default=1
         ),
         "name": fields.String(
             required=True,
@@ -21,8 +22,8 @@ short_university_model = api.model(
 )
 
 
-university_model = api.model(
-    "University",
+base_university_model = api.model(
+    "BaseUniversity",
     {
         **short_university_model,
         "abbr": fields.String(
@@ -32,6 +33,13 @@ university_model = api.model(
             max_length=45,
             default="ABBR"
         ),
+    }
+)
+
+university_model = api.model(
+    "University",
+    {
+        **base_university_model,
         "programs_list_url": fields.String(
             required=True,
             description="Url for the list of programs",

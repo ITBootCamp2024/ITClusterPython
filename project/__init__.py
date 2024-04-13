@@ -41,6 +41,8 @@ def create_app():
 
     load_dotenv()
     app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_POOL_SIZE'] = 1
     app.config["RESTX_VALIDATE"] = True
     app.config["RESTX_JSON"] = {"ensure_ascii": False}
     app.config["DEBUG"] = True
@@ -58,7 +60,7 @@ def create_app():
     #  import secrets
     #  print(secrets.token_hex(16))
     app.config["JWT_SECRET_KEY"] = environ.get("JWT_SECRET_KEY")
-    app.config["JWT_ALGORITHM"] = "HS256"
+    app.config["JWT_ALGORITHM"] = environ.get("JWT_ALGORITHM")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
     api.init_app(app)
@@ -67,28 +69,32 @@ def create_app():
     pagination.init_app(app, db)
     jwt.init_app(app)
 
-    @app.before_request
-    def before_request():
-        g.db = db.session
-
-    @app.after_request
-    def after_request(response):
-        db_session = getattr(g, "db", None)
-        if db_session is not None:
-            db_session.close()
-        return response
+    @app.teardown_appcontext
+    def close_connection(exception=None):
+        try:
+            db.session.remove()
+        except SQLAlchemyError as e:
+            print(f"An error occurred while closing the database connection: {str(e)}")
 
     @app.errorhandler(IntegrityError)
     def handle_integrity_error(error):
         if hasattr(g, "db"):
             g.db.rollback()
-        return jsonify({"error": f"Integrity error occurred. {error}"}), 400
+            g.db.session.close()
+        return jsonify({
+            "msg": "can't write data to the database",
+            "error": f"Integrity error occurred. {error}"
+        }), 400
 
     @app.errorhandler(SQLAlchemyError)
     def handle_database_error(error):
         if hasattr(g, "db"):
             g.db.rollback()
-        return jsonify({"error": f"Database error occurred. {error}"}), 500
+            g.db.session.close()
+        return jsonify({
+            "msg": "Database error occured",
+            "error": f"Database error occurred. {error}"
+        }), 500
 
     api.add_namespace(departments_ns)
     api.add_namespace(disciplines_ns)
