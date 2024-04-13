@@ -117,6 +117,14 @@ class Position(db.Model):
     teachers = db.relationship("Teacher", back_populates="position", cascade="all, delete")
 
 
+class Role(db.Model):
+    __tablename__ = "role"
+    id: int = db.Column(db.Integer, primary_key=True)
+    name: str = db.Column(db.String(45), nullable=False)
+
+    teachers = db.relationship("Teacher", back_populates="role", cascade="all, delete")
+
+
 class Specialty(db.Model):
     __tablename__ = "specialty"
     id: int = db.Column(db.Integer, primary_key=True)
@@ -136,11 +144,13 @@ class Teacher(db.Model):
     department_id: int = db.Column(db.ForeignKey("department.id"), nullable=False)
     comments: str = db.Column(db.Text)
     education_level_id = db.Column(db.ForeignKey("education_levels.id"), nullable=False)
+    role_id = db.Column(db.ForeignKey("role.id"), nullable=False)
 
     disciplines = db.relationship("Discipline", back_populates="teacher", cascade="all, delete")
     position = db.relationship("Position", back_populates="teachers")
     department = db.relationship("Department", back_populates="teachers")
     education_level = db.relationship("EducationLevel", back_populates="teachers")
+    role = db.relationship("Role", back_populates="teachers")
 
     @property
     def university(self):
