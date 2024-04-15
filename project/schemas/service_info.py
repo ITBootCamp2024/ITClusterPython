@@ -92,7 +92,6 @@ service_info_for_teacher = api.model(
     "ServiceInfoForTeacher",
     {
         "position": fields.List(fields.Nested(short_position_model)),
-        "education_levels": fields.List(fields.Nested(education_level_model)),
         "university": fields.List(fields.Nested(university_service_model)),
     }
 )
