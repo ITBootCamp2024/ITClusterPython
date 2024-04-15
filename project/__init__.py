@@ -82,7 +82,7 @@ def create_app():
             g.db.rollback()
             g.db.session.close()
         return jsonify({
-            "msg": "can't write data to the database",
+            "message": "can't write data to the database",
             "error": f"Integrity error occurred. {error}"
         }), 400
 
@@ -92,7 +92,7 @@ def create_app():
             g.db.rollback()
             g.db.session.close()
         return jsonify({
-            "msg": "Database error occured",
+            "message": "Database error occured",
             "error": f"Database error occurred. {error}"
         }), 500
 

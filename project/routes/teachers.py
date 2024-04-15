@@ -1,7 +1,7 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import Teacher, Position, EducationLevel, University, Role
+from project.models import Teacher, Position, University, Role
 from project.schemas.service_info import serviced_teacher_model
 from project.schemas.teachers import teacher_model, teacher_query_model
 
@@ -18,14 +18,12 @@ def get_teacher_or_404(id):
 def get_teacher_response():
     teachers = Teacher.query.all()
     positions = Position.query.all()
-    education_levels = EducationLevel.query.all()
     university = University.query.all()
 
     return {
         "content": teachers,
         "service_info": {
             "position": positions,
-            "education_levels": education_levels,
             "university": university
         },
         "totalElements": len(teachers)
@@ -46,8 +44,8 @@ class TeachersList(Resource):
     def post(self):
         """Adds a new teacher"""
         teacher = Teacher()
-        plain_params = ["name", "email", "comments"]
-        nested_ids = ["position", "education_level", "department"]
+        plain_params = ["name", "email", "degree_level", "comments"]
+        nested_ids = ["position", "department"]
         for key, value in teachers_ns.payload.items():
             if key in plain_params:
                 setattr(teacher, key, value)
@@ -75,8 +73,8 @@ class TeachersDetail(Resource):
     def patch(self, id):
         """Update the teacher with a given id"""
         teacher = get_teacher_or_404(id)
-        plain_params = ["name", "email", "comments"]
-        nested_ids = ["position", "education_level", "department"]
+        plain_params = ["name", "email", "degree_level", "comments"]
+        nested_ids = ["position", "department"]
         for key, value in teachers_ns.payload.items():
             if key in plain_params:
                 setattr(teacher, key, value)
