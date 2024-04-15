@@ -2,7 +2,6 @@ from flask_restx import fields
 
 from project.extensions import api
 from project.schemas.departments import short_department_model
-from project.schemas.education_levels import short_education_level_model
 from project.schemas.general import base_id_model
 from project.schemas.pagination import get_pagination_schema_for
 from project.schemas.position import short_position_model
@@ -39,6 +38,10 @@ base_teacher_model = api.model(
             max_length=100,
             default="teacher@email.com"
         ),
+        "degree_level": fields.String(
+            description="The teacher's degree level",
+            max_length=50
+        ),
         "comments": fields.String(
             required=True,
             description="Some comments to the teacher",
@@ -51,7 +54,6 @@ teacher_model = api.model(
     {
         **base_teacher_model,
         "position": fields.Nested(short_position_model, required=True),
-        "education_level": fields.Nested(short_education_level_model, required=True),
         "university": fields.Nested(short_university_model, required=True),
         "department": fields.Nested(short_department_model, required=True),
         "role": fields.Nested(role_model, required=True)
@@ -64,7 +66,6 @@ teacher_query_model = api.inherit(
     {
         **base_teacher_model,
         "position": fields.Nested(base_id_model, required=True),
-        "education_level": fields.Nested(base_id_model, required=True),
         "department": fields.Nested(base_id_model, required=True)
     }
 )
