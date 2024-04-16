@@ -110,4 +110,14 @@ def create_app():
     api.add_namespace(user_ns)
     # TODO цей неймспейс для тесту JWT, потім його видалити і його ендпойнти і сам модуль test_jwt_education_levels
     api.add_namespace(test_jwt)
+
+    # @jwt.user_identity_loader
+    # def user_identity_lookup(user):
+    #     return user.id  # probably we will use email as identifier
+    #
+    # @jwt.user_lookup_loader
+    # def user_lookup_callback(_jwt_header, jwt_data):
+    #     identity = jwt_data["sub"]
+    #     return User.query.filter_by(id=identity).first()
+
     return app

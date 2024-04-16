@@ -3,16 +3,10 @@ from flask_jwt_extended import jwt_required
 
 from project.extensions import db, pagination
 from project.models import EducationLevel
+from project.schemas.authorization import authorizations
 from project.schemas.education_levels import education_level_model, paginated_education_level_model
 from project.schemas.pagination import pagination_parser, custom_schema_pagination
 
-authorizations = {
-    "jsonWebToken": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
-    }
-}
 
 education_levels_ns = Namespace(
     name="test-jwt-education-levels", description="Education levels", authorizations=authorizations
