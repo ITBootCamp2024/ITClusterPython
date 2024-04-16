@@ -1,16 +1,55 @@
+from os import environ
+
+import jwt
+from dotenv import load_dotenv
+
+from flask import request, url_for, current_app
 from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_mail import Message
 from flask_restx import Namespace, Resource, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from project.extensions import db
+from project.extensions import db, mail
 from project.schemas.users import (
     user_model,
     user_login_parser,
     user_login_response,
-    user_register_parser)
+    user_register_parser,
+)
 from project.models import User, Teacher, Role
 
 user_ns = Namespace(name="user", description="User related endpoints")
+
+load_dotenv()
+KEY = environ.get("JWT_SECRET_KEY")
+ALGORITHM = environ.get("JWT_ALGORITHM")
+
+
+class SecurityUtils:
+    @staticmethod
+    def encrypt_data(data):
+        encrypted_token = jwt.encode(data, KEY, algorithm=ALGORITHM)
+        return encrypted_token
+
+    @staticmethod
+    def decrypt_data(data):
+        decrypted_data = jwt.decode(
+            data,
+            KEY,
+            algorithms=[ALGORITHM],
+        )
+        return decrypted_data
+
+    @staticmethod
+    def send_mail(user, link):
+        # TODO: Add an email template.
+        msg = Message(
+            subject="It Cluster - Reset Password",
+            sender=current_app.config["MAIL_USERNAME"],
+            recipients=[user.email],
+        )
+        msg.body = f"Hey {user.first_name} {user.last_name}, to reset your password, click -> {link}"
+        mail.send(msg)
 
 
 @user_ns.route("/register")
@@ -70,3 +109,41 @@ class Login(Resource):
             "refresh_token": create_refresh_token(user.email),
             "role": user.role.name,
         }
+
+
+@user_ns.route("/reset_password/")
+class ResetPassword(Resource):
+
+    def post(self):
+        data = request.json
+        email = data.get("email")
+        if email:
+            user = User.query.filter_by(email=email).first()
+            if user:
+                data_to_encrypt = {"user_id": user.id, "email": user.email}
+                encrypted_data = SecurityUtils.encrypt_data(data_to_encrypt)
+                home_url = url_for("user_reset_password", _external=True)
+                reset_link = f"{home_url}{encrypted_data}"
+                SecurityUtils.send_mail(user, reset_link)
+                return reset_link
+
+            return abort(401, f"User with email '{email}' does not exist")
+
+        return abort(401, f"Send your mail")
+
+
+@user_ns.route("/reset_password/<string:token>")
+class ResetPasswordPatch(Resource):
+
+    @staticmethod
+    def patch(token: str):
+        data = request.json
+        decrypted_data = SecurityUtils.decrypt_data(token)
+        user_id, email = decrypted_data.values()
+        user = User.query.filter_by(email=email).first()
+        password = data.get("password")
+        if user and password:
+            user.password_hash = generate_password_hash(password)
+            db.session.commit()
+            return "Done", 201
+        return {"message": "Password or user not found"}, 404

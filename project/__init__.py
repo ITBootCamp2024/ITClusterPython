@@ -6,7 +6,7 @@ from flask import Flask, g, jsonify
 from flask_cors import CORS
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-from project.extensions import api, db, migrate, pagination, jwt
+from project.extensions import api, db, migrate, pagination, jwt, mail
 from project.models import (
     Department,
     Discipline,
@@ -41,8 +41,8 @@ def create_app():
 
     load_dotenv()
     app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_POOL_SIZE'] = 1
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_POOL_SIZE"] = 1
     app.config["RESTX_VALIDATE"] = True
     app.config["RESTX_JSON"] = {"ensure_ascii": False}
     app.config["DEBUG"] = True
@@ -63,11 +63,19 @@ def create_app():
     app.config["JWT_ALGORITHM"] = environ.get("JWT_ALGORITHM")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
+    app.config["MAIL_SERVER"] = "smtp.gmail.com"
+    app.config["MAIL_PORT"] = 587
+    app.config["MAIL_USERNAME"] = environ.get("EMAIL_USER")
+    app.config["MAIL_PASSWORD"] = environ.get("EMAIL_PASSWORD")
+    app.config["MAIL_USE_TLS"] = True
+    app.config["MAIL_USE_SSL"] = False
+
     api.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     pagination.init_app(app, db)
     jwt.init_app(app)
+    mail.init_app(app)
 
     @app.teardown_appcontext
     def close_connection(exception=None):
@@ -81,20 +89,30 @@ def create_app():
         if hasattr(g, "db"):
             g.db.rollback()
             g.db.session.close()
-        return jsonify({
-            "message": "can't write data to the database",
-            "error": f"Integrity error occurred. {error}"
-        }), 400
+        return (
+            jsonify(
+                {
+                    "message": "can't write data to the database",
+                    "error": f"Integrity error occurred. {error}",
+                }
+            ),
+            400,
+        )
 
     @app.errorhandler(SQLAlchemyError)
     def handle_database_error(error):
         if hasattr(g, "db"):
             g.db.rollback()
             g.db.session.close()
-        return jsonify({
-            "message": "Database error occured",
-            "error": f"Database error occurred. {error}"
-        }), 500
+        return (
+            jsonify(
+                {
+                    "message": "Database error occured",
+                    "error": f"Database error occurred. {error}",
+                }
+            ),
+            500,
+        )
 
     api.add_namespace(departments_ns)
     api.add_namespace(disciplines_ns)
