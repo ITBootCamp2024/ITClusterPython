@@ -41,14 +41,14 @@ class SecurityUtils:
         return decrypted_data
 
     @staticmethod
-    def send_mail(user, link):
-        # TODO: Add an email template.
+    def send_mail(user, subject, message):
+        # TODO: Add an email template. {"subject": "It Cluster - Reset Password", f"Hey {user.first_name} {user.last_name}, to reset your password, click -> {link}"
         msg = Message(
-            subject="It Cluster - Reset Password",
-            sender=current_app.config["MAIL_USERNAME"],
+            subject=subject,
+            sender=environ.get("EMAIL_USER"),
             recipients=[user.email],
         )
-        msg.body = f"Hey {user.first_name} {user.last_name}, to reset your password, click -> {link}"
+        msg.body = message
         mail.send(msg)
 
 
@@ -124,7 +124,11 @@ class ResetPassword(Resource):
                 encrypted_data = SecurityUtils.encrypt_data(data_to_encrypt)
                 home_url = url_for("user_reset_password", _external=True)
                 reset_link = f"{home_url}{encrypted_data}"
-                SecurityUtils.send_mail(user, reset_link)
+                mail_data = {
+                    "subject": "It Cluster - Reset Password",
+                    "message": f"Hey {user.first_name} {user.last_name}, to reset your password, click -> {reset_link}"
+                }
+                SecurityUtils.send_mail(user, mail_data["subject"], mail_data["message"])
                 return reset_link
 
             return abort(401, f"User with email '{email}' does not exist")
