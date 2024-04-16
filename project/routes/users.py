@@ -13,7 +13,7 @@ from project.schemas.users import (
     user_model,
     user_login_parser,
     user_login_response,
-    user_register_parser)
+    user_register_parser, user_change_password_parser)
 from project.models import User, Teacher, Role
 
 user_ns = Namespace(name="user", description="User related endpoints")
@@ -97,3 +97,29 @@ class Refresh(Resource):
             "refresh_token": create_refresh_token(identity=identity, additional_claims=claims),
             "role": user_role,
         }
+
+
+@user_ns.route("/change-password")
+class ChangePassword(Resource):
+    @user_ns.doc(security="jsonWebToken",
+                 description="Change the password of the current user",
+                 responses={200: "Password changed"})
+    @jwt_required()
+    @user_ns.expect(user_change_password_parser)
+    def post(self):
+        email = get_jwt_identity()
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            abort(401, f"User with email '{email}' does not exist")
+
+        args = user_change_password_parser.parse_args()
+        old_password = args.get("old_password")
+
+        if not check_password_hash(user.password_hash, old_password):
+            abort(401, "Incorrect old password")
+
+        new_password = args.get("new_password")
+        user.password_hash = generate_password_hash(new_password)
+        db.session.commit()
+        return {"message": "Password changed"}, 200

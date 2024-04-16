@@ -76,3 +76,8 @@ user_register_parser.add_argument("first_name", type=str, required=True, locatio
 user_register_parser.add_argument("last_name", type=str, required=True, location="form")
 user_register_parser.add_argument("parent_name", type=str, required=False, location="form")
 user_register_parser.add_argument("phone", type=str, required=False, location="form")
+
+
+user_change_password_parser = reqparse.RequestParser()
+user_change_password_parser.add_argument("old_password", type=str, required=True, location="form")
+user_change_password_parser.add_argument("new_password", type=str, required=True, location="form")
