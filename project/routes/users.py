@@ -3,7 +3,7 @@ from os import environ
 import jwt
 from dotenv import load_dotenv
 
-from flask import request, url_for, current_app
+from flask import request, url_for
 from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_mail import Message
 from flask_restx import Namespace, Resource, abort
@@ -55,6 +55,15 @@ class SecurityUtils:
 @user_ns.route("/register")
 class Register(Resource):
 
+    @staticmethod
+    def send_confirm_token(user):
+        token = SecurityUtils.encrypt_data({"email": user.email})
+        url_confirm = url_for("user_confirm_mail", token=token, _external=True)
+        message = f"Please confirm mail {url_confirm}"
+        SecurityUtils.send_mail(
+            user, subject="It Cluster - Confirm mail", message=message
+        )
+
     @user_ns.expect(user_register_parser)
     @user_ns.marshal_with(user_model)
     def post(self):
@@ -75,6 +84,8 @@ class Register(Resource):
         )
         db.session.add(user)
         db.session.commit()
+
+        self.send_confirm_token(user)
         return user, 201
 
 
@@ -111,6 +122,18 @@ class Login(Resource):
         }
 
 
+@user_ns.route("/confirm_mail/<string:token>")
+class ConfirmMail(Resource):
+    def get(self, token: str):
+        decrypted_data = SecurityUtils.decrypt_data(token)
+        user = User.query.filter_by(email=decrypted_data["email"]).first()
+        if user:
+            user.email_confirmed = True
+            db.session.commit()
+            return "Success confirm mail"
+        return "Link not valid"
+
+
 @user_ns.route("/reset_password/")
 class ResetPassword(Resource):
 
@@ -126,9 +149,11 @@ class ResetPassword(Resource):
                 reset_link = f"{home_url}{encrypted_data}"
                 mail_data = {
                     "subject": "It Cluster - Reset Password",
-                    "message": f"Hey {user.first_name} {user.last_name}, to reset your password, click -> {reset_link}"
+                    "message": f"Hey {user.first_name} {user.last_name}, to reset your password, click -> {reset_link}",
                 }
-                SecurityUtils.send_mail(user, mail_data["subject"], mail_data["message"])
+                SecurityUtils.send_mail(
+                    user, mail_data["subject"], mail_data["message"]
+                )
                 return reset_link
 
             return abort(401, f"User with email '{email}' does not exist")
