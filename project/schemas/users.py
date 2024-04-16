@@ -2,7 +2,7 @@ from flask_restx import fields, reqparse
 
 from project.extensions import api
 
-# TODO: replace this models with x-www-form-urlencoded parsers
+
 login_model = api.model(
     "LoginModel",
     {

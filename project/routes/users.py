@@ -1,4 +1,10 @@
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required
+)
 from flask_restx import Namespace, Resource, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -58,15 +64,36 @@ class Login(Resource):
         # if not user.email_confirmed:
         #     abort(401, f"Email '{email}' is not confirmed. Please check your email.")
 
-        if user.role.name == "user":
+        user_role = user.role.name
+
+        if user_role == "user":
             if Teacher.query.filter_by(email=email).first():
                 user.role = Role.query.filter_by(name="teacher").first()
                 db.session.commit()
+                user_role = "teacher"
 
             # TODO: add check for user role if it's email is in specialist table
 
+        claims = {"role": user_role}
         return {
-            "access_token": create_access_token(user.email),
-            "refresh_token": create_refresh_token(user.email),
-            "role": user.role.name,
+            "access_token": create_access_token(identity=user.email, additional_claims=claims),
+            "refresh_token": create_refresh_token(identity=user.email, additional_claims=claims),
+            "role": user_role,
+        }
+
+
+@user_ns.route("/refresh")
+class Refresh(Resource):
+    @user_ns.doc(security="jsonWebToken")
+    @user_ns.doc(description="Refresh the access and refresh tokens (refresh token is required)")
+    @jwt_required(refresh=True)
+    @user_ns.marshal_with(user_login_response)
+    def post(self):
+        identity = get_jwt_identity()
+        user_role = get_jwt().get("role")
+        claims = {"role": user_role}
+        return {
+            "access_token": create_access_token(identity=identity, additional_claims=claims),
+            "refresh_token": create_refresh_token(identity=identity, additional_claims=claims),
+            "role": user_role,
         }
