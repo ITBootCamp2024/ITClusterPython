@@ -13,7 +13,8 @@ from project.schemas.users import (
     user_model,
     user_login_parser,
     user_login_response,
-    user_register_parser, user_change_password_parser)
+    user_register_parser,
+    user_change_password_parser)
 from project.models import User, Teacher, Role
 
 user_ns = Namespace(name="user", description="User related endpoints")
