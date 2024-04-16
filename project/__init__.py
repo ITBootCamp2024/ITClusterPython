@@ -19,6 +19,7 @@ from project.models import (
     Teacher,
     University,
 )
+from project.routes.courses import courses_ns
 from project.routes.departments import departments_ns
 from project.routes.disciplines import disciplines_ns
 from project.routes.discipline_blocks import discipline_blocks_ns
@@ -97,6 +98,7 @@ def create_app():
             "error": f"Database error occurred. {error}"
         }), 500
 
+    api.add_namespace(courses_ns)
     api.add_namespace(departments_ns)
     api.add_namespace(disciplines_ns)
     api.add_namespace(discipline_blocks_ns)
