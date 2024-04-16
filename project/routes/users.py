@@ -42,7 +42,7 @@ class SecurityUtils:
 
     @staticmethod
     def send_mail(user, subject, message):
-        # TODO: Add an email template. {"subject": "It Cluster - Reset Password", f"Hey {user.first_name} {user.last_name}, to reset your password, click -> {link}"
+        # TODO: Add an email template.
         msg = Message(
             subject=subject,
             sender=environ.get("EMAIL_USER"),
