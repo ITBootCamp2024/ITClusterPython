@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Підтвердження Email</title>
+</head>
+<body>
+    <div style="text-align: center;">
+        <h2>Підтвердження Email</h2>
+        <p>Шановний(а) {{ user.first_name }} {{ user.last_name }},</p>
+        <p>Дякуємо за реєстрацію. Будь ласка, натисніть на посилання нижче, щоб підтвердити свою адресу електронної пошти:</p>
+        <a href="{{ confirm_url }}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none;">Підтвердити Email</a>
+        <p>Якщо ви не реєструвалися на нашому сервісі, проігноруйте цей лист.</p>
+        <p>З повагою,<br>It Cluster</p>
+    </div>
+</body>
+</html>

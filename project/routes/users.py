@@ -3,7 +3,7 @@ from os import environ
 import jwt
 from dotenv import load_dotenv
 
-from flask import request, url_for
+from flask import request, url_for, render_template
 from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_mail import Message
 from flask_restx import Namespace, Resource, abort
@@ -41,14 +41,14 @@ class SecurityUtils:
         return decrypted_data
 
     @staticmethod
-    def send_mail(user, subject, message):
+    def send_mail(user, subject, template):
         # TODO: Add an email template.
         msg = Message(
             subject=subject,
             sender=environ.get("EMAIL_USER"),
             recipients=[user.email],
+            html=template,
         )
-        msg.body = message
         mail.send(msg)
 
 
@@ -59,9 +59,11 @@ class Register(Resource):
     def send_confirm_token(user):
         token = SecurityUtils.encrypt_data({"email": user.email})
         url_confirm = url_for("user_confirm_mail", token=token, _external=True)
-        message = f"Please confirm mail {url_confirm}"
+        confirm_mail = render_template(
+            "confirm_email.html", confirm_url=url_confirm, user=user
+        )
         SecurityUtils.send_mail(
-            user, subject="It Cluster - Confirm mail", message=message
+            user, subject="It Cluster - Confirm mail", template=confirm_mail
         )
 
     @user_ns.expect(user_register_parser)
@@ -96,8 +98,8 @@ class Login(Resource):
     @user_ns.marshal_with(user_login_response)
     def post(self):
         args = user_login_parser.parse_args()
-        email = args.get('email')
-        password = args.get('password')
+        email = args.get("email")
+        password = args.get("password")
         user = User.query.filter_by(email=email).first()
         if not user:
             abort(401, f"User with email '{email}' does not exist")
@@ -145,16 +147,15 @@ class ResetPassword(Resource):
             if user:
                 data_to_encrypt = {"user_id": user.id, "email": user.email}
                 encrypted_data = SecurityUtils.encrypt_data(data_to_encrypt)
-                home_url = url_for("user_reset_password", _external=True)
-                reset_link = f"{home_url}{encrypted_data}"
-                mail_data = {
-                    "subject": "It Cluster - Reset Password",
-                    "message": f"Hey {user.first_name} {user.last_name}, to reset your password, click -> {reset_link}",
-                }
-                SecurityUtils.send_mail(
-                    user, mail_data["subject"], mail_data["message"]
+                link = url_for("user_reset_password", token=encrypted_data, _external=True)
+                subject_mail = "It Cluster - Reset Password"
+                confirm_mail = render_template(
+                    "reset_password.html", confirm_url=link, user=user
                 )
-                return reset_link
+                SecurityUtils.send_mail(
+                    user, subject=subject_mail, template=confirm_mail
+                )
+                return link
 
             return abort(401, f"User with email '{email}' does not exist")
 
