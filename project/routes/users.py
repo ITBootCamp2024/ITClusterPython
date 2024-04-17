@@ -150,7 +150,7 @@ class ResetPassword(Resource):
                 link = url_for("user_reset_password", token=encrypted_data, _external=True)
                 subject_mail = "It Cluster - Reset Password"
                 confirm_mail = render_template(
-                    "reset_password.html", confirm_url=link, user=user
+                    "reset_password.html", url=link, user=user
                 )
                 SecurityUtils.send_mail(
                     user, subject=subject_mail, template=confirm_mail
