@@ -58,5 +58,3 @@ discipline_groups_query_model = api.model(
 
 
 paginated_discipline_groups_model = get_pagination_schema_for(discipline_groups_model)
-
-
