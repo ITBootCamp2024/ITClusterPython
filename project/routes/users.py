@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from os import environ
 
 import jwt
@@ -13,6 +14,7 @@ from flask_jwt_extended import (
 )
 from flask_mail import Message
 from flask_restx import Namespace, Resource, abort
+from jwt import ExpiredSignatureError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from project.extensions import db, mail
@@ -37,7 +39,9 @@ ALGORITHM = environ.get("JWT_ALGORITHM")
 class SecurityUtils:
     @staticmethod
     def encrypt_data(data):
-        encrypted_token = jwt.encode(data, KEY, algorithm=ALGORITHM)
+        expiration_time = datetime.utcnow() + timedelta(hours=24)
+        data_with_exp = {**data, "exp": expiration_time}
+        encrypted_token = jwt.encode(data_with_exp, KEY, algorithm=ALGORITHM)
         return encrypted_token
 
     @staticmethod
@@ -144,10 +148,19 @@ class Login(Resource):
 class ConfirmMail(Resource):
     @user_ns.doc(
         description="Confirm Mail",
-        responses={201: "Success confirm mail", 404: "Link not valid"},
+        responses={
+            201: "Success confirm mail",
+            401: "The link has expired",
+            404: "Link not valid",
+        },
     )
     def get(self, token: str):
-        decrypted_data = SecurityUtils.decrypt_data(token)
+
+        try:
+            decrypted_data = SecurityUtils.decrypt_data(token)
+        except ExpiredSignatureError:
+            return "The link has expired", 401
+
         email = decrypted_data["email"]
         user = User.query.filter_by(email=email).first()
         if user:
@@ -165,7 +178,7 @@ class ResetPassword(Resource):
         responses={
             201: "The email was sent successfully",
             401: "Send correct mail",
-            404: "User with email '{email}' does not exist"
+            404: "User with email '{email}' does not exist",
         },
     )
     @user_ns.expect(email_schema)
