@@ -158,7 +158,7 @@ class ResetPassword(Resource):
 
         email = data.get("email")
         if not email:
-            abort(401, f"Send your mail")
+            abort(401, "Send your mail")
 
         user = User.query.filter_by(email=email).first()
         if not user:

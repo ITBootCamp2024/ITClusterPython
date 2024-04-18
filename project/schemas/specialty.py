@@ -48,4 +48,3 @@ specialty_model = api.model(
 
 
 paginated_specialty_model = get_pagination_schema_for(specialty_model)
-
