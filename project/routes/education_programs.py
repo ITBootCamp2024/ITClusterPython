@@ -1,4 +1,5 @@
 from flask_restx import Resource, Namespace, abort
+from sqlalchemy import desc
 
 from project.extensions import db
 from project.models import EducationProgram, Specialty, EducationLevel, University
@@ -21,7 +22,7 @@ def get_education_program_or_404(id):
 
 
 def get_education_program_response():
-    education_programs = EducationProgram.query.all()
+    education_programs = EducationProgram.query.order_by(desc("id")).all()
     specialties = Specialty.query.all()
     universities = University.query.all()
     education_levels = EducationLevel.query.all()
