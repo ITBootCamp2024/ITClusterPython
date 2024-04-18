@@ -22,6 +22,8 @@ from project.schemas.users import (
     user_login_response,
     user_register_parser,
     user_change_password_parser,
+    email_schema,
+    password_schema,
 )
 from project.models import User, Teacher, Role
 
@@ -51,7 +53,7 @@ class SecurityUtils:
     def send_mail(user, subject, template):
         msg = Message(
             subject=subject,
-            sender=environ.get("EMAIL_USER"),
+            sender=environ.get("MAIL_USERNAME"),
             recipients=[user.email],
             html=template,
         )
@@ -140,48 +142,61 @@ class Login(Resource):
 
 @user_ns.route("/confirm_mail/<string:token>")
 class ConfirmMail(Resource):
+    @user_ns.doc(
+        description="Confirm Mail",
+        responses={201: "Success confirm mail", 404: "Link not valid"},
+    )
     def get(self, token: str):
         decrypted_data = SecurityUtils.decrypt_data(token)
         user = User.query.filter_by(email=decrypted_data["email"]).first()
         if user:
             user.email_confirmed = True
             db.session.commit()
-            return "Success confirm mail"
-        return "Link not valid"
+            return "Success confirm mail", 201
+        return "Link not valid", 404
 
 
 @user_ns.route("/reset_password/")
 class ResetPassword(Resource):
 
+    @user_ns.doc(
+        description="When client recover your password, an email is sent with the link",
+        responses={
+            201: "The email was sent successfully",
+            401: "Send correct mail",
+            404: "User with email '{email}' does not exist"
+        },
+    )
+    @user_ns.expect(email_schema)
     def post(self):
         data = request.json
 
         email = data.get("email")
         if not email:
-            abort(401, "Send your mail")
+            abort(401, "Send correct mail")
 
         user = User.query.filter_by(email=email).first()
         if not user:
-            abort(401, f"User with email '{email}' does not exist")
+            abort(404, f"User with email '{email}' does not exist")
 
         data_to_encrypt = {"user_id": user.id, "email": user.email}
         encrypted_data = SecurityUtils.encrypt_data(data_to_encrypt)
         link = url_for("user_reset_password", token=encrypted_data, _external=True)
         subject_mail = "It Cluster - Reset Password"
-        confirm_mail = render_template(
-            "reset_password.html", url=link, user=user
-        )
-        SecurityUtils.send_mail(
-            user, subject=subject_mail, template=confirm_mail
-        )
-        # TODO: замінити відповідь
-        return link
+        confirm_mail = render_template("reset_password.html", url=link, user=user)
+        SecurityUtils.send_mail(user, subject=subject_mail, template=confirm_mail)
+        return {"message": "The email was sent successfully"}, 201
 
 
 @user_ns.route("/reset_password/<string:token>")
 class ResetPasswordPatch(Resource):
 
     @staticmethod
+    @user_ns.doc(
+        description="When a token and password are transferred, the password of the user with this token is changed.",
+        responses={201: "Done", 404: "Password or user not found"},
+    )
+    @user_ns.expect(password_schema)
     def patch(token: str):
         data = request.json
         decrypted_data = SecurityUtils.decrypt_data(token)
