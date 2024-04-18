@@ -148,12 +148,13 @@ class ConfirmMail(Resource):
     )
     def get(self, token: str):
         decrypted_data = SecurityUtils.decrypt_data(token)
-        user = User.query.filter_by(email=decrypted_data["email"]).first()
+        email = decrypted_data["email"]
+        user = User.query.filter_by(email=email).first()
         if user:
             user.email_confirmed = True
             db.session.commit()
             return "Success confirm mail", 201
-        return "Link not valid", 404
+        return f"User with {email} is not registered", 404
 
 
 @user_ns.route("/reset_password/")
