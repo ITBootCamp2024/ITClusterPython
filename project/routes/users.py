@@ -4,7 +4,13 @@ import jwt
 from dotenv import load_dotenv
 
 from flask import request, url_for, render_template
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+)
 from flask_mail import Message
 from flask_restx import Namespace, Resource, abort
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -15,6 +21,7 @@ from project.schemas.users import (
     user_login_parser,
     user_login_response,
     user_register_parser,
+    user_change_password_parser,
 )
 from project.models import User, Teacher, Role
 
@@ -42,7 +49,6 @@ class SecurityUtils:
 
     @staticmethod
     def send_mail(user, subject, template):
-        # TODO: Add an email template.
         msg = Message(
             subject=subject,
             sender=environ.get("EMAIL_USER"),
@@ -110,17 +116,25 @@ class Login(Resource):
         # if not user.email_confirmed:
         #     abort(401, f"Email '{email}' is not confirmed. Please check your email.")
 
-        if user.role.name == "user":
+        user_role = user.role.name
+
+        if user_role == "user":
             if Teacher.query.filter_by(email=email).first():
                 user.role = Role.query.filter_by(name="teacher").first()
                 db.session.commit()
+                user_role = "teacher"
 
             # TODO: add check for user role if it's email is in specialist table
 
+        claims = {"role": user_role}
         return {
-            "access_token": create_access_token(user.email),
-            "refresh_token": create_refresh_token(user.email),
-            "role": user.role.name,
+            "access_token": create_access_token(
+                identity=user.email, additional_claims=claims
+            ),
+            "refresh_token": create_refresh_token(
+                identity=user.email, additional_claims=claims
+            ),
+            "role": user_role,
         }
 
 
@@ -141,25 +155,27 @@ class ResetPassword(Resource):
 
     def post(self):
         data = request.json
+
         email = data.get("email")
-        if email:
-            user = User.query.filter_by(email=email).first()
-            if user:
-                data_to_encrypt = {"user_id": user.id, "email": user.email}
-                encrypted_data = SecurityUtils.encrypt_data(data_to_encrypt)
-                link = url_for("user_reset_password", token=encrypted_data, _external=True)
-                subject_mail = "It Cluster - Reset Password"
-                confirm_mail = render_template(
-                    "reset_password.html", url=link, user=user
-                )
-                SecurityUtils.send_mail(
-                    user, subject=subject_mail, template=confirm_mail
-                )
-                return link
+        if not email:
+            abort(401, f"Send your mail")
 
-            return abort(401, f"User with email '{email}' does not exist")
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            abort(401, f"User with email '{email}' does not exist")
 
-        return abort(401, f"Send your mail")
+        data_to_encrypt = {"user_id": user.id, "email": user.email}
+        encrypted_data = SecurityUtils.encrypt_data(data_to_encrypt)
+        link = url_for("user_reset_password", token=encrypted_data, _external=True)
+        subject_mail = "It Cluster - Reset Password"
+        confirm_mail = render_template(
+            "reset_password.html", url=link, user=user
+        )
+        SecurityUtils.send_mail(
+            user, subject=subject_mail, template=confirm_mail
+        )
+        # TODO: замінити відповідь
+        return link
 
 
 @user_ns.route("/reset_password/<string:token>")
@@ -177,3 +193,54 @@ class ResetPasswordPatch(Resource):
             db.session.commit()
             return "Done", 201
         return {"message": "Password or user not found"}, 404
+
+
+@user_ns.route("/refresh")
+class Refresh(Resource):
+    @user_ns.doc(security="jsonWebToken")
+    @user_ns.doc(
+        description="Refresh the access and refresh tokens (refresh token is required)"
+    )
+    @jwt_required(refresh=True)
+    @user_ns.marshal_with(user_login_response)
+    def post(self):
+        identity = get_jwt_identity()
+        user_role = get_jwt().get("role")
+        claims = {"role": user_role}
+        return {
+            "access_token": create_access_token(
+                identity=identity, additional_claims=claims
+            ),
+            "refresh_token": create_refresh_token(
+                identity=identity, additional_claims=claims
+            ),
+            "role": user_role,
+        }
+
+
+@user_ns.route("/change-password")
+class ChangePassword(Resource):
+    @user_ns.doc(
+        security="jsonWebToken",
+        description="Change the password of the current user",
+        responses={200: "Password changed"},
+    )
+    @jwt_required()
+    @user_ns.expect(user_change_password_parser)
+    def post(self):
+        email = get_jwt_identity()
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            abort(401, f"User with email '{email}' does not exist")
+
+        args = user_change_password_parser.parse_args()
+        old_password = args.get("old_password")
+
+        if not check_password_hash(user.password_hash, old_password):
+            abort(401, "Incorrect old password")
+
+        new_password = args.get("new_password")
+        user.password_hash = generate_password_hash(new_password)
+        db.session.commit()
+        return {"message": "Password changed"}, 200

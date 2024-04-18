@@ -1,6 +1,7 @@
 from flask_restx import fields
 
 from project.extensions import api
+from project.schemas.courses import course_model, course_with_name_model
 from project.schemas.departments import short_department_model, department_model
 from project.schemas.discipline_blocks import short_discipline_blocks_model, discipline_blocks_model
 from project.schemas.discipline_groups import short_discipline_groups_model, discipline_groups_model
@@ -93,6 +94,24 @@ service_info_for_teacher = api.model(
     {
         "position": fields.List(fields.Nested(short_position_model)),
         "university": fields.List(fields.Nested(university_service_model)),
+    }
+)
+
+
+serviced_course_model = api.model(
+    "ServicedCourse",
+    {
+        "content": fields.List(fields.Nested(course_model)),
+        "totalElements": fields.Integer(description="The total number of courses")
+    }
+)
+
+
+serviced_course_with_name_model = api.model(
+    "ServicedCourseWithName",
+    {
+        "content": fields.List(fields.Nested(course_with_name_model)),
+        "totalElements": fields.Integer(description="The total number of courses")
     }
 )
 

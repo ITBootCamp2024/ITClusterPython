@@ -19,6 +19,7 @@ from project.models import (
     Teacher,
     University,
 )
+from project.routes.courses import courses_ns
 from project.routes.departments import departments_ns
 from project.routes.disciplines import disciplines_ns
 from project.routes.discipline_blocks import discipline_blocks_ns
@@ -29,6 +30,7 @@ from project.routes.position import position_ns
 from project.routes.service_info import service_info_ns
 from project.routes.specialty import specialty_ns
 from project.routes.teachers import teachers_ns
+from project.routes.test_roles import test_roles_ns
 from project.routes.universities import university_ns
 
 from project.routes.test_jwt_education_levels import education_levels_ns as test_jwt
@@ -65,8 +67,8 @@ def create_app():
 
     app.config["MAIL_SERVER"] = "smtp.gmail.com"
     app.config["MAIL_PORT"] = 587
-    app.config["MAIL_USERNAME"] = environ.get("EMAIL_USER")
-    app.config["MAIL_PASSWORD"] = environ.get("EMAIL_PASSWORD")
+    app.config["MAIL_USERNAME"] = environ.get("MAIL_USERNAME")
+    app.config["MAIL_PASSWORD"] = environ.get("MAIL_PASSWORD")
     app.config["MAIL_USE_TLS"] = True
     app.config["MAIL_USE_SSL"] = False
 
@@ -114,6 +116,7 @@ def create_app():
             500,
         )
 
+    api.add_namespace(courses_ns)
     api.add_namespace(departments_ns)
     api.add_namespace(disciplines_ns)
     api.add_namespace(discipline_blocks_ns)
@@ -126,6 +129,7 @@ def create_app():
     api.add_namespace(teachers_ns)
     api.add_namespace(university_ns)
     api.add_namespace(user_ns)
+    api.add_namespace(test_roles_ns)
     # TODO цей неймспейс для тесту JWT, потім його видалити і його ендпойнти і сам модуль test_jwt_education_levels
     api.add_namespace(test_jwt)
 
