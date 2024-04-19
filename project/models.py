@@ -53,8 +53,8 @@ class Discipline(db.Model):
     syllabus_url: str = db.Column(db.String(255))
     education_plan_url: str = db.Column(db.String(255))
 
-    syllabuses = db.relationship(
-        "Syllabus", back_populates="discipline", cascade="all, delete"
+    syllabus = db.relationship(
+        "Syllabus", back_populates="discipline", uselist=False, cascade="all, delete"
     )
     teacher = db.relationship("Teacher", back_populates="disciplines")
     discipline_group = db.relationship("DisciplineGroup", back_populates="disciplines")
@@ -169,9 +169,9 @@ class Syllabus(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(255), nullable=False)
     status: str = db.Column(db.String(45), nullable=False)
-    discipline_id: int = db.Column(db.ForeignKey("disciplines.id"), nullable=False)
+    discipline_id: int = db.Column(db.ForeignKey("disciplines.id"), nullable=False, unique=True)
 
-    discipline = db.relationship("Discipline", back_populates="syllabuses")
+    discipline = db.relationship("Discipline", back_populates="syllabus", uselist=False)
 
     def teacher(self):
         return self.discipline.teacher if self.discipline else None
