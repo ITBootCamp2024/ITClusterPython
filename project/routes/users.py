@@ -102,6 +102,12 @@ class Register(Resource):
 @user_ns.route("/login")
 class Login(Resource):
 
+    @user_ns.response(401,
+                      "One of: \n"
+                      "'User with email <email> does not exist'\n"
+                      "'Incorrect password'\n"
+                      "'Email <email> is not confirmed. Please check your email'\n"
+                      "'User with email <email> is banned'")
     @user_ns.expect(user_login_parser)
     @user_ns.marshal_with(user_login_response)
     def post(self):
@@ -114,7 +120,7 @@ class Login(Resource):
         if not check_password_hash(user.password_hash, password):
             abort(401, "Incorrect password")
         if not user.email_confirmed:
-            abort(401, f"Email '{email}' is not confirmed. Please check your email.")
+            abort(401, f"Email '{email}' is not confirmed. Please check your email")
         if not user.active_status:
             abort(401, f"User with email '{email}' is banned")
 
