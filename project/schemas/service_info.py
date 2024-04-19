@@ -1,7 +1,7 @@
 from flask_restx import fields
 
 from project.extensions import api
-from project.schemas.courses import course_model, course_with_name_model
+from project.schemas.courses import course_model
 from project.schemas.departments import short_department_model, department_model
 from project.schemas.discipline_blocks import short_discipline_blocks_model, discipline_blocks_model
 from project.schemas.discipline_groups import short_discipline_groups_model, discipline_groups_model
@@ -50,6 +50,17 @@ service_info_model = api.model(
         "disciplineBlocks": fields.List(fields.Nested(discipline_blocks_service_model)),
         "education_program": fields.List(fields.Nested(short_education_program_model)),
     },
+)
+
+
+service_info_for_syllabus = api.model(
+    "ServiceInfoForCourse",
+    {
+        "specialties": fields.List(fields.Nested(base_specialty_model)),
+        "education_programs": fields.List(fields.Nested(short_education_program_model)),
+        "disciplines": fields.List(fields.Nested(short_discipline_model)),
+        "disciplines_without_syllabus": fields.List(fields.Nested(short_discipline_model)),
+    }
 )
 
 
@@ -102,15 +113,6 @@ serviced_course_model = api.model(
     "ServicedCourse",
     {
         "content": fields.List(fields.Nested(course_model)),
-        "totalElements": fields.Integer(description="The total number of courses")
-    }
-)
-
-
-serviced_course_with_name_model = api.model(
-    "ServicedCourseWithName",
-    {
-        "content": fields.List(fields.Nested(course_with_name_model)),
         "totalElements": fields.Integer(description="The total number of courses")
     }
 )
