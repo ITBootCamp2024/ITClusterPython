@@ -29,6 +29,7 @@ from project.routes.education_programs import education_programs_ns
 from project.routes.position import position_ns
 from project.routes.service_info import service_info_ns
 from project.routes.specialty import specialty_ns
+from project.routes.syllabus import syllabuses_ns
 from project.routes.teachers import teachers_ns
 from project.routes.test_roles import test_roles_ns
 from project.routes.universities import university_ns
@@ -126,6 +127,7 @@ def create_app():
     api.add_namespace(position_ns)
     api.add_namespace(service_info_ns)
     api.add_namespace(specialty_ns)
+    api.add_namespace(syllabuses_ns)
     api.add_namespace(teachers_ns)
     api.add_namespace(university_ns)
     api.add_namespace(user_ns)

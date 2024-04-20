@@ -162,6 +162,9 @@ class Specialty(db.Model):
     education_programs = db.relationship(
         "EducationProgram", back_populates="specialty", cascade="all, delete"
     )
+    base_information_syllabuses = db.relationship(
+        "SyllabusBaseInfo", back_populates="specialty", cascade="all, delete"
+    )
 
 
 class Syllabus(db.Model):
@@ -171,10 +174,40 @@ class Syllabus(db.Model):
     status: str = db.Column(db.String(45), nullable=False)
     discipline_id: int = db.Column(db.ForeignKey("disciplines.id"), nullable=False, unique=True)
 
+    base_information_syllabus = db.relationship(
+        "SyllabusBaseInfo", back_populates="syllabus", uselist=False, cascade="all, delete"
+    )
     discipline = db.relationship("Discipline", back_populates="syllabus", uselist=False)
 
     def teacher(self):
         return self.discipline.teacher if self.discipline else None
+
+
+class SyllabusBaseInfo(db.Model):
+    __tablename__ = "base_information_syllabus"
+    id: int = db.Column(db.Integer, primary_key=True)
+    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False, unique=True)
+    specialty_id: int = db.Column(db.ForeignKey("specialty.id"), nullable=False)
+    student_count: int = db.Column(db.Integer, default=None)
+    course: int = db.Column(db.Integer, default=None)
+    semester: int = db.Column(db.Integer, default=None)
+
+    specialty = db.relationship("Specialty", back_populates="base_information_syllabuses")
+    syllabus = db.relationship(
+        "Syllabus", back_populates="base_information_syllabus", uselist=False
+    )
+
+    @property
+    def discipline(self):
+        return self.syllabus.discipline if self.syllabus else None
+
+    @property
+    def discipline_block(self):
+        return self.discipline.discipline_block if self.discipline else None
+
+    @property
+    def education_program(self):
+        return self.discipline.education_program if self.discipline else None
 
 
 class Teacher(db.Model):
