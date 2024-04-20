@@ -3,6 +3,17 @@ from datetime import datetime
 from project.extensions import db
 
 
+class Assessment(db.Model):
+    __tablename__ = "assessment"
+    id: int = db.Column(db.Integer, primary_key=True)
+    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False)
+    object: str = db.Column(db.String(255), nullable=False)
+    method: str = db.Column(db.String(255), nullable=False)
+    tool: str = db.Column(db.String(255), nullable=False)
+
+    syllabus = db.relationship("Syllabus", back_populates="Assessment", uselist=False)
+
+
 class Department(db.Model):
     __tablename__ = "department"
     id: int = db.Column(db.Integer, primary_key=True)
@@ -48,8 +59,12 @@ class Discipline(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(100), nullable=False)
     teacher_id: int = db.Column(db.ForeignKey("teachers.id"), nullable=False)
-    discipline_group_id: int = db.Column(db.ForeignKey("discipline_groups.id"), nullable=False)
-    education_program_id: int = db.Column(db.ForeignKey("education_programs.id"), nullable=False)
+    discipline_group_id: int = db.Column(
+        db.ForeignKey("discipline_groups.id"), nullable=False
+    )
+    education_program_id: int = db.Column(
+        db.ForeignKey("education_programs.id"), nullable=False
+    )
     syllabus_url: str = db.Column(db.String(255))
     education_plan_url: str = db.Column(db.String(255))
 
@@ -89,9 +104,7 @@ class DisciplineGroup(db.Model):
     disciplines = db.relationship(
         "Discipline", back_populates="discipline_group", cascade="all, delete"
     )
-    block = db.relationship(
-        "DisciplineBlock", back_populates="disciplineGroups"
-    )
+    block = db.relationship("DisciplineBlock", back_populates="disciplineGroups")
 
 
 class EducationLevel(db.Model):
@@ -172,10 +185,15 @@ class Syllabus(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(255), nullable=False)
     status: str = db.Column(db.String(45), nullable=False)
-    discipline_id: int = db.Column(db.ForeignKey("disciplines.id"), nullable=False, unique=True)
+    discipline_id: int = db.Column(
+        db.ForeignKey("disciplines.id"), nullable=False, unique=True
+    )
 
     base_information_syllabus = db.relationship(
-        "SyllabusBaseInfo", back_populates="syllabus", uselist=False, cascade="all, delete"
+        "SyllabusBaseInfo",
+        back_populates="syllabus",
+        uselist=False,
+        cascade="all, delete",
     )
     discipline = db.relationship("Discipline", back_populates="syllabus", uselist=False)
 
@@ -186,13 +204,17 @@ class Syllabus(db.Model):
 class SyllabusBaseInfo(db.Model):
     __tablename__ = "base_information_syllabus"
     id: int = db.Column(db.Integer, primary_key=True)
-    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False, unique=True)
+    syllabus_id: int = db.Column(
+        db.ForeignKey("syllabuses.id"), nullable=False, unique=True
+    )
     specialty_id: int = db.Column(db.ForeignKey("specialty.id"), nullable=False)
     student_count: int = db.Column(db.Integer, default=None)
     course: int = db.Column(db.Integer, default=None)
     semester: int = db.Column(db.Integer, default=None)
 
-    specialty = db.relationship("Specialty", back_populates="base_information_syllabuses")
+    specialty = db.relationship(
+        "Specialty", back_populates="base_information_syllabuses"
+    )
     syllabus = db.relationship(
         "Syllabus", back_populates="base_information_syllabus", uselist=False
     )
