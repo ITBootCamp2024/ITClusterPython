@@ -8,6 +8,7 @@ from project.schemas.service_info import service_info_for_base_syllabus_model
 from project.schemas.syllabus import (
     syllabus_base_info_query_model,
     syllabus_base_info_model,
+    syllabus_base_info_patch_model,
 )
 from project.validators import allowed_roles
 
@@ -16,14 +17,27 @@ syllabuses_ns = Namespace(
 )
 
 
+def get_syllabus_base_info_or_404(syllabus_id):
+    syllabus_base_info = (
+        db.session.query(SyllabusBaseInfo)
+        .filter(SyllabusBaseInfo.syllabus_id == syllabus_id)
+        .first()
+    )
+
+    if not syllabus_base_info:
+        abort(404, f"Syllabus with id {syllabus_id} not found")
+
+    return syllabus_base_info
+
+
 @syllabuses_ns.route("/create")
 class SyllabusesCreate(Resource):
     """Create a new syllabus"""
 
-    @allowed_roles(["teacher", "admin", "content_manager"])
-    @syllabuses_ns.doc(security="jsonWebToken")
     @syllabuses_ns.expect(syllabus_base_info_query_model)
     @syllabuses_ns.marshal_with(syllabus_base_info_model)
+    @syllabuses_ns.doc(security="jsonWebToken")
+    @allowed_roles(["teacher", "admin", "content_manager"])
     def post(self):
         """Create a new syllabus and base info about it"""
 
@@ -53,6 +67,39 @@ class SyllabusesCreate(Resource):
         )
         db.session.add(syllabus_base_info)
         db.session.commit()
+        return syllabus_base_info
+
+
+@syllabuses_ns.route("/base-info/<int:syllabus_id>")
+class BaseSyllabusInfo(Resource):
+    @syllabuses_ns.marshal_with(syllabus_base_info_model)
+    def get(self, syllabus_id):
+        """Get the base info about the syllabus"""
+        return get_syllabus_base_info_or_404(syllabus_id)
+
+    @syllabuses_ns.expect(syllabus_base_info_patch_model, validate=False)
+    @syllabuses_ns.marshal_with(syllabus_base_info_model)
+    @syllabuses_ns.doc(security="jsonWebToken")
+    @allowed_roles(["teacher", "admin", "content_manager"])
+    def patch(self, syllabus_id):
+        """Update the base info about the syllabus"""
+
+        user_role = get_jwt().get("role")
+        if user_role == "teacher":
+            teacher_email = Syllabus.query.get(syllabus_id).teacher.email
+            if teacher_email != get_jwt_identity():
+                abort(403, "You are not the teacher of this syllabus")
+
+        syllabus_base_info = get_syllabus_base_info_or_404(syllabus_id)
+
+        plain_params = ["student_count", "course", "semester"]
+        for key, value in syllabuses_ns.payload.items():
+            if key in plain_params:
+                setattr(syllabus_base_info, key, value)
+
+        db.session.add(syllabus_base_info)
+        db.session.commit()
+
         return syllabus_base_info
 
 

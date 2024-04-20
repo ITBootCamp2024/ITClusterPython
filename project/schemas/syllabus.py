@@ -50,6 +50,23 @@ syllabus_base_info_query_model = api.model(
     },
 )
 
+
+not_required_fields_base_info = api.model(
+    "NotRequiredFieldsBaseInfo",
+    {
+        "student_count": fields.Integer(description="Number of students"),
+        "course": fields.Integer(description="Year of the study"),
+        "semester": fields.Integer(description="Semester of the study"),
+    },
+)
+
+syllabus_base_info_patch_model = api.model(
+    "SyllabusBaseInfoPatch",
+    {
+        **not_required_fields_base_info,
+    },
+)
+
 syllabus_base_info_model = api.model(
     "SyllabusBaseInfo",
     {
@@ -60,8 +77,6 @@ syllabus_base_info_model = api.model(
         "education_program": fields.Nested(primary_education_program_model),
         "discipline_block": fields.Nested(short_discipline_blocks_model),
         "discipline": fields.Nested(short_discipline_model),
-        "student_count": fields.Integer(description="Number of students"),
-        "course": fields.Integer(description="Year of the study"),
-        "semester": fields.Integer(description="Semester of the study"),
+        **not_required_fields_base_info,
     },
 )
