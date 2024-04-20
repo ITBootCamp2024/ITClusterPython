@@ -179,6 +179,7 @@ class Syllabus(db.Model):
     )
     discipline = db.relationship("Discipline", back_populates="syllabus", uselist=False)
 
+    @property
     def teacher(self):
         return self.discipline.teacher if self.discipline else None
 
