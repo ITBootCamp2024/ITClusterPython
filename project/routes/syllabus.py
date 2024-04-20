@@ -87,7 +87,6 @@ class BaseSyllabusInfo(Resource):
         user_role = get_jwt().get("role")
         if user_role == "teacher":
             teacher_email = Syllabus.query.get(syllabus_id).teacher.email
-            print(teacher_email)
             if teacher_email != get_jwt_identity():
                 abort(403, "You are not the teacher of this syllabus")
 
