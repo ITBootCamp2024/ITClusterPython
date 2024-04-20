@@ -4,25 +4,29 @@ from flask_restx import Resource, Namespace, abort
 from project.extensions import db
 from project.models import Syllabus, Discipline, SyllabusBaseInfo
 from project.schemas.authorization import authorizations
-from project.schemas.syllabus import syllabus_base_info_query_model, syllabus_base_info_model
+from project.schemas.service_info import service_info_for_base_syllabus_model
+from project.schemas.syllabus import (
+    syllabus_base_info_query_model,
+    syllabus_base_info_model,
+)
 from project.validators import allowed_roles
 
-
-syllabuses_ns = Namespace(name="syllabuses",
-                          description="Syllabuses info",
-                          authorizations=authorizations)
+syllabuses_ns = Namespace(
+    name="syllabuses", description="Syllabuses info", authorizations=authorizations
+)
 
 
 @syllabuses_ns.route("/create")
 class SyllabusesCreate(Resource):
-    """ Create a new syllabus """
+    """Create a new syllabus"""
+
     @allowed_roles(["teacher", "admin", "content_manager"])
     @syllabuses_ns.doc(security="jsonWebToken")
     @syllabuses_ns.expect(syllabus_base_info_query_model)
     @syllabuses_ns.marshal_with(syllabus_base_info_model)
     def post(self):
-        """ Create a new syllabus and base info about it"""
-        # TODO: Implement creation of syllabus
+        """Create a new syllabus and base info about it"""
+
         discipline_id = syllabuses_ns.payload.get("discipline").get("id")
         discipline = Discipline.query.filter_by(id=discipline_id).first()
 
@@ -36,9 +40,9 @@ class SyllabusesCreate(Resource):
         if user_role == "teacher" and discipline.teacher.email != get_jwt_identity():
             abort(403, "You are not the teacher of this discipline")
 
-        syllabus = Syllabus(name=discipline.name,
-                            status="Не заповнено",
-                            discipline_id=discipline_id)
+        syllabus = Syllabus(
+            name=discipline.name, status="Не заповнено", discipline_id=discipline_id
+        )
         db.session.add(syllabus)
         db.session.commit()
 
@@ -52,12 +56,83 @@ class SyllabusesCreate(Resource):
         return syllabus_base_info
 
 
-@syllabuses_ns.route("/base-syllabus-service-info")
+@syllabuses_ns.route("/base-syllabus-service-info/<int:teacher_id>")
 class BaseSyllabusServiceInfo(Resource):
-    """ Get the base info to create or modify the syllabus """
+    """Get the base info to create or modify the syllabus"""
 
-    def get(self):
-        """ Get the info for creating or modifying the syllabus """
-        # TODO: Implement base info for creating or modifying the syllabus
-        pass
+    @syllabuses_ns.response(200, "Success", service_info_for_base_syllabus_model)
+    def get(self, teacher_id):
+        """Get the info for creating or modifying the syllabus"""
+        disciplines_without_syllabuses = (
+            db.session.query(Discipline)
+            .filter(Discipline.teacher_id == teacher_id)
+            .filter(~Discipline.id.in_(db.session.query(Syllabus.discipline_id)))
+            .all()
+        )
 
+        sps = {}
+
+        for discipline in disciplines_without_syllabuses:
+            # specialty_id
+            spid = discipline.education_program.specialty_id
+            # education_program_id
+            epid = discipline.education_program_id
+            # block_id
+            blid = discipline.discipline_block.id
+
+            specialty_code = discipline.education_program.specialty.code
+            specialty_name = discipline.education_program.specialty.name
+            program_name = discipline.education_program.name
+            block_name = discipline.discipline_block.name
+
+            if spid not in sps:
+                sps[spid] = {
+                    "id": spid,
+                    "code": specialty_code,
+                    "name": specialty_name,
+                    "eps": {},  # educational programs
+                }
+
+            if epid not in sps[spid]["eps"]:
+                sps[spid]["eps"][epid] = {
+                    "id": epid,
+                    "name": program_name,
+                    "dbs": {},  # discipline blocks
+                }
+
+            if blid not in sps[spid]["eps"][epid]["dbs"]:
+                sps[spid]["eps"][epid]["dbs"][blid] = {
+                    "id": blid,
+                    "name": block_name,
+                    "ds": [],  # disciplines
+                }
+
+            sps[spid]["eps"][epid]["dbs"][blid]["ds"].append(
+                {"id": discipline.id, "name": discipline.name}
+            )
+
+        specialties_list = [
+            {
+                "id": specialty_id,
+                "code": data["code"],
+                "name": data["name"],
+                "educational_programs": [
+                    {
+                        "id": pr_id,
+                        "name": pr_data["name"],
+                        "discipline_blocks": [
+                            {
+                                "id": bl_id,
+                                "name": bl_data["name"],
+                                "disciplines": bl_data["ds"],
+                            }
+                            for bl_id, bl_data in pr_data["dbs"].items()
+                        ],
+                    }
+                    for pr_id, pr_data in data["eps"].items()
+                ],
+            }
+            for specialty_id, data in sps.items()
+        ]
+
+        return {"specialties": specialties_list}

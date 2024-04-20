@@ -14,9 +14,9 @@ short_specialty_model = api.model(
             required=True,
             description="The code of the specialty",
             max_length=45,
-            default="999"
-        )
-    }
+            default="999",
+        ),
+    },
 )
 
 
@@ -29,9 +29,9 @@ base_specialty_model = api.model(
             description="The name of the specialty",
             min_length=1,
             max_length=100,
-            default="specialty name"
-        )
-    }
+            default="specialty name",
+        ),
+    },
 )
 
 
