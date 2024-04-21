@@ -8,28 +8,37 @@ from project.schemas.pagination import get_pagination_schema_for
 from project.schemas.specialty import short_specialty_model
 from project.schemas.universities import short_university_model
 
-short_education_program_model = api.model(
-    "ShortEducationProgram",
+
+primary_education_program_model = api.model(
+    "PrimaryEducationProgram",
     {
         "id": fields.Integer(
             readonly=True,
             description="Unique identifier of the education program",
-            default=1
+            default=1,
         ),
         "name": fields.String(
             required=True,
             description="Education program name",
             min_length=2,
             max_length=100,
-            default="education program name"
+            default="education program name",
         ),
+    },
+)
+
+
+short_education_program_model = api.model(
+    "ShortEducationProgram",
+    {
+        **primary_education_program_model,
         "program_url": fields.String(
             required=True,
             description="Education program url",
             max_length=255,
-            default="http://education-program.url"
-        )
-    }
+            default="http://education-program.url",
+        ),
+    },
 )
 
 
@@ -41,15 +50,15 @@ base_education_program_model = api.model(
             required=True,
             description="Guarantor name",
             max_length=100,
-            default="guarantor name"
+            default="guarantor name",
         ),
         "syllabus_url": fields.String(
             required=True,
             description="Syllabus url",
             max_length=255,
-            default="http://syllabus-url"
-        )
-    }
+            default="http://syllabus-url",
+        ),
+    },
 )
 
 
@@ -60,8 +69,8 @@ education_program_model = api.model(
         "specialty": fields.Nested(short_specialty_model, required=True),
         "university": fields.Nested(short_university_model, required=True),
         "education_level": fields.Nested(education_level_model, required=True),
-        "department": fields.Nested(short_department_model_with_url, required=True)
-    }
+        "department": fields.Nested(short_department_model_with_url, required=True),
+    },
 )
 
 
@@ -71,8 +80,8 @@ education_program_query_model = api.model(
         **base_education_program_model,
         "specialty": fields.Nested(base_id_model, required=True),
         "education_level": fields.Nested(base_id_model, required=True),
-        "department": fields.Nested(base_id_model, required=True)
-    }
+        "department": fields.Nested(base_id_model, required=True),
+    },
 )
 
 
