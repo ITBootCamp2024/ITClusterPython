@@ -19,6 +19,7 @@ from project.models import (
     Teacher,
     University,
 )
+from project.routes.assessment import assessment_ns
 from project.routes.courses import courses_ns
 from project.routes.departments import departments_ns
 from project.routes.disciplines import disciplines_ns
@@ -128,6 +129,7 @@ def create_app():
     api.add_namespace(service_info_ns)
     api.add_namespace(specialty_ns)
     api.add_namespace(syllabuses_ns)
+    api.add_namespace(assessment_ns)
     api.add_namespace(teachers_ns)
     api.add_namespace(university_ns)
     api.add_namespace(user_ns)
