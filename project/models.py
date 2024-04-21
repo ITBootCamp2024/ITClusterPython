@@ -11,7 +11,7 @@ class Assessment(db.Model):
     method: str = db.Column(db.String(255), nullable=False)
     tool: str = db.Column(db.String(255), nullable=False)
 
-    syllabus = db.relationship("Syllabus", back_populates="Assessment", uselist=False)
+    syllabus = db.relationship("Syllabus", back_populates="assessments")
 
 
 class Department(db.Model):
@@ -189,6 +189,9 @@ class Syllabus(db.Model):
         db.ForeignKey("disciplines.id"), nullable=False, unique=True
     )
 
+    assessments = db.relationship(
+        "Assessment", back_populates="syllabus", cascade="all, delete"
+    )
     base_information_syllabus = db.relationship(
         "SyllabusBaseInfo",
         back_populates="syllabus",

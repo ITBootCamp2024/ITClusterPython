@@ -129,10 +129,10 @@ def create_app():
     api.add_namespace(service_info_ns)
     api.add_namespace(specialty_ns)
     api.add_namespace(syllabuses_ns)
+    api.add_namespace(assessment_ns)
     api.add_namespace(teachers_ns)
     api.add_namespace(university_ns)
     api.add_namespace(user_ns)
-    api.add_namespace(assessment_ns)
     api.add_namespace(test_roles_ns)
     # TODO цей неймспейс для тесту JWT, потім його видалити і його ендпойнти і сам модуль test_jwt_education_levels
     api.add_namespace(test_jwt)
