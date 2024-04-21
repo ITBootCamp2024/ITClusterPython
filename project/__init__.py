@@ -19,6 +19,7 @@ from project.models import (
     Teacher,
     University,
 )
+from project.routes.assessment import assessment_ns
 from project.routes.courses import courses_ns
 from project.routes.departments import departments_ns
 from project.routes.disciplines import disciplines_ns
@@ -131,6 +132,7 @@ def create_app():
     api.add_namespace(teachers_ns)
     api.add_namespace(university_ns)
     api.add_namespace(user_ns)
+    api.add_namespace(assessment_ns)
     api.add_namespace(test_roles_ns)
     # TODO цей неймспейс для тесту JWT, потім його видалити і його ендпойнти і сам модуль test_jwt_education_levels
     api.add_namespace(test_jwt)

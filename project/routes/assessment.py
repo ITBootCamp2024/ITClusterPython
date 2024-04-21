@@ -27,16 +27,17 @@ def get_assessment_response():
     }
 
 
-@assessment_ns.route("/create")
+@assessment_ns.route("/create/<int:syllabus_id>")
 class AssessmentCreate(Resource):
     """Create a new assessment"""
 
     @allowed_roles(["teacher", "admin", "content_manager"])
     @assessment_ns.doc(security="jsonWebToken")
     @assessment_ns.expect(assessment_model)
-    def post(self):
+    def post(self, syllabus_id):
         """Create a new assessment"""
-        syllabus_id = assessment_ns.payload.get("syllabus_id")
+
+        # syllabus_id = assessment_ns.payload.get("syllabus_id")
         syllabus = Syllabus.query.filter_by(id=syllabus_id).first()
 
         if not syllabus:
