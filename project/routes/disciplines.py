@@ -1,11 +1,10 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import Discipline, Teacher, EducationProgram, DisciplineBlock
+from project.models import Discipline, Teacher, EducationProgram, DisciplineBlock, Syllabus, SyllabusBaseInfo
 from project.schemas.disciplines import discipline_model, discipline_query_model
 from project.schemas.service_info import serviced_discipline_model
 from project.validators import validate_site
-
 
 disciplines_ns = Namespace(name="disciplines", description="Disciplines information")
 
@@ -42,9 +41,11 @@ class DisciplinesList(Resource):
         """List all education disciplines"""
         return get_discipline_response()
 
+    # @disciplines_ns.doc(security="jsonWebToken")
     @disciplines_ns.expect(discipline_query_model)
     @disciplines_ns.marshal_with(serviced_discipline_model)
     @validate_site('http', ["syllabus_url", "education_plan_url"])
+    # @allowed_roles(["admin", "content_manager"])
     def post(self):
         """Adds a new education discipline"""
         discipline = Discipline()
@@ -57,6 +58,20 @@ class DisciplinesList(Resource):
                 setattr(discipline, key + "_id", value.get("id"))
         db.session.add(discipline)
         db.session.commit()
+
+        syllabus = Syllabus(
+            name=discipline.name, status="Не заповнено", discipline_id=discipline.id
+        )
+        db.session.add(syllabus)
+        db.session.commit()
+
+        syllabus_base_info = SyllabusBaseInfo(
+            syllabus_id=syllabus.id,
+            specialty_id=discipline.education_program.specialty_id,
+        )
+        db.session.add(syllabus_base_info)
+        db.session.commit()
+
         return get_discipline_response()
 
 
@@ -85,6 +100,15 @@ class DisciplinesDetail(Resource):
             elif key in nested_ids:
                 setattr(discipline, key + "_id", value.get("id"))
         db.session.commit()
+
+        syllabus = discipline.syllabus
+        syllabus.name = discipline.name
+
+        base_info = syllabus.base_information_syllabus
+        base_info.specialty_id = discipline.education_program.specialty_id
+
+        db.session.commit()
+
         return get_discipline_response()
 
     @disciplines_ns.marshal_with(serviced_discipline_model)
@@ -93,4 +117,56 @@ class DisciplinesDetail(Resource):
         discipline = get_discipline_or_404(id)
         db.session.delete(discipline)
         db.session.commit()
+        # TODO: add logic to delete syllabus and syllabus_base_info
         return get_discipline_response()
+
+
+# TODO: delete or hide this endpoint after using it
+@disciplines_ns.route("/add-syllabuses-to-all-disciplines")
+class DisciplinesAddSyllabuses(Resource):
+
+    def post(self):
+        disciplines_without_syllabuses = (
+            db.session.query(Discipline)
+            .filter(~Discipline.id.in_(db.session.query(Syllabus.discipline_id)))
+            .all()
+        )
+
+        result = []
+        for discipline in disciplines_without_syllabuses:
+            disdict = dict()
+            disdict["discipline"] = {
+                "id": discipline.id,
+                "name": discipline.name,
+            }
+            syllabus = Syllabus(
+                name=discipline.name, status="Не заповнено", discipline_id=discipline.id
+            )
+            db.session.add(syllabus)
+            db.session.commit()
+
+            disdict["syllabus"] = {
+                "id": syllabus.id,
+                "name": syllabus.name,
+                "status": syllabus.status,
+            }
+
+            syllabus_base_info = SyllabusBaseInfo(
+                syllabus_id=syllabus.id,
+                specialty_id=discipline.education_program.specialty_id,
+            )
+            db.session.add(syllabus_base_info)
+            db.session.commit()
+
+            disdict["syllabus_base_info"] = {
+                "id": syllabus_base_info.id,
+                "syllabus_id": syllabus_base_info.syllabus_id,
+                "specialty_id": syllabus_base_info.specialty_id,
+            }
+
+            result.append(disdict)
+
+        return {
+            "disciplines": result,
+            "totalElements": len(result)
+        }

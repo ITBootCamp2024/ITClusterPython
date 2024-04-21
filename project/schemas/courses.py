@@ -1,9 +1,8 @@
-from flask_restx import fields, reqparse
+from flask_restx import fields
 
 from project.extensions import api
 from project.schemas.disciplines import short_discipline_model
 from project.schemas.syllabus import base_syllabus_model
-
 
 base_course_model = api.model(
     "BaseCourse",
