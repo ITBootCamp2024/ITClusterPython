@@ -4,7 +4,6 @@ from project.extensions import api
 from project.schemas.discipline_blocks import short_discipline_blocks_model
 from project.schemas.disciplines import short_discipline_model
 from project.schemas.education_programs import primary_education_program_model
-from project.schemas.general import base_id_model
 from project.schemas.specialty import base_specialty_model
 
 short_syllabus_model = api.model(
@@ -33,23 +32,6 @@ base_syllabus_model = api.model(
         ),
     },
 )
-
-syllabus_model = api.model(
-    "Syllabus",
-    {
-        **base_syllabus_model,
-        "discipline": fields.Nested(short_discipline_model, required=True),
-    },
-)
-
-syllabus_base_info_query_model = api.model(
-    "SyllabusBaseInfoQuery",
-    {
-        "discipline": fields.Nested(base_id_model, required=True),
-        "specialty": fields.Nested(base_id_model, required=True),
-    },
-)
-
 
 not_required_fields_base_info = api.model(
     "NotRequiredFieldsBaseInfo",
