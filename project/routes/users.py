@@ -140,10 +140,10 @@ class Login(Resource):
 
         claims = {"role": user_role}
         return {
-            "access_token": create_access_token(
+            "access_token": "Bearer " + create_access_token(
                 identity=user.email, additional_claims=claims
             ),
-            "refresh_token": create_refresh_token(
+            "refresh_token": "Bearer " + create_refresh_token(
                 identity=user.email, additional_claims=claims
             ),
             "role": user_role,
@@ -243,10 +243,10 @@ class Refresh(Resource):
         user_role = get_jwt().get("role")
         claims = {"role": user_role}
         return {
-            "access_token": create_access_token(
+            "access_token": "Bearer " + create_access_token(
                 identity=identity, additional_claims=claims
             ),
-            "refresh_token": create_refresh_token(
+            "refresh_token": "Bearer " + create_refresh_token(
                 identity=identity, additional_claims=claims
             ),
             "role": user_role,

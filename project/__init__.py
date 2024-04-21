@@ -81,6 +81,8 @@ def create_app():
     jwt.init_app(app)
     mail.init_app(app)
 
+    app.extensions['mail'].debug = 0
+
     @app.teardown_appcontext
     def close_connection(exception=None):
         try:
