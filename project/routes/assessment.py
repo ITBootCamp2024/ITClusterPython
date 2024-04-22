@@ -43,7 +43,7 @@ class AssessmentsList(Resource):
     def post(self, syllabus_id):
         """Create a new assessment"""
 
-        syllabus = Syllabus.query.filter_by(id=syllabus_id).first()
+        syllabus = Syllabus.query.get(syllabus_id)
 
         if not syllabus:
             abort(400, f"Syllabus with id {syllabus_id} not found")
@@ -70,10 +70,10 @@ class AssessmentsList(Resource):
 class TeachersDetail(Resource):
     """Show a assessment and lets you delete him"""
 
-    @assessment_ns.marshal_with(assessment_model)
-    def get(self, id):
-        """Fetch the assessment with a given id"""
-        return get_assessment_or_404(id)
+    # @assessment_ns.marshal_with(assessment_model)
+    # def get(self, id):
+    #     """Fetch the assessment with a given id"""
+    #     return get_assessment_or_404(id)
 
     @assessment_ns.expect(assessment_model, validate=False)
     @assessment_ns.marshal_with(assessment_response_model)
