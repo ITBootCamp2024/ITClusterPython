@@ -1,16 +1,13 @@
 from flask_restx import fields
 
 from project.extensions import api
-
+from project.schemas.general import syllabus_id_model
 
 assessment_model = api.model(
     "AssessmentSchema",
     {
         "id": fields.Integer(
             readonly=True, description="Unique identifier of the assessment", default=1
-        ),
-        "syllabus_id": fields.Integer(
-            readonly=True, description="Unique identifier of the syllabus", default=1
         ),
         "object": fields.String(
             required=True,
@@ -34,6 +31,7 @@ assessment_model = api.model(
 assessment_response_model = api.model(
     "AssessmentResponse",
     {
-        "assessments": fields.List(fields.Nested(assessment_model))
+        "assessments": fields.List(fields.Nested(assessment_model)),
+        **syllabus_id_model
     }
 )

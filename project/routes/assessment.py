@@ -1,8 +1,8 @@
-from flask_jwt_extended import get_jwt_identity, get_jwt
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import Syllabus, Assessment
+from project.models import Assessment
+from project.routes.syllabus import get_syllabus_or_404, verify_teacher
 from project.schemas.assessment import assessment_model, assessment_response_model
 from project.schemas.authorization import authorizations
 from project.validators import allowed_roles
@@ -23,6 +23,7 @@ def get_assessment_response(syllabus_id):
     assessments = db.session.query(Assessment).filter_by(syllabus_id=syllabus_id).all()
     return {
         "assessments": assessments,
+        "syllabus_id": syllabus_id,
     }
 
 
@@ -43,14 +44,8 @@ class AssessmentsList(Resource):
     def post(self, syllabus_id):
         """Create a new assessment"""
 
-        syllabus = Syllabus.query.get(syllabus_id)
-
-        if not syllabus:
-            abort(400, f"Syllabus with id {syllabus_id} not found")
-
-        if (get_jwt().get("role") == "teacher" and
-                syllabus.teacher.email != get_jwt_identity()):
-            abort(403, "You are not the teacher of this syllabus")
+        syllabus = get_syllabus_or_404(syllabus_id)
+        verify_teacher(syllabus)
 
         assessment = Assessment(
             syllabus_id=syllabus_id,
@@ -64,29 +59,20 @@ class AssessmentsList(Resource):
         return get_assessment_response(syllabus_id)
 
 
-@assessment_ns.route("/<int:id>")
-@assessment_ns.response(404, "Assessment not found")
-@assessment_ns.param("id", "The assessment unique identifier")
+@assessment_ns.route("/<int:assessment_id>")
+@assessment_ns.param("assessment_id", "The assessment unique identifier")
 class TeachersDetail(Resource):
-    """Show a assessment and lets you delete him"""
-
-    # @assessment_ns.marshal_with(assessment_model)
-    # def get(self, id):
-    #     """Fetch the assessment with a given id"""
-    #     return get_assessment_or_404(id)
+    """Show an assessment and lets you modify or delete it"""
 
     @assessment_ns.expect(assessment_model, validate=False)
     @assessment_ns.marshal_with(assessment_response_model)
     @assessment_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
-    def patch(self, id):
+    def patch(self, assessment_id):
         """Update the assessment with a given id"""
-        assessment = get_assessment_or_404(id)
+        assessment = get_assessment_or_404(assessment_id)
         syllabus = assessment.syllabus
-
-        if (get_jwt().get("role") == "teacher" and
-                syllabus.teacher.email != get_jwt_identity()):
-            abort(403, "You are not the teacher of this syllabus")
+        verify_teacher(syllabus)
 
         plain_params = ["object", "method", "tool"]
         for key, value in assessment_ns.payload.items():
@@ -99,13 +85,11 @@ class TeachersDetail(Resource):
     @allowed_roles(["teacher", "admin", "content_manager"])
     @assessment_ns.doc(security="jsonWebToken")
     @assessment_ns.marshal_with(assessment_response_model)
-    def delete(self, id):
+    def delete(self, assessment_id):
         """Delete the assessment with given id"""
-        assessment = get_assessment_or_404(id)
+        assessment = get_assessment_or_404(assessment_id)
         syllabus = assessment.syllabus
-        if (get_jwt().get("role") == "teacher" and
-                syllabus.teacher.email != get_jwt_identity()):
-            abort(403, "You are not the teacher of this syllabus")
+        verify_teacher(syllabus)
 
         db.session.delete(assessment)
         db.session.commit()
