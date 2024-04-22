@@ -158,6 +158,17 @@ class EducationProgram(db.Model):
         return self.department.university if self.department else None
 
 
+class GraduateTask(db.Model):
+    __tablename__ = "graduate_task"
+    id: int = db.Column(db.Integer, primary_key=True)
+    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False)
+    name: str = db.Column(db.String(255), nullable=False)
+    controls: str = db.Column(db.Text)
+    deadlines: str = db.Column(db.String(255))
+
+    syllabus = db.relationship("Syllabus", back_populates="graduate_tasks")
+
+
 class Position(db.Model):
     __tablename__ = "position"
     id: int = db.Column(db.Integer, primary_key=True)
@@ -223,6 +234,9 @@ class Syllabus(db.Model):
         cascade="all, delete",
     )
     discipline = db.relationship("Discipline", back_populates="syllabus", uselist=False)
+    graduate_tasks = db.relationship(
+        "GraduateTask", back_populates="syllabus", cascade="all, delete"
+    )
     modules = db.relationship(
         "SyllabusModule", back_populates="syllabus", cascade="all, delete",
     )
