@@ -66,11 +66,12 @@ def get_syllabus_module_or_404(module_id):
     return module
 
 
-def get_syllabus_modules(syllabus_id):
+def get_syllabus_modules_response(syllabus_id):
     """Get list of syllabus modules"""
     modules = SyllabusModule.query.filter_by(syllabus_id=syllabus_id).all()
     return {
         "modules": modules,
+        "syllabus_id": syllabus_id,
     }
 
 
@@ -89,7 +90,7 @@ class DisciplineStructureList(Resource):
     @discipline_structure_ns.marshal_with(syllabus_module_response_model)
     def get(self, syllabus_id):
         """Get list of syllabus modules by given syllabus_id"""
-        return get_syllabus_modules(syllabus_id)
+        return get_syllabus_modules_response(syllabus_id)
 
     @discipline_structure_ns.expect(syllabus_module_response_model)
     @discipline_structure_ns.marshal_with(syllabus_module_response_model)
@@ -101,7 +102,7 @@ class DisciplineStructureList(Resource):
         syllabus = get_syllabus_or_404(syllabus_id)
         verify_teacher(syllabus)
         add_syllabus_modules(syllabus_id)
-        return get_syllabus_modules(syllabus_id)
+        return get_syllabus_modules_response(syllabus_id)
 
     @discipline_structure_ns.expect(syllabus_module_response_model)
     @discipline_structure_ns.marshal_with(syllabus_module_response_model)
@@ -114,7 +115,7 @@ class DisciplineStructureList(Resource):
         verify_teacher(syllabus)
         delete_modules(syllabus_id)
         add_syllabus_modules(syllabus_id)
-        return get_syllabus_modules(syllabus_id)
+        return get_syllabus_modules_response(syllabus_id)
 
     @discipline_structure_ns.marshal_with(syllabus_module_response_model)
     @discipline_structure_ns.doc(security="jsonWebToken")
@@ -124,7 +125,7 @@ class DisciplineStructureList(Resource):
         syllabus = get_syllabus_or_404(syllabus_id)
         verify_teacher(syllabus)
         delete_modules(syllabus_id)
-        return get_syllabus_modules(syllabus_id)
+        return get_syllabus_modules_response(syllabus_id)
 
 
 @discipline_structure_ns.route("/module/<int:module_id>")
@@ -142,7 +143,7 @@ class DisciplineStructureModuleDetail(Resource):
         verify_teacher(syllabus)
         module.name = discipline_structure_ns.payload.get("name")
         db.session.commit()
-        return get_syllabus_modules(syllabus.id)
+        return get_syllabus_modules_response(syllabus.id)
 
     @discipline_structure_ns.marshal_with(syllabus_module_response_model)
     @discipline_structure_ns.doc(security="jsonWebToken")
@@ -153,7 +154,7 @@ class DisciplineStructureModuleDetail(Resource):
         syllabus = module.syllabus
         verify_teacher(syllabus)
         delete_module(module_id)
-        return get_syllabus_modules(syllabus.id)
+        return get_syllabus_modules_response(syllabus.id)
 
 
 @discipline_structure_ns.route("/topic/<int:topic_id>")
@@ -174,7 +175,7 @@ class DisciplineStructureTopicDetail(Resource):
             if key in topic_params:
                 setattr(topic, key, value)
         db.session.commit()
-        return get_syllabus_modules(syllabus.id)
+        return get_syllabus_modules_response(syllabus.id)
 
     @discipline_structure_ns.marshal_with(syllabus_module_response_model)
     @discipline_structure_ns.doc(security="jsonWebToken")
@@ -186,7 +187,7 @@ class DisciplineStructureTopicDetail(Resource):
         verify_teacher(syllabus)
         db.session.delete(topic)
         db.session.commit()
-        return get_syllabus_modules(syllabus.id)
+        return get_syllabus_modules_response(syllabus.id)
 
 
 # Database test filling

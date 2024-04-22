@@ -1,6 +1,7 @@
 from flask_restx import fields
 
 from project.extensions import api
+from project.schemas.general import syllabus_id_model
 
 base_structure_topics_model = api.model(
     "StructureTopics",
@@ -39,11 +40,6 @@ base_syllabus_module_model = api.model(
             description="Unique identifier of the syllabus module",
             default=1
         ),
-        "syllabus_id": fields.Integer(
-            readonly=True,
-            description="Unique identifier of the syllabus",
-            default=1
-        ),
         "name": fields.String(
             required=True,
             description="Syllabus module name",
@@ -64,6 +60,7 @@ syllabus_module_model = api.model(
 syllabus_module_response_model = api.model(
     "SyllabusModuleResponse",
     {
-        "modules": fields.List(fields.Nested(syllabus_module_model), required=True)
+        "modules": fields.List(fields.Nested(syllabus_module_model), required=True),
+        **syllabus_id_model,
     }
 )
