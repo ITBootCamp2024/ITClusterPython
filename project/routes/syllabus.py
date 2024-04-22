@@ -6,7 +6,8 @@ from project.models import Syllabus, SyllabusBaseInfo
 from project.schemas.authorization import authorizations
 from project.schemas.syllabus import (
     syllabus_base_info_model,
-    syllabus_base_info_patch_model, not_required_fields_base_info,
+    syllabus_base_info_patch_model,
+    not_required_fields_base_info,
 )
 from project.validators import allowed_roles
 
