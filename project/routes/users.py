@@ -99,7 +99,7 @@ class Register(Resource):
         db.session.add(user)
         db.session.commit()
 
-        self.send_confirm_token(user)
+        # self.send_confirm_token(user)
         return user, 201
 
 
