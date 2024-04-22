@@ -123,8 +123,9 @@ class Login(Resource):
             abort(401, f"User with email '{email}' does not exist")
         if not check_password_hash(user.password_hash, password):
             abort(401, "Incorrect password")
-        if not user.email_confirmed:
-            abort(401, f"Email '{email}' is not confirmed. Please check your email")
+        # TODO uncomment this when email confirmation will work properly
+        # if not user.email_confirmed:
+        #     abort(401, f"Email '{email}' is not confirmed. Please check your email")
         if not user.active_status:
             abort(401, f"User with email '{email}' is banned")
 
