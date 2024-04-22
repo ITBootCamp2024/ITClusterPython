@@ -1,8 +1,8 @@
-from flask_jwt_extended import get_jwt_identity, get_jwt
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import SyllabusModule, Syllabus, DisciplineStructure
+from project.models import SyllabusModule, DisciplineStructure
+from project.routes.syllabus import get_syllabus_or_404, verify_teacher
 from project.schemas.authorization import authorizations
 from project.schemas.discipline_structure import (
     syllabus_module_response_model,
@@ -74,24 +74,11 @@ def get_syllabus_modules(syllabus_id):
     }
 
 
-def get_syllabus_or_404(syllabus_id):
-    syllabus = Syllabus.query.get(syllabus_id)
-    if not syllabus:
-        abort(404, f"Syllabus with id {syllabus_id} not found")
-    return syllabus
-
-
 def get_syllabus_topic_or_404(topic_id):
     topic = DisciplineStructure.query.get(topic_id)
     if not topic:
         abort(404, f"Topic with id {topic_id} not found")
     return topic
-
-
-def verify_teacher(syllabus):
-    if (get_jwt().get("role") == "teacher" and
-            syllabus.teacher.email != get_jwt_identity()):
-        abort(403, "You are not the teacher of this syllabus")
 
 
 @discipline_structure_ns.route("/<int:syllabus_id>")
@@ -200,7 +187,6 @@ class DisciplineStructureTopicDetail(Resource):
         db.session.delete(topic)
         db.session.commit()
         return get_syllabus_modules(syllabus.id)
-
 
 
 # Database test filling

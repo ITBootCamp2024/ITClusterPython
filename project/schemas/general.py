@@ -21,3 +21,13 @@ base_name_model = api.model(
         )
     }
 )
+
+
+syllabus_id_model = api.model(
+    "SyllabusID",
+    {
+        "syllabus_id": fields.Integer(
+            readonly=True, description="Unique identifier of the syllabus", default=1
+        ),
+    }
+)

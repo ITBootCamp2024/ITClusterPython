@@ -178,6 +178,17 @@ class Role(db.Model):
     users = db.relationship("User", back_populates="role", cascade="all, delete")
 
 
+class SelfStudyTopic(db.Model):
+    __tablename__ = "topic_for_self_study"
+    id: int = db.Column(db.Integer, primary_key=True)
+    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False)
+    name: str = db.Column(db.Text, nullable=False)
+    controls: str = db.Column(db.Text)
+    hours: int = db.Column(db.Integer)
+
+    syllabus = db.relationship("Syllabus", back_populates="self_study_topics")
+
+
 class Specialty(db.Model):
     __tablename__ = "specialty"
     id: int = db.Column(db.Integer, primary_key=True)
@@ -215,7 +226,9 @@ class Syllabus(db.Model):
     modules = db.relationship(
         "SyllabusModule", back_populates="syllabus", cascade="all, delete",
     )
-
+    self_study_topics = db.relationship(
+        "SelfStudyTopic", back_populates="syllabus", cascade="all, delete"
+    )
 
     @property
     def teacher(self):
