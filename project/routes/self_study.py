@@ -8,7 +8,7 @@ from project.schemas.self_study import self_study_topic_response_model, self_stu
 from project.validators import allowed_roles
 
 self_study_topics_ns = Namespace(
-    "syllabuses/self_study",
+    "syllabuses/self-study",
     description="Self study topics",
     authorizations=authorizations
 )
