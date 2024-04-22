@@ -107,6 +107,19 @@ class DisciplineGroup(db.Model):
     block = db.relationship("DisciplineBlock", back_populates="disciplineGroups")
 
 
+class DisciplineStructure(db.Model):
+    __tablename__ = "structure_of_discipline"
+    id: int = db.Column(db.Integer, primary_key=True)
+    module_id: int = db.Column(db.ForeignKey("syllabus_module.id"), nullable=False)
+    theoretical_topic: str = db.Column(db.Text, nullable=False)
+    theoretical_hours: int = db.Column(db.Integer)
+    practice_topics: str = db.Column(db.Text)
+    practice_hours: int = db.Column(db.Integer)
+    technologies: str = db.Column(db.Text)
+
+    module = db.relationship("SyllabusModule", back_populates="topics")
+
+
 class EducationLevel(db.Model):
     __tablename__ = "education_levels"
     id: int = db.Column(db.Integer, primary_key=True)
@@ -199,6 +212,10 @@ class Syllabus(db.Model):
         cascade="all, delete",
     )
     discipline = db.relationship("Discipline", back_populates="syllabus", uselist=False)
+    modules = db.relationship(
+        "SyllabusModule", back_populates="syllabus", cascade="all, delete",
+    )
+
 
     @property
     def teacher(self):
@@ -234,6 +251,16 @@ class SyllabusBaseInfo(db.Model):
     @property
     def education_program(self):
         return self.discipline.education_program if self.discipline else None
+
+
+class SyllabusModule(db.Model):
+    __tablename__ = "syllabus_module"
+    id: int = db.Column(db.Integer, primary_key=True)
+    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False)
+    name: str = db.Column(db.String(255), nullable=False)
+
+    topics = db.relationship("DisciplineStructure", back_populates="module", cascade="all, delete")
+    syllabus = db.relationship("Syllabus", back_populates="modules")
 
 
 class Teacher(db.Model):

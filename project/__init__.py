@@ -22,6 +22,7 @@ from project.models import (
 from project.routes.assessment import assessment_ns
 from project.routes.courses import courses_ns
 from project.routes.departments import departments_ns
+from project.routes.discipline_structure import discipline_structure_ns
 from project.routes.disciplines import disciplines_ns
 from project.routes.discipline_blocks import discipline_blocks_ns
 from project.routes.discipline_groups import discipline_groups_ns
@@ -34,8 +35,6 @@ from project.routes.syllabus import syllabuses_ns
 from project.routes.teachers import teachers_ns
 from project.routes.test_roles import test_roles_ns
 from project.routes.universities import university_ns
-
-from project.routes.test_jwt_education_levels import education_levels_ns as test_jwt
 from project.routes.users import user_ns
 
 
@@ -132,20 +131,10 @@ def create_app():
     api.add_namespace(specialty_ns)
     api.add_namespace(syllabuses_ns)
     api.add_namespace(assessment_ns)
+    api.add_namespace(discipline_structure_ns)
     api.add_namespace(teachers_ns)
     api.add_namespace(university_ns)
     api.add_namespace(user_ns)
     api.add_namespace(test_roles_ns)
-    # TODO цей неймспейс для тесту JWT, потім його видалити і його ендпойнти і сам модуль test_jwt_education_levels
-    api.add_namespace(test_jwt)
-
-    # @jwt.user_identity_loader
-    # def user_identity_lookup(user):
-    #     return user.id  # probably we will use email as identifier
-    #
-    # @jwt.user_lookup_loader
-    # def user_lookup_callback(_jwt_header, jwt_data):
-    #     identity = jwt_data["sub"]
-    #     return User.query.filter_by(id=identity).first()
 
     return app
