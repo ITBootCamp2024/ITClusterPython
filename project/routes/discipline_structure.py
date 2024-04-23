@@ -104,28 +104,28 @@ class DisciplineStructureList(Resource):
         add_syllabus_modules(syllabus_id)
         return get_syllabus_modules_response(syllabus_id)
 
-    @discipline_structure_ns.expect(syllabus_module_response_model)
-    @discipline_structure_ns.marshal_with(syllabus_module_response_model)
-    @discipline_structure_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
-    def patch(self, syllabus_id):
-        """Modify syllabus modules"""
-
-        syllabus = get_syllabus_or_404(syllabus_id)
-        verify_teacher(syllabus)
-        delete_modules(syllabus_id)
-        add_syllabus_modules(syllabus_id)
-        return get_syllabus_modules_response(syllabus_id)
-
-    @discipline_structure_ns.marshal_with(syllabus_module_response_model)
-    @discipline_structure_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
-    def delete(self, syllabus_id):
-        "Delete all syllabus modules"""
-        syllabus = get_syllabus_or_404(syllabus_id)
-        verify_teacher(syllabus)
-        delete_modules(syllabus_id)
-        return get_syllabus_modules_response(syllabus_id)
+    # @discipline_structure_ns.expect(syllabus_module_response_model)
+    # @discipline_structure_ns.marshal_with(syllabus_module_response_model)
+    # @discipline_structure_ns.doc(security="jsonWebToken")
+    # @allowed_roles(["teacher", "admin", "content_manager"])
+    # def patch(self, syllabus_id):
+    #     """Modify syllabus modules"""
+    #
+    #     syllabus = get_syllabus_or_404(syllabus_id)
+    #     verify_teacher(syllabus)
+    #     delete_modules(syllabus_id)
+    #     add_syllabus_modules(syllabus_id)
+    #     return get_syllabus_modules_response(syllabus_id)
+    #
+    # @discipline_structure_ns.marshal_with(syllabus_module_response_model)
+    # @discipline_structure_ns.doc(security="jsonWebToken")
+    # @allowed_roles(["teacher", "admin", "content_manager"])
+    # def delete(self, syllabus_id):
+    #     "Delete all syllabus modules"""
+    #     syllabus = get_syllabus_or_404(syllabus_id)
+    #     verify_teacher(syllabus)
+    #     delete_modules(syllabus_id)
+    #     return get_syllabus_modules_response(syllabus_id)
 
 
 @discipline_structure_ns.route("/module/<int:module_id>")
