@@ -8,7 +8,9 @@ from project.schemas.authorization import authorizations
 from project.validators import allowed_roles
 
 assessment_ns = Namespace(
-    name="syllabuses/assessments", description="Assessment info", authorizations=authorizations
+    name="syllabuses/assessments",
+    description="Assessment info",
+    authorizations=authorizations,
 )
 
 
@@ -32,12 +34,12 @@ def get_assessment_response(syllabus_id):
 class AssessmentsList(Resource):
     """Get list of assessments or create a new assessment"""
 
-    @assessment_ns.marshal_with(assessment_response_model)
+    @assessment_ns.marshal_with(assessment_response_model, envelope="content")
     def get(self, syllabus_id):
         """Get list of assessments by given syllabus_id"""
         return get_assessment_response(syllabus_id)
 
-    @assessment_ns.marshal_with(assessment_response_model)
+    @assessment_ns.marshal_with(assessment_response_model, envelope="content")
     @allowed_roles(["teacher", "admin", "content_manager"])
     @assessment_ns.doc(security="jsonWebToken")
     @assessment_ns.expect(assessment_model)
@@ -65,7 +67,7 @@ class TeachersDetail(Resource):
     """Show an assessment and lets you modify or delete it"""
 
     @assessment_ns.expect(assessment_model, validate=False)
-    @assessment_ns.marshal_with(assessment_response_model)
+    @assessment_ns.marshal_with(assessment_response_model, envelope="content")
     @assessment_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def patch(self, assessment_id):
@@ -84,7 +86,7 @@ class TeachersDetail(Resource):
 
     @allowed_roles(["teacher", "admin", "content_manager"])
     @assessment_ns.doc(security="jsonWebToken")
-    @assessment_ns.marshal_with(assessment_response_model)
+    @assessment_ns.marshal_with(assessment_response_model, envelope="content")
     def delete(self, assessment_id):
         """Delete the assessment with given id"""
         assessment = get_assessment_or_404(assessment_id)

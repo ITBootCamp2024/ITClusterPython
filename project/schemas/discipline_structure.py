@@ -9,7 +9,7 @@ base_structure_topics_model = api.model(
         "id": fields.Integer(
             readonly=True,
             description="Unique identifier of the structure topic",
-            default=1
+            default=1,
         ),
         "theoretical_topic": fields.String(
             required=True,
@@ -26,10 +26,8 @@ base_structure_topics_model = api.model(
         "practice_hours": fields.Integer(
             description="Practice hours",
         ),
-        "technologies": fields.String(
-            description="Technologies"
-        )
-    }
+        "technologies": fields.String(description="Technologies"),
+    },
 )
 
 base_syllabus_module_model = api.model(
@@ -38,23 +36,22 @@ base_syllabus_module_model = api.model(
         "id": fields.Integer(
             readonly=True,
             description="Unique identifier of the syllabus module",
-            default=1
+            default=1,
         ),
         "name": fields.String(
             required=True,
             description="Syllabus module name",
             max_length=255,
-            default="syllabus module name"
+            default="syllabus module name",
         ),
-
-    }
+    },
 )
 syllabus_module_model = api.model(
     "SyllabusModule",
     {
         **base_syllabus_module_model,
-        "topics": fields.List(fields.Nested(base_structure_topics_model))
-    }
+        "topics": fields.List(fields.Nested(base_structure_topics_model)),
+    },
 )
 
 syllabus_module_response_model = api.model(
@@ -62,5 +59,5 @@ syllabus_module_response_model = api.model(
     {
         "modules": fields.List(fields.Nested(syllabus_module_model), required=True),
         **syllabus_id_model,
-    }
+    },
 )
