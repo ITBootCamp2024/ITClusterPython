@@ -215,6 +215,19 @@ class Specialty(db.Model):
     )
 
 
+class MarketRelation(db.Model):
+    __tablename__ = "stakeholder"
+    id: int = db.Column(db.Integer, primary_key=True)
+    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False, unique=True)
+    specialty: str = db.Column(db.String(255))
+    vacancies: str = db.Column(db.Text)
+    skills: str = db.Column(db.Text)
+    relevant_materials: str = db.Column(db.Text)
+    borrowed_materials: str = db.Column(db.Text)
+
+    syllabus = db.relationship("Syllabus", back_populates="market_relation", uselist=False)
+
+
 class Syllabus(db.Model):
     __tablename__ = "syllabuses"
     id: int = db.Column(db.Integer, primary_key=True)
@@ -236,6 +249,12 @@ class Syllabus(db.Model):
     discipline = db.relationship("Discipline", back_populates="syllabus", uselist=False)
     graduate_tasks = db.relationship(
         "GraduateTask", back_populates="syllabus", cascade="all, delete"
+    )
+    market_relation = db.relationship(
+        "MarketRelation",
+        back_populates="syllabus",
+        uselist=False,
+        cascade="all, delete",
     )
     modules = db.relationship(
         "SyllabusModule", back_populates="syllabus", cascade="all, delete",

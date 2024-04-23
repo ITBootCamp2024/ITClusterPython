@@ -29,6 +29,7 @@ from project.routes.discipline_groups import discipline_groups_ns
 from project.routes.education_levels import education_levels_ns
 from project.routes.education_programs import education_programs_ns
 from project.routes.graduate_task import graduate_tasks_ns
+from project.routes.market_relation import market_relation_ns
 from project.routes.position import position_ns
 from project.routes.self_study import self_study_topics_ns
 from project.routes.service_info import service_info_ns
@@ -134,6 +135,7 @@ def create_app():
     api.add_namespace(syllabuses_ns)
     api.add_namespace(assessment_ns)
     api.add_namespace(graduate_tasks_ns)
+    api.add_namespace(market_relation_ns)
     api.add_namespace(self_study_topics_ns)
     api.add_namespace(discipline_structure_ns)
     api.add_namespace(teachers_ns)
