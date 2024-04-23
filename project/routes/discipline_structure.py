@@ -113,6 +113,28 @@ class DisciplineStructureList(Resource):
 @discipline_structure_ns.param("module_id", "The syllabus module unique identifier")
 class DisciplineStructureModuleDetail(Resource):
 
+    @discipline_structure_ns.expect(base_structure_topics_model)
+    @discipline_structure_ns.marshal_with(
+        syllabus_module_response_model, envelope="content"
+    )
+    @discipline_structure_ns.doc(security="jsonWebToken")
+    @allowed_roles(["teacher", "admin", "content_manager"])
+    def post(self, module_id):
+        """Add syllabus topic to module with given module_id"""
+        module = get_syllabus_module_or_404(module_id)
+        syllabus = module.syllabus
+        verify_teacher(syllabus)
+
+        syllabus_topic = DisciplineStructure(module_id=module_id)
+        params = base_structure_topics_model.keys()
+        for key, value in discipline_structure_ns.payload.items():
+            if key in params:
+                setattr(syllabus_topic, key, value)
+        db.session.add(syllabus_topic)
+        db.session.commit()
+
+        return get_syllabus_modules_response(syllabus.id)
+
     @discipline_structure_ns.expect(base_syllabus_module_model)
     @discipline_structure_ns.marshal_with(
         syllabus_module_response_model, envelope="content"
