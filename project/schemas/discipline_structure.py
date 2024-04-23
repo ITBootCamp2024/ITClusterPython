@@ -2,6 +2,8 @@ from flask_restx import fields
 
 from project.extensions import api
 from project.schemas.general import syllabus_id_model
+from project.schemas.graduate_task import graduate_task_response_model
+from project.schemas.self_study import self_study_topic_response_model
 
 base_structure_topics_model = api.model(
     "StructureTopics",
@@ -60,4 +62,13 @@ syllabus_module_response_model = api.model(
         "modules": fields.List(fields.Nested(syllabus_module_model), required=True),
         **syllabus_id_model,
     },
+)
+
+syllabus_structure_three_model = api.model(
+    "SyllabusStructureThree",
+    {
+        **syllabus_module_response_model,
+        **self_study_topic_response_model,
+        **graduate_task_response_model,
+    }
 )
