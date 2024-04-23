@@ -7,14 +7,14 @@ from project.schemas.authorization import authorizations
 from project.schemas.discipline_structure import (
     syllabus_module_response_model,
     base_syllabus_module_model,
-    base_structure_topics_model
+    base_structure_topics_model,
 )
 from project.validators import allowed_roles
 
 discipline_structure_ns = Namespace(
     "syllabuses/structure",
     description="Syllabus discipline structure",
-    authorizations=authorizations
+    authorizations=authorizations,
 )
 
 
@@ -87,13 +87,17 @@ def get_syllabus_topic_or_404(topic_id):
 class DisciplineStructureList(Resource):
     """Show a list of syllabus modules"""
 
-    @discipline_structure_ns.marshal_with(syllabus_module_response_model)
+    @discipline_structure_ns.marshal_with(
+        syllabus_module_response_model, envelope="content"
+    )
     def get(self, syllabus_id):
         """Get list of syllabus modules by given syllabus_id"""
         return get_syllabus_modules_response(syllabus_id)
 
     @discipline_structure_ns.expect(syllabus_module_response_model)
-    @discipline_structure_ns.marshal_with(syllabus_module_response_model)
+    @discipline_structure_ns.marshal_with(
+        syllabus_module_response_model, envelope="content"
+    )
     @discipline_structure_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def post(self, syllabus_id):
@@ -104,36 +108,15 @@ class DisciplineStructureList(Resource):
         add_syllabus_modules(syllabus_id)
         return get_syllabus_modules_response(syllabus_id)
 
-    # @discipline_structure_ns.expect(syllabus_module_response_model)
-    # @discipline_structure_ns.marshal_with(syllabus_module_response_model)
-    # @discipline_structure_ns.doc(security="jsonWebToken")
-    # @allowed_roles(["teacher", "admin", "content_manager"])
-    # def patch(self, syllabus_id):
-    #     """Modify syllabus modules"""
-    #
-    #     syllabus = get_syllabus_or_404(syllabus_id)
-    #     verify_teacher(syllabus)
-    #     delete_modules(syllabus_id)
-    #     add_syllabus_modules(syllabus_id)
-    #     return get_syllabus_modules_response(syllabus_id)
-    #
-    # @discipline_structure_ns.marshal_with(syllabus_module_response_model)
-    # @discipline_structure_ns.doc(security="jsonWebToken")
-    # @allowed_roles(["teacher", "admin", "content_manager"])
-    # def delete(self, syllabus_id):
-    #     "Delete all syllabus modules"""
-    #     syllabus = get_syllabus_or_404(syllabus_id)
-    #     verify_teacher(syllabus)
-    #     delete_modules(syllabus_id)
-    #     return get_syllabus_modules_response(syllabus_id)
-
 
 @discipline_structure_ns.route("/module/<int:module_id>")
 @discipline_structure_ns.param("module_id", "The syllabus module unique identifier")
 class DisciplineStructureModuleDetail(Resource):
 
     @discipline_structure_ns.expect(base_syllabus_module_model)
-    @discipline_structure_ns.marshal_with(syllabus_module_response_model)
+    @discipline_structure_ns.marshal_with(
+        syllabus_module_response_model, envelope="content"
+    )
     @discipline_structure_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def patch(self, module_id):
@@ -145,7 +128,9 @@ class DisciplineStructureModuleDetail(Resource):
         db.session.commit()
         return get_syllabus_modules_response(syllabus.id)
 
-    @discipline_structure_ns.marshal_with(syllabus_module_response_model)
+    @discipline_structure_ns.marshal_with(
+        syllabus_module_response_model, envelope="content"
+    )
     @discipline_structure_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def delete(self, module_id):
@@ -162,7 +147,9 @@ class DisciplineStructureModuleDetail(Resource):
 class DisciplineStructureTopicDetail(Resource):
 
     @discipline_structure_ns.expect(base_structure_topics_model)
-    @discipline_structure_ns.marshal_with(syllabus_module_response_model)
+    @discipline_structure_ns.marshal_with(
+        syllabus_module_response_model, envelope="content"
+    )
     @discipline_structure_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def patch(self, topic_id):
@@ -177,7 +164,9 @@ class DisciplineStructureTopicDetail(Resource):
         db.session.commit()
         return get_syllabus_modules_response(syllabus.id)
 
-    @discipline_structure_ns.marshal_with(syllabus_module_response_model)
+    @discipline_structure_ns.marshal_with(
+        syllabus_module_response_model, envelope="content"
+    )
     @discipline_structure_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def delete(self, topic_id):
@@ -188,92 +177,3 @@ class DisciplineStructureTopicDetail(Resource):
         db.session.delete(topic)
         db.session.commit()
         return get_syllabus_modules_response(syllabus.id)
-
-
-# Database test filling
-# {
-#   "modules": [
-#     {
-#         "name": "syllabus1 module1",
-#         "topics": [
-#             {
-#                 "theoretical_topic": "theory1",
-#                 "theoretical_hours": 10,
-#                 "practice_topics": "practice1",
-#                 "practice_hours": 55,
-#                 "technologies": "technol 1111"
-#             },
-#             {
-#                 "theoretical_topic": "theory2",
-#                 "theoretical_hours": 20,
-#                 "practice_topics": "practice2",
-#                 "practice_hours": 45,
-#                 "technologies": "technol 2222"
-#             },
-#             {
-#                 "theoretical_topic": "theory3",
-#                 "theoretical_hours": 30,
-#                 "practice_topics": "practice3",
-#                 "practice_hours": 35,
-#                 "technologies": "technol 3333"
-#             }
-#         ]
-#     },
-#     {
-#         "name": "syllabus1 module2",
-#         "topics": [
-#             {
-#                 "theoretical_topic": "theory4",
-#                 "theoretical_hours": 40,
-#                 "practice_topics": "practice4",
-#                 "practice_hours": 25,
-#                 "technologies": "technol 4444"
-#             },
-#             {
-#                 "theoretical_topic": "theory5",
-#                 "theoretical_hours": 50,
-#                 "practice_topics": "practice5",
-#                 "practice_hours": 15,
-#                 "technologies": "technol 5555"
-#             }
-#         ]
-#     },
-#     {
-#       "name": "syllabus1 module3",
-#       "topics": [
-#         {
-#           "theoretical_topic": "theory6",
-#           "theoretical_hours": 16,
-#           "practice_topics": "practice6",
-#           "practice_hours": 56,
-#           "technologies": "technol6"
-#         },
-#         {
-#           "theoretical_topic": "theory7",
-#           "theoretical_hours": 27,
-#           "practice_topics": "practice7"
-#         },
-#         {
-#           "theoretical_topic": "theory8"
-#         }
-#       ]
-#     },
-#     {
-#       "name": "syllabus1 module4",
-#       "topics": [
-#         {
-#           "theoretical_topic": "theory9",
-#           "theoretical_hours": 49,
-#           "practice_topics": "practice9",
-#           "practice_hours": 29,
-#           "technologies": "technol 9"
-#         },
-#         {
-#           "theoretical_topic": "theory10",
-#           "practice_hours": 150,
-#           "technologies": "technol 10"
-#         }
-#       ]
-#     }
-#   ]
-# }
