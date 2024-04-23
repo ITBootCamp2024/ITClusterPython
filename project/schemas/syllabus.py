@@ -61,15 +61,7 @@ syllabus_base_info_model = api.model(
     },
 )
 
-syllabus_base_info_content_model = api.model(
-    "SyllabusBaseInfoContent",
-    {
-        "base_info": fields.Nested(syllabus_base_info_model),
-        **syllabus_id_model
-    }
-)
-
 syllabus_base_info_response_model = api.model(
     "SyllabusBaseInfoResponse",
-    {"content": fields.Nested(syllabus_base_info_content_model)}
+    {"base_info": fields.Nested(syllabus_base_info_model), **syllabus_id_model},
 )

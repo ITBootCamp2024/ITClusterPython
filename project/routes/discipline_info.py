@@ -4,25 +4,32 @@ from project.extensions import db
 from project.models import DisciplineInfo
 from project.routes.syllabus import get_syllabus_or_404, verify_teacher
 from project.schemas.authorization import authorizations
-from project.schemas.discipline_info import discipline_info_response_model, discipline_info_model
+from project.schemas.discipline_info import (
+    discipline_info_response_model,
+    discipline_info_model,
+)
 from project.validators import allowed_roles
 
 discipline_info_ns = Namespace(
     "syllabuses/discipline-info",
     description="Discipline info",
-    authorizations=authorizations
+    authorizations=authorizations,
 )
 
 
 def get_discipline_info_or_404(syllabus_id):
-    discipline_info = db.session.query(DisciplineInfo).filter_by(syllabus_id=syllabus_id).first()
+    discipline_info = (
+        db.session.query(DisciplineInfo).filter_by(syllabus_id=syllabus_id).first()
+    )
     if not discipline_info:
         abort(404, f"Discipline info with syllabus_id {syllabus_id} not found")
     return discipline_info
 
 
 def get_discipline_info_response(syllabus_id):
-    discipline_info = db.session.query(DisciplineInfo).filter_by(syllabus_id=syllabus_id).first()
+    discipline_info = (
+        db.session.query(DisciplineInfo).filter_by(syllabus_id=syllabus_id).first()
+    )
     return {
         "discipline_info": discipline_info,
         "syllabus_id": syllabus_id,
@@ -34,13 +41,13 @@ def get_discipline_info_response(syllabus_id):
 class DisciplineInfoList(Resource):
     """Get discipline info or create a new discipline info"""
 
-    @discipline_info_ns.marshal_with(discipline_info_response_model)
+    @discipline_info_ns.marshal_with(discipline_info_response_model, envelope="content")
     def get(self, syllabus_id):
         """Get discipline info by given syllabus_id"""
         return get_discipline_info_response(syllabus_id)
 
     @discipline_info_ns.expect(discipline_info_model)
-    @discipline_info_ns.marshal_with(discipline_info_response_model)
+    @discipline_info_ns.marshal_with(discipline_info_response_model, envelope="content")
     @discipline_info_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def post(self, syllabus_id):
@@ -62,7 +69,7 @@ class DisciplineInfoList(Resource):
         return get_discipline_info_response(syllabus_id)
 
     @discipline_info_ns.expect(discipline_info_model)
-    @discipline_info_ns.marshal_with(discipline_info_response_model)
+    @discipline_info_ns.marshal_with(discipline_info_response_model, envelope="content")
     @discipline_info_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def patch(self, syllabus_id):
@@ -80,7 +87,7 @@ class DisciplineInfoList(Resource):
 
         return get_discipline_info_response(syllabus_id)
 
-    @discipline_info_ns.marshal_with(discipline_info_response_model)
+    @discipline_info_ns.marshal_with(discipline_info_response_model, envelope="content")
     @discipline_info_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def delete(self, syllabus_id):
