@@ -5,7 +5,7 @@ from project.extensions import db
 from project.models import Syllabus, SyllabusBaseInfo
 from project.schemas.authorization import authorizations
 from project.schemas.syllabus import (
-    syllabus_base_info_model,
+    syllabus_base_info_response_model,
     syllabus_base_info_patch_model,
     not_required_fields_base_info,
 )
@@ -23,7 +23,7 @@ def get_syllabus_or_404(syllabus_id):
     return syllabus
 
 
-def get_syllabus_base_info_or_404(syllabus_id):
+def get_syllabus_base_info_response(syllabus_id):
     syllabus_base_info = (
         db.session.query(SyllabusBaseInfo)
         .filter(SyllabusBaseInfo.syllabus_id == syllabus_id)
@@ -33,7 +33,10 @@ def get_syllabus_base_info_or_404(syllabus_id):
     if not syllabus_base_info:
         abort(404, f"Syllabus with id {syllabus_id} not found")
 
-    return syllabus_base_info
+    return {
+        "base_info": syllabus_base_info,
+        "syllabus_id": syllabus_id,
+    }
 
 
 def verify_teacher(syllabus):
@@ -44,13 +47,13 @@ def verify_teacher(syllabus):
 
 @syllabuses_ns.route("/base-info/<int:syllabus_id>")
 class BaseSyllabusInfo(Resource):
-    @syllabuses_ns.marshal_with(syllabus_base_info_model)
+    @syllabuses_ns.marshal_with(syllabus_base_info_response_model)
     def get(self, syllabus_id):
         """Get the base info about the syllabus"""
-        return get_syllabus_base_info_or_404(syllabus_id)
+        return get_syllabus_base_info_response(syllabus_id)
 
     @syllabuses_ns.expect(syllabus_base_info_patch_model, validate=False)
-    @syllabuses_ns.marshal_with(syllabus_base_info_model)
+    @syllabuses_ns.marshal_with(syllabus_base_info_response_model)
     @syllabuses_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def patch(self, syllabus_id):
@@ -59,7 +62,7 @@ class BaseSyllabusInfo(Resource):
         syllabus = get_syllabus_or_404(syllabus_id)
         verify_teacher(syllabus)
 
-        syllabus_base_info = get_syllabus_base_info_or_404(syllabus_id)
+        syllabus_base_info = get_syllabus_base_info_response(syllabus_id)
 
         plain_params = not_required_fields_base_info.keys()
         for key, value in syllabuses_ns.payload.items():
