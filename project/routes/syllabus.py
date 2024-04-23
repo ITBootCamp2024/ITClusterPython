@@ -34,28 +34,28 @@ def get_syllabus_base_info_response(syllabus_id):
         abort(404, f"Syllabus with id {syllabus_id} not found")
 
     return {
-        "content": {
-            "base_info": syllabus_base_info,
-            "syllabus_id": syllabus_id,
-        }
+        "base_info": syllabus_base_info,
+        "syllabus_id": syllabus_id,
     }
 
 
 def verify_teacher(syllabus):
-    if (get_jwt().get("role") == "teacher" and
-            syllabus.teacher.email != get_jwt_identity()):
+    if (
+        get_jwt().get("role") == "teacher"
+        and syllabus.teacher.email != get_jwt_identity()
+    ):
         abort(403, "You are not the teacher of this syllabus")
 
 
 @syllabuses_ns.route("/base-info/<int:syllabus_id>")
 class BaseSyllabusInfo(Resource):
-    @syllabuses_ns.marshal_with(syllabus_base_info_response_model)
+    @syllabuses_ns.marshal_with(syllabus_base_info_response_model, envelope="content")
     def get(self, syllabus_id):
         """Get the base info about the syllabus"""
         return get_syllabus_base_info_response(syllabus_id)
 
     @syllabuses_ns.expect(syllabus_base_info_patch_model, validate=False)
-    @syllabuses_ns.marshal_with(syllabus_base_info_response_model)
+    @syllabuses_ns.marshal_with(syllabus_base_info_response_model, envelope="content")
     @syllabuses_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def patch(self, syllabus_id):
@@ -64,7 +64,7 @@ class BaseSyllabusInfo(Resource):
         syllabus = get_syllabus_or_404(syllabus_id)
         verify_teacher(syllabus)
 
-        syllabus_base_info = get_syllabus_base_info_response(syllabus_id)
+        syllabus_base_info = syllabus.base_information_syllabus
 
         plain_params = not_required_fields_base_info.keys()
         for key, value in syllabuses_ns.payload.items():
@@ -74,4 +74,4 @@ class BaseSyllabusInfo(Resource):
         db.session.add(syllabus_base_info)
         db.session.commit()
 
-        return syllabus_base_info
+        return get_syllabus_base_info_response(syllabus_id)

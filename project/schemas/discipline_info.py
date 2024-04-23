@@ -9,7 +9,7 @@ discipline_info_model = api.model(
         "id": fields.Integer(
             readonly=True,
             description="Unique identifier of the discipline_info",
-            default=1
+            default=1,
         ),
         "program_url": fields.String(description="Program URL"),
         "abstract": fields.String(description="Short abstract"),
@@ -24,13 +24,15 @@ discipline_info_model = api.model(
         "required_skills": fields.String(description="Required skills"),
         "university_logistics": fields.String(description="University logistics"),
         "self_logistics": fields.String(description="Self logistics"),
-    }
+    },
 )
 
 discipline_info_response_model = api.model(
     "DisciplineInfoResponse",
     {
-        "discipline_info": fields.Nested(discipline_info_model, required=True),
+        "discipline_info": fields.Nested(
+            discipline_info_model, required=True, allow_null=True
+        ),
         **syllabus_id_model,
-    }
+    },
 )
