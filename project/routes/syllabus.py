@@ -34,8 +34,10 @@ def get_syllabus_base_info_response(syllabus_id):
         abort(404, f"Syllabus with id {syllabus_id} not found")
 
     return {
-        "base_info": syllabus_base_info,
-        "syllabus_id": syllabus_id,
+        "content": {
+            "base_info": syllabus_base_info,
+            "syllabus_id": syllabus_id,
+        }
     }
 
 
