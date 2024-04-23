@@ -22,6 +22,7 @@ from project.models import (
 from project.routes.assessment import assessment_ns
 from project.routes.courses import courses_ns
 from project.routes.departments import departments_ns
+from project.routes.discipline_info import discipline_info_ns
 from project.routes.discipline_structure import discipline_structure_ns
 from project.routes.disciplines import disciplines_ns
 from project.routes.discipline_blocks import discipline_blocks_ns
@@ -134,6 +135,7 @@ def create_app():
     api.add_namespace(specialty_ns)
     api.add_namespace(syllabuses_ns)
     api.add_namespace(assessment_ns)
+    api.add_namespace(discipline_info_ns)
     api.add_namespace(graduate_tasks_ns)
     api.add_namespace(market_relation_ns)
     api.add_namespace(self_study_topics_ns)
