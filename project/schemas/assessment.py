@@ -33,5 +33,5 @@ assessment_response_model = api.model(
     {
         "assessments": fields.List(fields.Nested(assessment_model)),
         **syllabus_id_model
-    }
+    },
 )
