@@ -107,6 +107,36 @@ class DisciplineGroup(db.Model):
     block = db.relationship("DisciplineBlock", back_populates="disciplineGroups")
 
 
+class DisciplineInfo(db.Model):
+    __tablename__ = "discipline_information"
+    id: int = db.Column(db.Integer, primary_key=True)
+    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False, unique=True)
+    program_url: str = db.Column(db.String(255))
+    abstract: str = db.Column(db.Text)
+    goal: str = db.Column(db.Text)
+    competencies_list: str = db.Column(db.Text)
+    technologies_list: str = db.Column(db.Text)
+    graduate_task: str = db.Column(db.Text)
+    lecture: int = db.Column(db.Integer)
+    laboratory: int = db.Column(db.Integer)
+    practice: int = db.Column(db.Integer)
+    self_study: int = db.Column(db.Integer)
+    required_skills: str = db.Column(db.Text)
+    university_logistics: str = db.Column(db.Text)
+    self_logistics: str = db.Column(db.Text)
+
+    syllabus = db.relationship("Syllabus", back_populates="discipline_info", uselist=False)
+
+    # @property
+    # def amount(self):
+    #     return {
+    #         "lecture": self.lecture,
+    #         "laboratory": self.laboratory,
+    #         "practice": self.practice,
+    #         "self_study": self.self_study,
+    #     }
+
+
 class DisciplineStructure(db.Model):
     __tablename__ = "structure_of_discipline"
     id: int = db.Column(db.Integer, primary_key=True)
@@ -167,6 +197,19 @@ class GraduateTask(db.Model):
     deadlines: str = db.Column(db.String(255))
 
     syllabus = db.relationship("Syllabus", back_populates="graduate_tasks")
+
+
+class MarketRelation(db.Model):
+    __tablename__ = "stakeholder"
+    id: int = db.Column(db.Integer, primary_key=True)
+    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False, unique=True)
+    specialty: str = db.Column(db.String(255))
+    vacancies: str = db.Column(db.Text)
+    skills: str = db.Column(db.Text)
+    relevant_materials: str = db.Column(db.Text)
+    borrowed_materials: str = db.Column(db.Text)
+
+    syllabus = db.relationship("Syllabus", back_populates="market_relation", uselist=False)
 
 
 class Position(db.Model):
@@ -234,8 +277,20 @@ class Syllabus(db.Model):
         cascade="all, delete",
     )
     discipline = db.relationship("Discipline", back_populates="syllabus", uselist=False)
+    discipline_info = db.relationship(
+        "DisciplineInfo",
+        back_populates="syllabus",
+        uselist=False,
+        cascade="all, delete",
+    )
     graduate_tasks = db.relationship(
         "GraduateTask", back_populates="syllabus", cascade="all, delete"
+    )
+    market_relation = db.relationship(
+        "MarketRelation",
+        back_populates="syllabus",
+        uselist=False,
+        cascade="all, delete",
     )
     modules = db.relationship(
         "SyllabusModule", back_populates="syllabus", cascade="all, delete",
