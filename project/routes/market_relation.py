@@ -4,25 +4,32 @@ from project.extensions import db
 from project.models import MarketRelation
 from project.routes.syllabus import get_syllabus_or_404, verify_teacher
 from project.schemas.authorization import authorizations
-from project.schemas.market_relation import market_relation_response_model, market_relation_model
+from project.schemas.market_relation import (
+    market_relation_response_model,
+    market_relation_model,
+)
 from project.validators import allowed_roles
 
 market_relation_ns = Namespace(
     "syllabuses/market-relation",
     description="Market relations",
-    authorizations=authorizations
+    authorizations=authorizations,
 )
 
 
 def get_market_relation_or_404(syllabus_id):
-    market_relation = db.session.query(MarketRelation).filter_by(syllabus_id=syllabus_id).first()
+    market_relation = (
+        db.session.query(MarketRelation).filter_by(syllabus_id=syllabus_id).first()
+    )
     if not market_relation:
         abort(404, f"Market relation with syllabus_id {syllabus_id} not found")
     return market_relation
 
 
 def get_market_relation_response(syllabus_id):
-    market_relation = db.session.query(MarketRelation).filter_by(syllabus_id=syllabus_id).first()
+    market_relation = (
+        db.session.query(MarketRelation).filter_by(syllabus_id=syllabus_id).first()
+    )
     return {
         "market_relation": market_relation,
         "syllabus_id": syllabus_id,
@@ -34,13 +41,13 @@ def get_market_relation_response(syllabus_id):
 class MarketRelationsList(Resource):
     """Get market relation or create a new market relation"""
 
-    @market_relation_ns.marshal_with(market_relation_response_model)
+    @market_relation_ns.marshal_with(market_relation_response_model, envelope="content")
     def get(self, syllabus_id):
         """Get market relation by given syllabus_id"""
         return get_market_relation_response(syllabus_id)
 
     @market_relation_ns.expect(market_relation_model)
-    @market_relation_ns.marshal_with(market_relation_response_model)
+    @market_relation_ns.marshal_with(market_relation_response_model, envelope="content")
     @market_relation_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def post(self, syllabus_id):
@@ -63,7 +70,7 @@ class MarketRelationsList(Resource):
         return get_market_relation_response(syllabus_id)
 
     @market_relation_ns.expect(market_relation_model, validate=False)
-    @market_relation_ns.marshal_with(market_relation_response_model)
+    @market_relation_ns.marshal_with(market_relation_response_model, envelope="content")
     @market_relation_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def patch(self, syllabus_id):
@@ -81,7 +88,7 @@ class MarketRelationsList(Resource):
 
         return get_market_relation_response(syllabus_id)
 
-    @market_relation_ns.marshal_with(market_relation_response_model)
+    @market_relation_ns.marshal_with(market_relation_response_model, envelope="content")
     @market_relation_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def delete(self, syllabus_id):

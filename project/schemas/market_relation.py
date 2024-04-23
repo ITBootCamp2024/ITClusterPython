@@ -9,21 +9,23 @@ market_relation_model = api.model(
         "id": fields.Integer(
             readonly=True,
             description="Unique identifier of the market relation",
-            default=1
+            default=1,
         ),
         "specialty": fields.String(description="Specialty/profession"),
         "vacancies": fields.String(description="Vacancies"),
         "skills": fields.String(description="Skills"),
         "relevant_materials": fields.String(description="Relevant materials"),
         "borrowed_materials": fields.String(description="Borrowed materials"),
-    }
+    },
 )
 
 
 market_relation_response_model = api.model(
     "MarketRelationResponse",
     {
-        "market_relation": fields.Nested(market_relation_model, required=True),
+        "market_relation": fields.Nested(
+            market_relation_model, required=True, allow_null=True
+        ),
         **syllabus_id_model,
-    }
+    },
 )
