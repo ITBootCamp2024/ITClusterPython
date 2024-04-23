@@ -2,12 +2,14 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
 from project.models import SyllabusModule, DisciplineStructure
+from project.routes.graduate_task import get_graduate_task_response
+from project.routes.self_study import get_self_study_response
 from project.routes.syllabus import get_syllabus_or_404, verify_teacher
 from project.schemas.authorization import authorizations
 from project.schemas.discipline_structure import (
     syllabus_module_response_model,
     base_syllabus_module_model,
-    base_structure_topics_model,
+    base_structure_topics_model, syllabus_structure_three_model,
 )
 from project.validators import allowed_roles
 
@@ -75,11 +77,32 @@ def get_syllabus_modules_response(syllabus_id):
     }
 
 
+def get_syllabus_structure_three_response(syllabus_id):
+    return {
+        **get_syllabus_modules_response(syllabus_id),
+        **get_self_study_response(syllabus_id),
+        **get_graduate_task_response(syllabus_id),
+    }
+
+
 def get_syllabus_topic_or_404(topic_id):
     topic = DisciplineStructure.query.get(topic_id)
     if not topic:
         abort(404, f"Topic with id {topic_id} not found")
     return topic
+
+
+@discipline_structure_ns.route("/3/<int:syllabus_id>")
+@discipline_structure_ns.param("syllabus_id", "The syllabus unique identifier")
+class SyllabusStructureList(Resource):
+    """Show 3 tables of discipline structure"""
+
+    @discipline_structure_ns.marshal_with(
+        syllabus_structure_three_model, envelope="content"
+    )
+    def get(self, syllabus_id):
+        """Get 3 tables of discipline structure by given syllabus_id"""
+        return get_syllabus_structure_three_response(syllabus_id)
 
 
 @discipline_structure_ns.route("/<int:syllabus_id>")

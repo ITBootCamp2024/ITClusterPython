@@ -48,6 +48,7 @@ def verify_teacher(syllabus):
 
 
 @syllabuses_ns.route("/base-info/<int:syllabus_id>")
+@syllabuses_ns.param("syllabus_id", "The syllabus unique identifier")
 class BaseSyllabusInfo(Resource):
     @syllabuses_ns.marshal_with(syllabus_base_info_response_model, envelope="content")
     def get(self, syllabus_id):
