@@ -4,13 +4,16 @@ from project.extensions import db
 from project.models import SelfStudyTopic
 from project.routes.syllabus import get_syllabus_or_404, verify_teacher
 from project.schemas.authorization import authorizations
-from project.schemas.self_study import self_study_topic_response_model, self_study_topic_model
+from project.schemas.self_study import (
+    self_study_topic_response_model,
+    self_study_topic_model,
+)
 from project.validators import allowed_roles
 
 self_study_topics_ns = Namespace(
     "syllabuses/self-study",
     description="Self study topics",
-    authorizations=authorizations
+    authorizations=authorizations,
 )
 
 
@@ -34,13 +37,17 @@ def get_self_study_response(syllabus_id):
 class SelfStudyTopicsList(Resource):
     """Get list of self study topics or create a new self study topic"""
 
-    @self_study_topics_ns.marshal_with(self_study_topic_response_model)
+    @self_study_topics_ns.marshal_with(
+        self_study_topic_response_model, envelope="content"
+    )
     def get(self, syllabus_id):
         """Get list of self study topics by given syllabus_id"""
         return get_self_study_response(syllabus_id)
 
     @self_study_topics_ns.expect(self_study_topic_model)
-    @self_study_topics_ns.marshal_with(self_study_topic_response_model)
+    @self_study_topics_ns.marshal_with(
+        self_study_topic_response_model, envelope="content"
+    )
     @self_study_topics_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def post(self, syllabus_id):
@@ -67,7 +74,9 @@ class SelfStudyTopicDetail(Resource):
     """Show a self study topic and lets you modify or delete it"""
 
     @self_study_topics_ns.expect(self_study_topic_model, validate=False)
-    @self_study_topics_ns.marshal_with(self_study_topic_response_model)
+    @self_study_topics_ns.marshal_with(
+        self_study_topic_response_model, envelope="content"
+    )
     @self_study_topics_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def patch(self, topic_id):
@@ -84,7 +93,9 @@ class SelfStudyTopicDetail(Resource):
         db.session.commit()
         return get_self_study_response(syllabus.id)
 
-    @self_study_topics_ns.marshal_with(self_study_topic_response_model)
+    @self_study_topics_ns.marshal_with(
+        self_study_topic_response_model, envelope="content"
+    )
     @self_study_topics_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
     def delete(self, topic_id):
