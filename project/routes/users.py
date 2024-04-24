@@ -57,7 +57,6 @@ class SecurityUtils:
     def send_mail(user, subject, template):
         msg = Message(
             subject=subject,
-            sender=environ.get("MAIL_USERNAME"),
             recipients=[user.email],
             html=template,
         )
@@ -69,13 +68,14 @@ class Register(Resource):
 
     @staticmethod
     def send_confirm_token(user):
+        # TODO add to token the link of frontend login page
         token = SecurityUtils.encrypt_data({"email": user.email})
         url_confirm = url_for("user_confirm_mail", token=token, _external=True)
         confirm_mail = render_template(
             "confirm_email.html", confirm_url=url_confirm, user=user
         )
         SecurityUtils.send_mail(
-            user, subject="It Cluster - Confirm mail", template=confirm_mail
+            user, subject="Education UA - Confirm email", template=confirm_mail
         )
 
     @user_ns.expect(user_register_parser)
@@ -86,7 +86,7 @@ class Register(Resource):
 
         if User.query.filter_by(email=email).first():
             abort(400, f"User with email '{email}' already exists")
-
+        # TODO do not add user to database here. First load it to the redis
         user = User(
             email=email,
             password_hash=generate_password_hash(args.get("password")),
@@ -96,10 +96,12 @@ class Register(Resource):
             phone=args.get("phone") or "",
             role_id=Role.query.filter_by(name="user").first().id,
         )
+
+        self.send_confirm_token(user)
+
         db.session.add(user)
         db.session.commit()
 
-        # self.send_confirm_token(user)
         return user, 201
 
 
@@ -123,9 +125,8 @@ class Login(Resource):
             abort(401, f"User with email '{email}' does not exist")
         if not check_password_hash(user.password_hash, password):
             abort(401, "Incorrect password")
-        # TODO uncomment this when email confirmation will work properly
-        # if not user.email_confirmed:
-        #     abort(401, f"Email '{email}' is not confirmed. Please check your email")
+        if not user.email_confirmed:
+            abort(401, f"Email '{email}' is not confirmed. Please check your email")
         if not user.active_status:
             abort(401, f"User with email '{email}' is banned")
 
