@@ -77,6 +77,7 @@ def create_app():
     app.config["MAIL_PASSWORD"] = environ.get("MAIL_PASSWORD")
     app.config["MAIL_USE_TLS"] = True
     app.config["MAIL_USE_SSL"] = False
+    app.config["MAIL_DEFAULT_SENDER"] = ("Education UA", environ.get("MAIL_USERNAME"))
 
     api.init_app(app)
     db.init_app(app)
@@ -85,7 +86,7 @@ def create_app():
     jwt.init_app(app)
     mail.init_app(app)
 
-    app.extensions['mail'].debug = 0
+    app.extensions["mail"].debug = 0
 
     @app.teardown_appcontext
     def close_connection(exception=None):
