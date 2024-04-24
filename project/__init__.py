@@ -2,7 +2,7 @@ from datetime import timedelta
 from os import environ
 
 from dotenv import load_dotenv
-from flask import Flask, g, jsonify
+from flask import Flask, g, jsonify, render_template
 from flask_cors import CORS
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
@@ -77,6 +77,7 @@ def create_app():
     app.config["MAIL_PASSWORD"] = environ.get("MAIL_PASSWORD")
     app.config["MAIL_USE_TLS"] = True
     app.config["MAIL_USE_SSL"] = False
+    app.config["MAIL_DEFAULT_SENDER"] = ("Education UA", "itcertification@education.ua")
 
     api.init_app(app)
     db.init_app(app)
@@ -146,5 +147,9 @@ def create_app():
     api.add_namespace(university_ns)
     api.add_namespace(user_ns)
     api.add_namespace(test_roles_ns)
+
+    @app.route("/email_template", methods=["GET"])
+    def get_email_template():
+        return render_template("new-email.html")
 
     return app
