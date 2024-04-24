@@ -77,7 +77,7 @@ def create_app():
     app.config["MAIL_PASSWORD"] = environ.get("MAIL_PASSWORD")
     app.config["MAIL_USE_TLS"] = True
     app.config["MAIL_USE_SSL"] = False
-    app.config["MAIL_DEFAULT_SENDER"] = ("Education UA", "itcertification@education.ua")
+    app.config["MAIL_DEFAULT_SENDER"] = ("Education UA", environ.get("MAIL_USERNAME"))
 
     api.init_app(app)
     db.init_app(app)
