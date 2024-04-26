@@ -2,13 +2,13 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
 from project.models import DisciplineInfo
-from project.routes.syllabus import get_syllabus_or_404, verify_teacher
+from project.routes.syllabus import get_syllabus_or_404
 from project.schemas.authorization import authorizations
 from project.schemas.discipline_info import (
     discipline_info_response_model,
     discipline_info_model,
 )
-from project.validators import allowed_roles
+from project.validators import allowed_roles, verify_teacher
 
 discipline_info_ns = Namespace(
     "syllabuses/discipline-info",

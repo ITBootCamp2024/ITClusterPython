@@ -2,10 +2,10 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
 from project.models import Assessment
-from project.routes.syllabus import get_syllabus_or_404, verify_teacher
+from project.routes.syllabus import get_syllabus_or_404
 from project.schemas.assessment import assessment_model, assessment_response_model
 from project.schemas.authorization import authorizations
-from project.validators import allowed_roles
+from project.validators import allowed_roles, verify_teacher
 
 assessment_ns = Namespace(
     name="syllabuses/assessments",
