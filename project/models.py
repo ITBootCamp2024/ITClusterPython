@@ -202,14 +202,14 @@ class GraduateTask(db.Model):
 class MarketRelation(db.Model):
     __tablename__ = "stakeholder"
     id: int = db.Column(db.Integer, primary_key=True)
-    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False, unique=True)
+    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False)
     specialty: str = db.Column(db.String(255))
     vacancies: str = db.Column(db.Text)
     skills: str = db.Column(db.Text)
     relevant_materials: str = db.Column(db.Text)
     borrowed_materials: str = db.Column(db.Text)
 
-    syllabus = db.relationship("Syllabus", back_populates="market_relation", uselist=False)
+    syllabus = db.relationship("Syllabus", back_populates="market_relations", uselist=False)
 
 
 class Position(db.Model):
@@ -286,7 +286,7 @@ class Syllabus(db.Model):
     graduate_tasks = db.relationship(
         "GraduateTask", back_populates="syllabus", cascade="all, delete"
     )
-    market_relation = db.relationship(
+    market_relations = db.relationship(
         "MarketRelation",
         back_populates="syllabus",
         uselist=False,
