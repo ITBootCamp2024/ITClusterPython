@@ -17,21 +17,35 @@ market_relation_ns = Namespace(
 )
 
 
-def get_market_relation_or_404(syllabus_id):
-    market_relation = (
-        db.session.query(MarketRelation).filter_by(syllabus_id=syllabus_id).first()
-    )
+def create_market_relations(syllabus_id, market_relations):
+
+    for fields in market_relations:
+        market_relation = MarketRelation(
+            syllabus_id=syllabus_id,
+            specialty=fields.get("specialty"),
+            vacancies=fields.get("vacancies"),
+            skills=fields.get("skills"),
+            relevant_materials=fields.get("relevant_materials"),
+            borrowed_materials=fields.get("borrowed_materials"),
+        )
+        db.session.add(market_relation)
+
+    db.session.commit()
+
+
+def get_market_relation_or_404(relation_id):
+    market_relation = MarketRelation.query.get(relation_id)
     if not market_relation:
-        abort(404, f"Market relation with syllabus_id {syllabus_id} not found")
+        abort(404, f"Market relation with id {relation_id} not found")
     return market_relation
 
 
 def get_market_relation_response(syllabus_id):
-    market_relation = (
-        db.session.query(MarketRelation).filter_by(syllabus_id=syllabus_id).first()
+    market_relations = (
+        db.session.query(MarketRelation).filter_by(syllabus_id=syllabus_id).all()
     )
     return {
-        "market_relation": market_relation,
+        "market_relations": market_relations,
         "syllabus_id": syllabus_id,
     }
 
@@ -46,7 +60,7 @@ class MarketRelationsList(Resource):
         """Get market relation by given syllabus_id"""
         return get_market_relation_response(syllabus_id)
 
-    @market_relation_ns.expect(market_relation_model)
+    @market_relation_ns.expect(market_relation_response_model)
     @market_relation_ns.marshal_with(market_relation_response_model, envelope="content")
     @market_relation_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
@@ -56,27 +70,25 @@ class MarketRelationsList(Resource):
         syllabus = get_syllabus_or_404(syllabus_id)
         verify_teacher(syllabus)
 
-        market_relation = MarketRelation(
-            syllabus_id=syllabus_id,
-            specialty=market_relation_ns.payload.get("specialty"),
-            vacancies=market_relation_ns.payload.get("vacancies"),
-            skills=market_relation_ns.payload.get("skills"),
-            relevant_materials=market_relation_ns.payload.get("relevant_materials"),
-            borrowed_materials=market_relation_ns.payload.get("borrowed_materials"),
+        create_market_relations(
+            syllabus_id, market_relation_ns.payload.get("market_relations")
         )
-        db.session.add(market_relation)
-        db.session.commit()
 
         return get_market_relation_response(syllabus_id)
+
+
+@market_relation_ns.route("/<int:relation_id>")
+@market_relation_ns.param("relation_id", "The market relation unique identifier")
+class MarketRelationsDetail(Resource):
 
     @market_relation_ns.expect(market_relation_model, validate=False)
     @market_relation_ns.marshal_with(market_relation_response_model, envelope="content")
     @market_relation_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
-    def patch(self, syllabus_id):
-        """Modify market relation of given syllabus_id"""
+    def patch(self, relation_id):
+        """Modify market relation of given relation_id"""
 
-        market_relation = get_market_relation_or_404(syllabus_id)
+        market_relation = get_market_relation_or_404(relation_id)
         syllabus = market_relation.syllabus
         verify_teacher(syllabus)
 
@@ -86,19 +98,19 @@ class MarketRelationsList(Resource):
                 setattr(market_relation, key, value)
         db.session.commit()
 
-        return get_market_relation_response(syllabus_id)
+        return get_market_relation_response(syllabus.id)
 
     @market_relation_ns.marshal_with(market_relation_response_model, envelope="content")
     @market_relation_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
-    def delete(self, syllabus_id):
-        """Delete the market relation with given id"""
+    def delete(self, relation_id):
+        """Delete the market relation with given relation_id"""
 
-        market_relation = get_market_relation_or_404(syllabus_id)
+        market_relation = get_market_relation_or_404(relation_id)
         syllabus = market_relation.syllabus
         verify_teacher(syllabus)
 
         db.session.delete(market_relation)
         db.session.commit()
 
-        return get_market_relation_response(syllabus_id)
+        return get_market_relation_response(syllabus.id)
