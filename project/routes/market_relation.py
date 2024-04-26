@@ -2,13 +2,13 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
 from project.models import MarketRelation
-from project.routes.syllabus import get_syllabus_or_404, verify_teacher
+from project.routes.syllabus import get_syllabus_or_404
 from project.schemas.authorization import authorizations
 from project.schemas.market_relation import (
     market_relation_response_model,
     market_relation_model,
 )
-from project.validators import allowed_roles
+from project.validators import allowed_roles, verify_teacher
 
 market_relation_ns = Namespace(
     "syllabuses/market-relation",

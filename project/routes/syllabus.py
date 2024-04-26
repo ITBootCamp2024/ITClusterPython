@@ -1,4 +1,3 @@
-from flask_jwt_extended import get_jwt_identity, get_jwt
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
@@ -9,7 +8,7 @@ from project.schemas.syllabus import (
     syllabus_base_info_patch_model,
     not_required_fields_base_info,
 )
-from project.validators import allowed_roles
+from project.validators import allowed_roles, verify_teacher
 
 syllabuses_ns = Namespace(
     name="syllabuses", description="Syllabuses info", authorizations=authorizations
@@ -37,14 +36,6 @@ def get_syllabus_base_info_response(syllabus_id):
         "base_info": syllabus_base_info,
         "syllabus_id": syllabus_id,
     }
-
-
-def verify_teacher(syllabus):
-    if (
-        get_jwt().get("role") == "teacher"
-        and syllabus.teacher.email != get_jwt_identity()
-    ):
-        abort(403, "You are not the teacher of this syllabus")
 
 
 @syllabuses_ns.route("/base-info/<int:syllabus_id>")

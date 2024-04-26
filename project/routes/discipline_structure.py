@@ -4,14 +4,14 @@ from project.extensions import db
 from project.models import SyllabusModule, DisciplineStructure
 from project.routes.graduate_task import get_graduate_task_response
 from project.routes.self_study import get_self_study_response
-from project.routes.syllabus import get_syllabus_or_404, verify_teacher
+from project.routes.syllabus import get_syllabus_or_404
 from project.schemas.authorization import authorizations
 from project.schemas.discipline_structure import (
     syllabus_module_response_model,
     base_syllabus_module_model,
     base_structure_topics_model, syllabus_structure_three_model,
 )
-from project.validators import allowed_roles
+from project.validators import allowed_roles, verify_teacher
 
 discipline_structure_ns = Namespace(
     "syllabuses/structure",
