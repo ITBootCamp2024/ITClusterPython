@@ -1,7 +1,7 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import GraduateTask
+from project.models import GraduateTask, Roles
 from project.routes.syllabus import get_syllabus_or_404
 from project.schemas.authorization import authorizations
 from project.schemas.graduate_task import (
@@ -61,7 +61,7 @@ class GraduateTasksList(Resource):
     @graduate_tasks_ns.expect(graduate_task_response_model)
     @graduate_tasks_ns.marshal_with(graduate_task_response_model, envelope="content")
     @graduate_tasks_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self, syllabus_id):
         """Create a new graduate task"""
 
@@ -83,7 +83,7 @@ class GraduateTaskDetail(Resource):
     @graduate_tasks_ns.expect(graduate_task_model)
     @graduate_tasks_ns.marshal_with(graduate_task_response_model, envelope="content")
     @graduate_tasks_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, task_id):
         """Update the graduate task with a given id"""
         graduate_task = get_graduate_task_or_404(task_id)
@@ -100,7 +100,7 @@ class GraduateTaskDetail(Resource):
 
     @graduate_tasks_ns.marshal_with(graduate_task_response_model, envelope="content")
     @graduate_tasks_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, task_id):
         """Delete the graduate task with a given id"""
         graduate_task = get_graduate_task_or_404(task_id)

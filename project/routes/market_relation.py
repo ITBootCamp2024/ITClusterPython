@@ -1,7 +1,7 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import MarketRelation
+from project.models import MarketRelation, Roles
 from project.routes.syllabus import get_syllabus_or_404
 from project.schemas.authorization import authorizations
 from project.schemas.market_relation import (
@@ -63,7 +63,7 @@ class MarketRelationsList(Resource):
     @market_relation_ns.expect(market_relation_response_model)
     @market_relation_ns.marshal_with(market_relation_response_model, envelope="content")
     @market_relation_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self, syllabus_id):
         """Create a new market relation"""
 
@@ -84,7 +84,7 @@ class MarketRelationsDetail(Resource):
     @market_relation_ns.expect(market_relation_model, validate=False)
     @market_relation_ns.marshal_with(market_relation_response_model, envelope="content")
     @market_relation_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, relation_id):
         """Modify market relation of given relation_id"""
 
@@ -102,7 +102,7 @@ class MarketRelationsDetail(Resource):
 
     @market_relation_ns.marshal_with(market_relation_response_model, envelope="content")
     @market_relation_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, relation_id):
         """Delete the market relation with given relation_id"""
 

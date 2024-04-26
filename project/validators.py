@@ -9,6 +9,8 @@ from flask_jwt_extended import (
 from flask_restx import abort
 from typing_extensions import Union, List
 
+from project.models import Roles
+
 
 def validate_site(value: Union[str, None], parametres: Union[List[str], None],):
     """Decorator to validate if a parameter starts with a specified value."""
@@ -51,7 +53,7 @@ def allowed_roles(roles: List[str], optional: bool = False):
 
 def verify_teacher(syllabus):
     # if (
-    #     get_jwt().get("role") == "teacher"
+    #     get_jwt().get("role") == Roles.TEACHER
     #     and syllabus.teacher.email != get_jwt_identity()
     # ):
     #     abort(403, "You are not the teacher of this syllabus")

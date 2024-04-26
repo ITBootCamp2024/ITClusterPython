@@ -3,7 +3,7 @@ from flask_restx import Resource, Namespace, abort
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 
-from project.models import Discipline, Teacher
+from project.models import Discipline, Teacher, Roles
 from project.extensions import db
 from project.schemas.authorization import authorizations
 from project.schemas.service_info import serviced_course_model
@@ -60,7 +60,7 @@ class CoursesListMy(Resource):
                     description="Shows all courses of the logged teacher")
     @courses_ns.response(400, "Teacher with email <email> does not exist")
     @courses_ns.marshal_with(serviced_course_model)
-    @allowed_roles(["teacher"])
+    @allowed_roles([Roles.TEACHER])
     def get(self):
         email = get_jwt_identity()
         teacher = Teacher.query.filter_by(email=email).first()

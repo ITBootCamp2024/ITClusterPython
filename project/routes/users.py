@@ -27,7 +27,7 @@ from project.schemas.users import (
     email_schema,
     password_schema,
 )
-from project.models import User, Teacher, Role
+from project.models import User, Teacher, Role, Roles
 
 user_ns = Namespace(name="user", description="User related endpoints")
 
@@ -94,7 +94,7 @@ class Register(Resource):
             last_name=args.get("last_name"),
             parent_name=args.get("parent_name") or "",
             phone=args.get("phone") or "",
-            role_id=Role.query.filter_by(name="user").first().id,
+            role_id=Role.query.filter_by(name=Roles.USER).first().id,
         )
 
         self.send_confirm_token(user)
@@ -134,9 +134,9 @@ class Login(Resource):
 
         if user_role == "user":
             if Teacher.query.filter_by(email=email).first():
-                user.role = Role.query.filter_by(name="teacher").first()
+                user.role = Role.query.filter_by(name=Roles.TEACHER).first()
                 db.session.commit()
-                user_role = "teacher"
+                user_role = Roles.TEACHER
 
             # TODO: add check for user role if it's email is in specialist table
 

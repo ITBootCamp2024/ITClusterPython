@@ -1,7 +1,7 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import Syllabus, SyllabusBaseInfo
+from project.models import Syllabus, SyllabusBaseInfo, Roles
 from project.schemas.authorization import authorizations
 from project.schemas.syllabus import (
     syllabus_base_info_response_model,
@@ -49,7 +49,7 @@ class BaseSyllabusInfo(Resource):
     @syllabuses_ns.expect(syllabus_base_info_patch_model, validate=False)
     @syllabuses_ns.marshal_with(syllabus_base_info_response_model, envelope="content")
     @syllabuses_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, syllabus_id):
         """Update the base info about the syllabus"""
 

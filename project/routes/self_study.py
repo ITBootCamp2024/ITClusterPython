@@ -1,7 +1,7 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import SelfStudyTopic
+from project.models import SelfStudyTopic, Roles
 from project.routes.syllabus import get_syllabus_or_404
 from project.schemas.authorization import authorizations
 from project.schemas.self_study import (
@@ -63,7 +63,7 @@ class SelfStudyTopicsList(Resource):
         self_study_topic_response_model, envelope="content"
     )
     @self_study_topics_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self, syllabus_id):
         """Create a new topic for self study"""
 
@@ -87,7 +87,7 @@ class SelfStudyTopicDetail(Resource):
         self_study_topic_response_model, envelope="content"
     )
     @self_study_topics_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, topic_id):
         """Update the topic with a given id"""
         topic = get_self_study_topic_or_404(topic_id)
@@ -106,7 +106,7 @@ class SelfStudyTopicDetail(Resource):
         self_study_topic_response_model, envelope="content"
     )
     @self_study_topics_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, topic_id):
         """Delete the topic with a given id"""
 
