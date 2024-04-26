@@ -23,8 +23,8 @@ market_relation_model = api.model(
 market_relation_response_model = api.model(
     "MarketRelationResponse",
     {
-        "market_relation": fields.Nested(
-            market_relation_model, required=True, allow_null=True
+        "market_relations": fields.List(
+            fields.Nested(market_relation_model), required=True
         ),
         **syllabus_id_model,
     },
