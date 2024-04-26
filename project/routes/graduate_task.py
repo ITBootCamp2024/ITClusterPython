@@ -72,8 +72,6 @@ class GraduateTasksList(Resource):
             syllabus_id, graduate_tasks_ns.payload.get("graduate_tasks")
         )
 
-        db.session.commit()
-
         return get_graduate_task_response(syllabus_id)
 
 
