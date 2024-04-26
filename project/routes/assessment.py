@@ -14,6 +14,20 @@ assessment_ns = Namespace(
 )
 
 
+def create_assessments(syllabus_id, assessments):
+
+    for fields in assessments:
+        assessment = Assessment(
+            syllabus_id=syllabus_id,
+            object=fields.get("object"),
+            method=fields.get("method"),
+            tool=fields.get("tool"),
+        )
+        db.session.add(assessment)
+
+    db.session.commit()
+
+
 def get_assessment_or_404(id):
     assessment = Assessment.query.get(id)
     if not assessment:
@@ -42,21 +56,14 @@ class AssessmentsList(Resource):
     @assessment_ns.marshal_with(assessment_response_model, envelope="content")
     @allowed_roles(["teacher", "admin", "content_manager"])
     @assessment_ns.doc(security="jsonWebToken")
-    @assessment_ns.expect(assessment_model)
+    @assessment_ns.expect(assessment_response_model)
     def post(self, syllabus_id):
         """Create a new assessment"""
 
         syllabus = get_syllabus_or_404(syllabus_id)
         verify_teacher(syllabus)
 
-        assessment = Assessment(
-            syllabus_id=syllabus_id,
-            object=assessment_ns.payload.get("object"),
-            method=assessment_ns.payload.get("method"),
-            tool=assessment_ns.payload.get("tool"),
-        )
-        db.session.add(assessment)
-        db.session.commit()
+        create_assessments(syllabus_id, assessment_ns.payload.get("assessments"))
 
         return get_assessment_response(syllabus_id)
 
