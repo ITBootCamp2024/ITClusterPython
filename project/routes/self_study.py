@@ -17,6 +17,20 @@ self_study_topics_ns = Namespace(
 )
 
 
+def create_self_study_topics(syllabus_id, topics):
+
+    for fields in topics:
+        self_study_topic = SelfStudyTopic(
+            syllabus_id=syllabus_id,
+            name=fields.get("name"),
+            controls=fields.get("controls"),
+            hours=fields.get("hours"),
+        )
+        db.session.add(self_study_topic)
+
+    db.session.commit()
+
+
 def get_self_study_topic_or_404(id):
     topic = SelfStudyTopic.query.get(id)
     if not topic:
@@ -44,7 +58,7 @@ class SelfStudyTopicsList(Resource):
         """Get list of self study topics by given syllabus_id"""
         return get_self_study_response(syllabus_id)
 
-    @self_study_topics_ns.expect(self_study_topic_model)
+    @self_study_topics_ns.expect(self_study_topic_response_model)
     @self_study_topics_ns.marshal_with(
         self_study_topic_response_model, envelope="content"
     )
@@ -56,14 +70,9 @@ class SelfStudyTopicsList(Resource):
         syllabus = get_syllabus_or_404(syllabus_id)
         verify_teacher(syllabus)
 
-        self_study_topic = SelfStudyTopic(
-            syllabus_id=syllabus_id,
-            name=self_study_topics_ns.payload.get("name"),
-            controls=self_study_topics_ns.payload.get("controls"),
-            hours=self_study_topics_ns.payload.get("hours"),
+        create_self_study_topics(
+            syllabus_id, self_study_topics_ns.payload.get("self_study_topics")
         )
-        db.session.add(self_study_topic)
-        db.session.commit()
 
         return get_self_study_response(syllabus_id)
 

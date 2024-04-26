@@ -17,6 +17,20 @@ graduate_tasks_ns = Namespace(
 )
 
 
+def create_graduate_tasks(syllabus_id, tasks):
+
+    for fields in tasks:
+        graduate_task = GraduateTask(
+            syllabus_id=syllabus_id,
+            name=fields.get("name"),
+            controls=fields.get("controls"),
+            deadlines=fields.get("deadlines"),
+        )
+        db.session.add(graduate_task)
+
+    db.session.commit()
+
+
 def get_graduate_task_or_404(id):
     graduate_task = GraduateTask.query.get(id)
     if not graduate_task:
@@ -44,7 +58,7 @@ class GraduateTasksList(Resource):
         """Get list of graduate tasks by given syllabus_id"""
         return get_graduate_task_response(syllabus_id)
 
-    @graduate_tasks_ns.expect(graduate_task_model)
+    @graduate_tasks_ns.expect(graduate_task_response_model)
     @graduate_tasks_ns.marshal_with(graduate_task_response_model, envelope="content")
     @graduate_tasks_ns.doc(security="jsonWebToken")
     @allowed_roles(["teacher", "admin", "content_manager"])
@@ -54,14 +68,9 @@ class GraduateTasksList(Resource):
         syllabus = get_syllabus_or_404(syllabus_id)
         verify_teacher(syllabus)
 
-        graduate_task = GraduateTask(
-            syllabus_id=syllabus_id,
-            name=graduate_tasks_ns.payload.get("name"),
-            controls=graduate_tasks_ns.payload.get("controls"),
-            deadlines=graduate_tasks_ns.payload.get("deadlines"),
+        create_graduate_tasks(
+            syllabus_id, graduate_tasks_ns.payload.get("graduate_tasks")
         )
-        db.session.add(graduate_task)
-        db.session.commit()
 
         return get_graduate_task_response(syllabus_id)
 
