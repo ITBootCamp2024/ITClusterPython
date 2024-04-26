@@ -1,7 +1,7 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import SyllabusModule, DisciplineStructure
+from project.models import SyllabusModule, DisciplineStructure, Roles
 from project.routes.graduate_task import get_graduate_task_response
 from project.routes.self_study import get_self_study_response
 from project.routes.syllabus import get_syllabus_or_404
@@ -122,7 +122,7 @@ class DisciplineStructureList(Resource):
         syllabus_module_response_model, envelope="content"
     )
     @discipline_structure_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self, syllabus_id):
         """Create new syllabus modules"""
 
@@ -141,7 +141,7 @@ class DisciplineStructureModuleDetail(Resource):
         syllabus_module_response_model, envelope="content"
     )
     @discipline_structure_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self, module_id):
         """Add syllabus topic to module with given module_id"""
         module = get_syllabus_module_or_404(module_id)
@@ -163,7 +163,7 @@ class DisciplineStructureModuleDetail(Resource):
         syllabus_module_response_model, envelope="content"
     )
     @discipline_structure_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, module_id):
         """Modify syllabus module"""
         module = get_syllabus_module_or_404(module_id)
@@ -177,7 +177,7 @@ class DisciplineStructureModuleDetail(Resource):
         syllabus_module_response_model, envelope="content"
     )
     @discipline_structure_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, module_id):
         """Delete syllabus module"""
         module = get_syllabus_module_or_404(module_id)
@@ -196,7 +196,7 @@ class DisciplineStructureTopicDetail(Resource):
         syllabus_module_response_model, envelope="content"
     )
     @discipline_structure_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, topic_id):
         """Modify syllabus topic"""
         topic = get_syllabus_topic_or_404(topic_id)
@@ -213,7 +213,7 @@ class DisciplineStructureTopicDetail(Resource):
         syllabus_module_response_model, envelope="content"
     )
     @discipline_structure_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, topic_id):
         """Delete syllabus topic"""
         topic = get_syllabus_topic_or_404(topic_id)

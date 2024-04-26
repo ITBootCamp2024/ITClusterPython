@@ -2,6 +2,7 @@ from flask import jsonify
 from flask_jwt_extended import get_jwt
 from flask_restx import Resource, Namespace
 
+from project.models import Roles
 from project.schemas.authorization import authorizations
 from project.validators import allowed_roles
 
@@ -11,7 +12,7 @@ test_roles_ns = Namespace(name="test-roles", description="Test roles", authoriza
 
 @test_roles_ns.route("/admin-only")
 class AdminOnly(Resource):
-    @allowed_roles(["admin"])
+    @allowed_roles([Roles.ADMIN])
     @test_roles_ns.doc(security="jsonWebToken")
     @test_roles_ns.doc(description="Admin only endpoint")
     def get(self):
@@ -23,7 +24,7 @@ class AdminOnly(Resource):
 
 @test_roles_ns.route("/teacher-only")
 class TeacherOnly(Resource):
-    @allowed_roles(["teacher"])
+    @allowed_roles([Roles.TEACHER])
     @test_roles_ns.doc(security="jsonWebToken")
     def get(self):
         return jsonify({
@@ -34,7 +35,7 @@ class TeacherOnly(Resource):
 
 @test_roles_ns.route("/user-only")
 class UserOnly(Resource):
-    @allowed_roles(["user"])
+    @allowed_roles([Roles.USER])
     @test_roles_ns.doc(security="jsonWebToken")
     def get(self):
         return jsonify({
@@ -46,7 +47,7 @@ class UserOnly(Resource):
 @test_roles_ns.route("/admin-and-teacher")
 class AdminAndTeacher(Resource):
     @test_roles_ns.doc(security="jsonWebToken")
-    @allowed_roles(["admin", "teacher"])
+    @allowed_roles([Roles.ADMIN, Roles.TEACHER])
     def get(self):
         return jsonify({
             "message": "You have access because you are admin or teacher",
@@ -56,7 +57,7 @@ class AdminAndTeacher(Resource):
 
 @test_roles_ns.route("/admin-and-user")
 class AdminAndUser(Resource):
-    @allowed_roles(["admin", "user"])
+    @allowed_roles([Roles.ADMIN, Roles.USER])
     @test_roles_ns.doc(security="jsonWebToken")
     def get(self):
         return jsonify({
@@ -67,7 +68,7 @@ class AdminAndUser(Resource):
 
 @test_roles_ns.route("/teacher-and-user")
 class TeacherAndUser(Resource):
-    @allowed_roles(["teacher", "user"])
+    @allowed_roles([Roles.TEACHER, Roles.USER])
     @test_roles_ns.doc(security="jsonWebToken")
     def get(self):
         return jsonify({
@@ -78,7 +79,7 @@ class TeacherAndUser(Resource):
 
 @test_roles_ns.route("/admin-and-teacher-and-user")
 class AdminAndTeacherAndUser(Resource):
-    @allowed_roles(["admin", "teacher", "user"])
+    @allowed_roles([Roles.ADMIN, Roles.TEACHER, Roles.USER])
     @test_roles_ns.doc(security="jsonWebToken")
     def get(self):
         return jsonify({
@@ -89,7 +90,7 @@ class AdminAndTeacherAndUser(Resource):
 
 @test_roles_ns.route("/jwt-token-is-optional")
 class JwtTokenIsOptional(Resource):
-    @allowed_roles(["admin", "teacher", "user"], optional=True)
+    @allowed_roles([Roles.ADMIN, Roles.TEACHER, Roles.USER], optional=True)
     def get(self):
         return jsonify({
             "message": "Everyone has access. Even without a token",
