@@ -1,7 +1,7 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import DisciplineInfo
+from project.models import DisciplineInfo, Roles
 from project.routes.syllabus import get_syllabus_or_404
 from project.schemas.authorization import authorizations
 from project.schemas.discipline_info import (
@@ -49,7 +49,7 @@ class DisciplineInfoList(Resource):
     @discipline_info_ns.expect(discipline_info_model)
     @discipline_info_ns.marshal_with(discipline_info_response_model, envelope="content")
     @discipline_info_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self, syllabus_id):
         """Create a new discipline info"""
 
@@ -71,7 +71,7 @@ class DisciplineInfoList(Resource):
     @discipline_info_ns.expect(discipline_info_model)
     @discipline_info_ns.marshal_with(discipline_info_response_model, envelope="content")
     @discipline_info_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, syllabus_id):
         """Modify discipline info"""
 
@@ -89,7 +89,7 @@ class DisciplineInfoList(Resource):
 
     @discipline_info_ns.marshal_with(discipline_info_response_model, envelope="content")
     @discipline_info_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, syllabus_id):
         """Delete discipline info"""
 

@@ -1,7 +1,7 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import Assessment
+from project.models import Assessment, Roles
 from project.routes.syllabus import get_syllabus_or_404
 from project.schemas.assessment import assessment_model, assessment_response_model
 from project.schemas.authorization import authorizations
@@ -54,7 +54,7 @@ class AssessmentsList(Resource):
         return get_assessment_response(syllabus_id)
 
     @assessment_ns.marshal_with(assessment_response_model, envelope="content")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     @assessment_ns.doc(security="jsonWebToken")
     @assessment_ns.expect(assessment_response_model)
     def post(self, syllabus_id):
@@ -76,7 +76,7 @@ class TeachersDetail(Resource):
     @assessment_ns.expect(assessment_model, validate=False)
     @assessment_ns.marshal_with(assessment_response_model, envelope="content")
     @assessment_ns.doc(security="jsonWebToken")
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, assessment_id):
         """Update the assessment with a given id"""
         assessment = get_assessment_or_404(assessment_id)
@@ -91,7 +91,7 @@ class TeachersDetail(Resource):
         db.session.commit()
         return get_assessment_response(syllabus.id)
 
-    @allowed_roles(["teacher", "admin", "content_manager"])
+    @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
     @assessment_ns.doc(security="jsonWebToken")
     @assessment_ns.marshal_with(assessment_response_model, envelope="content")
     def delete(self, assessment_id):

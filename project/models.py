@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 
 from project.extensions import db
 
@@ -230,6 +231,15 @@ class Role(db.Model):
 
     teachers = db.relationship("Teacher", back_populates="role", cascade="all, delete")
     users = db.relationship("User", back_populates="role", cascade="all, delete")
+
+
+class Roles(str, Enum):
+    ADMIN = "admin"
+    CONTENT_MANAGER = "content_manager"
+    TEACHER = "teacher"
+    SPECIALIST = "specialist"
+    STUDENT = "student"
+    USER = "user"
 
 
 class SelfStudyTopic(db.Model):
