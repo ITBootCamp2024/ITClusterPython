@@ -77,6 +77,13 @@ user_register_parser.add_argument("last_name", type=str, required=True, location
 user_register_parser.add_argument("parent_name", type=str, required=False, location="form")
 user_register_parser.add_argument("phone", type=str, required=False, location="form")
 
+expert_register_parser = user_register_parser.copy()
+expert_register_parser.add_argument("company", type=str, required=True, location="form")
+expert_register_parser.add_argument("position", type=str, required=True, location="form")
+expert_register_parser.add_argument("professional_field", type=str, required=True, location="form")
+expert_register_parser.add_argument("discipline_type", type=str, required=True, location="form")
+expert_register_parser.add_argument("experience", type=int, required=True, location="form")
+expert_register_parser.add_argument("url_cv", type=str, required=False, location="form")
 
 user_change_password_parser = reqparse.RequestParser()
 user_change_password_parser.add_argument("old_password", type=str, required=True, location="form")

@@ -26,14 +26,67 @@ from project.schemas.users import (
     user_change_password_parser,
     email_schema,
     password_schema,
+    expert_register_parser,
 )
-from project.models import User, Teacher, Role, Roles
+from project.models import User, Teacher, Role, Roles, Specialist
 
 user_ns = Namespace(name="user", description="User related endpoints")
 
 load_dotenv()
 KEY = environ.get("JWT_SECRET_KEY")
 ALGORITHM = environ.get("JWT_ALGORITHM")
+
+
+def create_expert(args):
+    """create new expert in database"""
+    email = args.get("email")
+
+    if Specialist.query.filter_by(email=email).first():
+        abort(400, f"Expert with email '{email}' already exists")
+
+    name = " ".join(
+        [
+            args.get("first_name"),
+            args.get("parent_name") or "",
+            args.get("last_name"),
+        ]
+    ).replace("  ", " ")
+
+    expert = Specialist(
+        company=args.get("company"),
+        name=name,
+        position=args.get("position"),
+        email=args.get("email"),
+        phone=args.get("phone") or "",
+        professional_field=args.get("professional_field"),
+        discipline_type=args.get("discipline_type"),
+        experience=args.get("experience"),
+        url_cv=args.get("url_cv") or "",
+        role_id=Role.query.filter_by(name=Roles.SPECIALIST).first().id,
+    )
+
+    return expert
+
+
+def create_user(args, role: Roles):
+    """create new user in database and send email with confirmation token"""
+
+    email = args.get("email")
+
+    if User.query.filter_by(email=email).first():
+        abort(400, f"User with email '{email}' already exists")
+
+    user = User(
+        email=email,
+        password_hash=generate_password_hash(args.get("password")),
+        first_name=args.get("first_name"),
+        last_name=args.get("last_name"),
+        parent_name=args.get("parent_name") or "",
+        phone=args.get("phone") or "",
+        role_id=Role.query.filter_by(name=role).first().id,
+    )
+
+    return user
 
 
 class SecurityUtils:
@@ -54,19 +107,6 @@ class SecurityUtils:
         return decrypted_data
 
     @staticmethod
-    def send_mail(user, subject, template):
-        msg = Message(
-            subject=subject,
-            recipients=[user.email],
-            html=template,
-        )
-        mail.send(msg)
-
-
-@user_ns.route("/register")
-class Register(Resource):
-
-    @staticmethod
     def send_confirm_token(user):
         # TODO add to token the link of frontend login page
         token = SecurityUtils.encrypt_data({"email": user.email})
@@ -78,26 +118,27 @@ class Register(Resource):
             user, subject="Education UA - Confirm email", template=confirm_mail
         )
 
+    @staticmethod
+    def send_mail(user, subject, template):
+        msg = Message(
+            subject=subject,
+            recipients=[user.email],
+            html=template,
+        )
+        mail.send(msg)
+
+
+@user_ns.route("/register/user")
+class RegisterUser(Resource):
+
     @user_ns.expect(user_register_parser)
     @user_ns.marshal_with(user_model)
     def post(self):
+        """Register new user"""
         args = user_register_parser.parse_args()
-        email = args.get("email")
+        user = create_user(args, Roles.USER)
 
-        if User.query.filter_by(email=email).first():
-            abort(400, f"User with email '{email}' already exists")
-        # TODO do not add user to database here. First load it to the redis
-        user = User(
-            email=email,
-            password_hash=generate_password_hash(args.get("password")),
-            first_name=args.get("first_name"),
-            last_name=args.get("last_name"),
-            parent_name=args.get("parent_name") or "",
-            phone=args.get("phone") or "",
-            role_id=Role.query.filter_by(name=Roles.USER).first().id,
-        )
-
-        self.send_confirm_token(user)
+        SecurityUtils.send_confirm_token(user)
 
         db.session.add(user)
         db.session.commit()
@@ -105,15 +146,37 @@ class Register(Resource):
         return user, 201
 
 
+@user_ns.route("/register/expert")
+class RegisterExpert(Resource):
+
+    @user_ns.expect(expert_register_parser)
+    @user_ns.marshal_with(user_model)
+    def post(self):
+        """Register new expert"""
+        args = expert_register_parser.parse_args()
+        user_expert = create_user(args, Roles.SPECIALIST)
+        expert = create_expert(args)
+
+        SecurityUtils.send_confirm_token(user_expert)
+
+        db.session.add(user_expert)
+        db.session.add(expert)
+        db.session.commit()
+
+        return user_expert, 201
+
+
 @user_ns.route("/login")
 class Login(Resource):
 
-    @user_ns.response(401,
-                      "One of: \n"
-                      "'User with email <email> does not exist'\n"
-                      "'Incorrect password'\n"
-                      "'Email <email> is not confirmed. Please check your email'\n"
-                      "'User with email <email> is banned'")
+    @user_ns.response(
+        401,
+        "One of: \n"
+        "'User with email <email> does not exist'\n"
+        "'Incorrect password'\n"
+        "'Email <email> is not confirmed. Please check your email'\n"
+        "'User with email <email> is banned'",
+    )
     @user_ns.expect(user_login_parser)
     @user_ns.marshal_with(user_login_response)
     def post(self):
@@ -142,12 +205,10 @@ class Login(Resource):
 
         claims = {"role": user_role}
         return {
-            "access_token": "Bearer " + create_access_token(
-                identity=user.email, additional_claims=claims
-            ),
-            "refresh_token": "Bearer " + create_refresh_token(
-                identity=user.email, additional_claims=claims
-            ),
+            "access_token": "Bearer "
+            + create_access_token(identity=user.email, additional_claims=claims),
+            "refresh_token": "Bearer "
+            + create_refresh_token(identity=user.email, additional_claims=claims),
             "role": user_role,
         }
 
@@ -242,15 +303,13 @@ class Refresh(Resource):
     @user_ns.marshal_with(user_login_response)
     def post(self):
         identity = get_jwt_identity()
-        user_role = get_jwt().get("role")
-        claims = {"role": user_role}
+        claims = get_jwt()
+        user_role = claims.get("role")
         return {
-            "access_token": "Bearer " + create_access_token(
-                identity=identity, additional_claims=claims
-            ),
-            "refresh_token": "Bearer " + create_refresh_token(
-                identity=identity, additional_claims=claims
-            ),
+            "access_token": "Bearer "
+            + create_access_token(identity=identity, additional_claims=claims),
+            "refresh_token": "Bearer "
+            + create_refresh_token(identity=identity, additional_claims=claims),
             "role": user_role,
         }
 
