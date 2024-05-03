@@ -111,7 +111,9 @@ class DisciplineGroup(db.Model):
 class DisciplineInfo(db.Model):
     __tablename__ = "discipline_information"
     id: int = db.Column(db.Integer, primary_key=True)
-    syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False, unique=True)
+    syllabus_id: int = db.Column(
+        db.ForeignKey("syllabuses.id"), nullable=False, unique=True
+    )
     program_url: str = db.Column(db.String(255))
     abstract: str = db.Column(db.Text)
     goal: str = db.Column(db.Text)
@@ -126,7 +128,9 @@ class DisciplineInfo(db.Model):
     university_logistics: str = db.Column(db.Text)
     self_logistics: str = db.Column(db.Text)
 
-    syllabus = db.relationship("Syllabus", back_populates="discipline_info", uselist=False)
+    syllabus = db.relationship(
+        "Syllabus", back_populates="discipline_info", uselist=False
+    )
 
     # @property
     # def amount(self):
@@ -210,7 +214,9 @@ class MarketRelation(db.Model):
     relevant_materials: str = db.Column(db.Text)
     borrowed_materials: str = db.Column(db.Text)
 
-    syllabus = db.relationship("Syllabus", back_populates="market_relations", uselist=False)
+    syllabus = db.relationship(
+        "Syllabus", back_populates="market_relations", uselist=False
+    )
 
 
 class Position(db.Model):
@@ -229,6 +235,9 @@ class Role(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(45), nullable=False)
 
+    specialists = db.relationship(
+        "Specialist", back_populates="role", cascade="all, delete"
+    )
     teachers = db.relationship("Teacher", back_populates="role", cascade="all, delete")
     users = db.relationship("User", back_populates="role", cascade="all, delete")
 
@@ -251,6 +260,24 @@ class SelfStudyTopic(db.Model):
     hours: int = db.Column(db.Integer)
 
     syllabus = db.relationship("Syllabus", back_populates="self_study_topics")
+
+
+class Specialist(db.Model):
+    __tablename__ = "specialist"
+    id: int = db.Column(db.Integer, primary_key=True)
+    company: str = db.Column(db.String(255), nullable=False)
+    name: str = db.Column(db.String(100), nullable=False)
+    position: str = db.Column(db.String(100), nullable=False)
+    email: str = db.Column(db.String(255), nullable=False, unique=True)
+    phone: str = db.Column(db.String(100))
+    professional_field: str = db.Column(db.String(100), nullable=False)
+    discipline_type: str = db.Column(db.String(100), nullable=False)
+    experience: int = db.Column(db.Integer, nullable=False)
+    url_cv: str = db.Column(db.String(255))
+    role_id: int = db.Column(db.ForeignKey("role.id"), nullable=False)
+    verified: bool = db.Column(db.Boolean, nullable=False, default=False)
+
+    role = db.relationship("Role", back_populates="specialists")
 
 
 class Specialty(db.Model):
@@ -303,7 +330,9 @@ class Syllabus(db.Model):
         cascade="all, delete",
     )
     modules = db.relationship(
-        "SyllabusModule", back_populates="syllabus", cascade="all, delete",
+        "SyllabusModule",
+        back_populates="syllabus",
+        cascade="all, delete",
     )
     self_study_topics = db.relationship(
         "SelfStudyTopic", back_populates="syllabus", cascade="all, delete"
@@ -351,7 +380,9 @@ class SyllabusModule(db.Model):
     syllabus_id: int = db.Column(db.ForeignKey("syllabuses.id"), nullable=False)
     name: str = db.Column(db.String(255), nullable=False)
 
-    topics = db.relationship("DisciplineStructure", back_populates="module", cascade="all, delete")
+    topics = db.relationship(
+        "DisciplineStructure", back_populates="module", cascade="all, delete"
+    )
     syllabus = db.relationship("Syllabus", back_populates="modules")
 
 
@@ -363,8 +394,9 @@ class Teacher(db.Model):
     email: str = db.Column(db.String(100), nullable=False, unique=True)
     department_id: int = db.Column(db.ForeignKey("department.id"), nullable=False)
     comments: str = db.Column(db.Text)
-    degree_level = db.Column(db.String(50))
-    role_id = db.Column(db.ForeignKey("role.id"), nullable=False)
+    degree_level: str = db.Column(db.String(50))
+    role_id: int = db.Column(db.ForeignKey("role.id"), nullable=False)
+    verified: bool = db.Column(db.Boolean, nullable=False, default=False)
 
     disciplines = db.relationship(
         "Discipline", back_populates="teacher", cascade="all, delete"

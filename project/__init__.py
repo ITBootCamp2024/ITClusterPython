@@ -71,8 +71,8 @@ def create_app():
     app.config["JWT_ALGORITHM"] = environ.get("JWT_ALGORITHM")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
-    app.config["MAIL_SERVER"] = "smtp.gmail.com"
-    app.config["MAIL_PORT"] = 587
+    app.config["MAIL_SERVER"] = environ.get("MAIL_SERVER")
+    app.config["MAIL_PORT"] = environ.get("MAIL_PORT")
     app.config["MAIL_USERNAME"] = environ.get("MAIL_USERNAME")
     app.config["MAIL_PASSWORD"] = environ.get("MAIL_PASSWORD")
     app.config["MAIL_USE_TLS"] = True
