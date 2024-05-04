@@ -1,3 +1,4 @@
+import base64
 from datetime import timedelta
 from os import environ
 
@@ -64,10 +65,8 @@ def create_app():
     app.config["PAGINATE_DATA_OBJECT_KEY"] = "content"
     app.config["JSON_AS_ASCII"] = False
 
-    # TODO згенерувати JWT_SECRET_KEY для прода. інструкція у пайтон консоль:
-    #  import secrets
-    #  print(secrets.token_hex(16))
-    app.config["JWT_SECRET_KEY"] = environ.get("JWT_SECRET_KEY")
+    b64_key = environ.get("JWT_SECRET_KEY")
+    app.config["JWT_SECRET_KEY"] = base64.b64decode(b64_key)
     app.config["JWT_ALGORITHM"] = environ.get("JWT_ALGORITHM")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
