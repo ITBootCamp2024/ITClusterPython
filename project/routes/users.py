@@ -15,6 +15,7 @@ from jwt import ExpiredSignatureError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from project.extensions import db, mail
+from project.schemas.service_info import service_info_for_teacher
 from project.schemas.users import (
     user_model,
     user_login_parser,
@@ -24,8 +25,9 @@ from project.schemas.users import (
     email_schema,
     password_schema,
     expert_register_parser,
+    teacher_register_parser,
 )
-from project.models import User, Teacher, Role, Roles, Specialist
+from project.models import User, Teacher, Role, Roles, Specialist, Position, University
 
 user_ns = Namespace(name="user", description="User related endpoints")
 
@@ -59,6 +61,34 @@ def create_expert(args):
     )
 
     return expert
+
+
+def create_teacher(args):
+    """create new teacher in database"""
+    email = args.get("email")
+
+    if Teacher.query.filter_by(email=email).first():
+        return None
+
+    name = " ".join(
+        [
+            args.get("first_name"),
+            args.get("parent_name") or "",
+            args.get("last_name"),
+        ]
+    ).replace("  ", " ")
+
+    teacher = Teacher(
+        name=name,
+        position_id=args.get("position_id"),
+        email=args.get("email"),
+        department_id=args.get("department_id"),
+        comments=args.get("comments") or "",
+        degree_level=args.get("degree_level") or "",
+        role_id=Role.query.filter_by(name=Roles.TEACHER).first().id
+    )
+
+    return teacher
 
 
 def create_user(args, role: Roles):
@@ -161,6 +191,34 @@ class RegisterExpert(Resource):
         db.session.commit()
 
         return user_expert, 201
+
+
+@user_ns.route("/register/teacher")
+class RegisterTeacher(Resource):
+
+    @user_ns.marshal_with(service_info_for_teacher, envelope="service_info")
+    def get(self):
+        """Service info for registering a teacher"""
+        positions = Position.query.all()
+        university = University.query.all()
+        return {"position": positions, "university": university}
+
+    @user_ns.expect(teacher_register_parser)
+    @user_ns.marshal_with(user_model)
+    def post(self):
+        """Register new teacher"""
+        args = teacher_register_parser.parse_args()
+        user_teacher = create_user(args, Roles.TEACHER)
+        teacher = create_teacher(args)
+
+        SecurityUtils.send_confirm_token(user_teacher)
+
+        db.session.add(user_teacher)
+        if teacher:
+            db.session.add(teacher)
+        db.session.commit()
+
+        return user_teacher, 201
 
 
 @user_ns.route("/login")
@@ -333,44 +391,3 @@ class ChangePassword(Resource):
         user.password_hash = generate_password_hash(new_password)
         db.session.commit()
         return {"message": "Password changed"}, 200
-
-# TODO make tokens interchangeable
-
-# python backend token:
-
-# HEADER:ALGORITHM & TOKEN TYPE
-#
-# {
-#   "alg": "HS256",
-#   "typ": "JWT"
-# }
-# PAYLOAD:DATA
-#
-# {
-#   "fresh": false,
-#   "iat": 1714807794,
-#   "jti": "3707e17e-0445-4aae-8a71-b8184c84940b",
-#   "type": "refresh",
-#   "sub": "vskesha@gmail.com",
-#   "nbf": 1714807794,
-#   "csrf": "623606c4-1a4c-45f8-96d6-50a037ac2a1e",
-#   "exp": 1717399794,
-#   "role": "specialist"
-# }
-
-# java backend token:
-
-# HEADER:ALGORITHM & TOKEN TYPE
-#
-# {
-#   "alg": "HS256"
-# }
-# PAYLOAD:DATA
-#
-# {
-#   "role": "user",
-#   "tokenType": "refresh",
-#   "sub": "oryna.kasapova@gmail.ua",
-#   "iat": 1714767360,
-#   "exp": 1714770960
-# }
