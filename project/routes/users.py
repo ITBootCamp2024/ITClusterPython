@@ -85,7 +85,7 @@ def create_teacher(args):
         department_id=args.get("department_id"),
         comments=args.get("comments") or "",
         degree_level=args.get("degree_level") or "",
-        role_id=Role.query.filter_by(name=Roles.TEACHER).first().id
+        role_id=Role.query.filter_by(name=Roles.TEACHER).first().id,
     )
 
     return teacher
@@ -250,17 +250,30 @@ class Login(Resource):
 
         user_role = user.role.name
 
-        claims = {
+        response = {
+            "access_token": "Bearer "
+            + create_access_token(
+                identity=email,
+                additional_claims={"role": user_role, "tokenType": "access"},
+            ),
+            "refresh_token": "Bearer "
+            + create_refresh_token(
+                identity=email,
+                additional_claims={"role": user_role, "tokenType": "refresh"},
+            ),
             "role": user_role,
         }
 
-        return {
-            "access_token": "Bearer "
-            + create_access_token(identity=user.email, additional_claims=claims),
-            "refresh_token": "Bearer "
-            + create_refresh_token(identity=user.email, additional_claims=claims),
-            "role": user_role,
-        }
+        if user_role == Roles.TEACHER:
+            teacher = Teacher.query.filter_by(email=email).first()
+            response["id"] = teacher.id
+            response["verified"] = teacher.verified
+        elif user_role == Roles.SPECIALIST:
+            expert = Specialist.query.filter_by(email=email).first()
+            response["id"] = expert.id
+            response["verified"] = expert.verified
+
+        return response
 
 
 @user_ns.route("/confirm_mail/<string:token>")
@@ -352,17 +365,33 @@ class Refresh(Resource):
     @jwt_required(refresh=True)
     @user_ns.marshal_with(user_login_response)
     def post(self):
-        identity = get_jwt_identity()
+        email = get_jwt_identity()
         claims = get_jwt()
         user_role = claims.get("role")
-        claims = {"role": user_role}
-        return {
+        response = {
             "access_token": "Bearer "
-            + create_access_token(identity=identity, additional_claims=claims),
+            + create_access_token(
+                identity=email,
+                additional_claims={"role": user_role, "tokenType": "access"},
+            ),
             "refresh_token": "Bearer "
-            + create_refresh_token(identity=identity, additional_claims=claims),
+            + create_refresh_token(
+                identity=email,
+                additional_claims={"role": user_role, "tokenType": "refresh"},
+            ),
             "role": user_role,
         }
+
+        if user_role == Roles.TEACHER:
+            teacher = Teacher.query.filter_by(email=email).first()
+            response["id"] = teacher.id
+            response["verified"] = teacher.verified
+        elif user_role == Roles.SPECIALIST:
+            expert = Specialist.query.filter_by(email=email).first()
+            response["id"] = expert.id
+            response["verified"] = expert.verified
+
+        return response
 
 
 @user_ns.route("/change-password")

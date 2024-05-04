@@ -2,7 +2,6 @@ from flask_restx import fields, reqparse
 
 from project.extensions import api
 
-
 login_model = api.model(
     "LoginModel",
     {
@@ -47,11 +46,9 @@ user_model = api.model(
     },
 )
 
-
 user_login_parser = reqparse.RequestParser()
 user_login_parser.add_argument("email", type=str, required=True, location="form")
 user_login_parser.add_argument("password", type=str, required=True, location="form")
-
 
 user_login_response = api.model(
     "UserLoginResponse",
@@ -65,9 +62,14 @@ user_login_response = api.model(
         "role": fields.String(
             description="Role", required=True, default="role"
         ),
+        "id": fields.Integer(
+            description="Teacher or expert id"
+        ),
+        "verified": fields.Boolean(
+            description="Whether teacher or expert is verified"
+        ),
     },
 )
-
 
 user_register_parser = reqparse.RequestParser()
 user_register_parser.add_argument("email", type=str, required=True, location="form")
