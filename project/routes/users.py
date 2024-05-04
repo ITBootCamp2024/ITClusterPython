@@ -1,10 +1,7 @@
 from datetime import datetime, timedelta
-from os import environ
 
 import jwt
-from dotenv import load_dotenv
-
-from flask import request, url_for, render_template
+from flask import request, url_for, render_template, current_app
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -31,10 +28,6 @@ from project.schemas.users import (
 from project.models import User, Teacher, Role, Roles, Specialist
 
 user_ns = Namespace(name="user", description="User related endpoints")
-
-load_dotenv()
-KEY = environ.get("JWT_SECRET_KEY")
-ALGORITHM = environ.get("JWT_ALGORITHM")
 
 
 def create_expert(args):
@@ -94,15 +87,19 @@ class SecurityUtils:
     def encrypt_data(data):
         expiration_time = datetime.utcnow() + timedelta(hours=24)
         data_with_exp = {**data, "exp": expiration_time}
-        encrypted_token = jwt.encode(data_with_exp, KEY, algorithm=ALGORITHM)
+        encrypted_token = jwt.encode(
+            data_with_exp,
+            current_app.config["JWT_SECRET_KEY"],
+            algorithm=current_app.config["JWT_ALGORITHM"],
+        )
         return encrypted_token
 
     @staticmethod
     def decrypt_data(data):
         decrypted_data = jwt.decode(
             data,
-            KEY,
-            algorithms=[ALGORITHM],
+            current_app.config["JWT_SECRET_KEY"],
+            algorithms=[current_app.config["JWT_ALGORITHM"]],
         )
         return decrypted_data
 
@@ -195,15 +192,10 @@ class Login(Resource):
 
         user_role = user.role.name
 
-        if user_role == "user":
-            if Teacher.query.filter_by(email=email).first():
-                user.role = Role.query.filter_by(name=Roles.TEACHER).first()
-                db.session.commit()
-                user_role = Roles.TEACHER
+        claims = {
+            "role": user_role,
+        }
 
-            # TODO: add check for user role if it's email is in specialist table
-
-        claims = {"role": user_role}
         return {
             "access_token": "Bearer "
             + create_access_token(identity=user.email, additional_claims=claims),
@@ -305,6 +297,7 @@ class Refresh(Resource):
         identity = get_jwt_identity()
         claims = get_jwt()
         user_role = claims.get("role")
+        claims = {"role": user_role}
         return {
             "access_token": "Bearer "
             + create_access_token(identity=identity, additional_claims=claims),
@@ -340,3 +333,44 @@ class ChangePassword(Resource):
         user.password_hash = generate_password_hash(new_password)
         db.session.commit()
         return {"message": "Password changed"}, 200
+
+# TODO make tokens interchangeable
+
+# python backend token:
+
+# HEADER:ALGORITHM & TOKEN TYPE
+#
+# {
+#   "alg": "HS256",
+#   "typ": "JWT"
+# }
+# PAYLOAD:DATA
+#
+# {
+#   "fresh": false,
+#   "iat": 1714807794,
+#   "jti": "3707e17e-0445-4aae-8a71-b8184c84940b",
+#   "type": "refresh",
+#   "sub": "vskesha@gmail.com",
+#   "nbf": 1714807794,
+#   "csrf": "623606c4-1a4c-45f8-96d6-50a037ac2a1e",
+#   "exp": 1717399794,
+#   "role": "specialist"
+# }
+
+# java backend token:
+
+# HEADER:ALGORITHM & TOKEN TYPE
+#
+# {
+#   "alg": "HS256"
+# }
+# PAYLOAD:DATA
+#
+# {
+#   "role": "user",
+#   "tokenType": "refresh",
+#   "sub": "oryna.kasapova@gmail.ua",
+#   "iat": 1714767360,
+#   "exp": 1714770960
+# }
