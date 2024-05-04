@@ -85,6 +85,12 @@ expert_register_parser.add_argument("discipline_type", type=str, required=True, 
 expert_register_parser.add_argument("experience", type=int, required=True, location="form")
 expert_register_parser.add_argument("url_cv", type=str, required=False, location="form")
 
+teacher_register_parser = user_register_parser.copy()
+teacher_register_parser.add_argument("department_id", type=int, required=True, location="form")
+teacher_register_parser.add_argument("position_id", type=int, required=True, location="form")
+teacher_register_parser.add_argument("degree_level", type=str, required=False, location="form")
+teacher_register_parser.add_argument("comments", type=str, required=False, location="form")
+
 user_change_password_parser = reqparse.RequestParser()
 user_change_password_parser.add_argument("old_password", type=str, required=True, location="form")
 user_change_password_parser.add_argument("new_password", type=str, required=True, location="form")
