@@ -59,15 +59,14 @@ user_login_response = api.model(
         "refresh_token": fields.String(
             description="Refresh token", required=True, default="refresh_token"
         ),
-        "role": fields.String(
-            description="Role", required=True, default="role"
-        ),
-        "id": fields.Integer(
-            description="Teacher or expert id"
-        ),
-        "verified": fields.Boolean(
-            description="Whether teacher or expert is verified"
-        ),
+        "role": fields.String(description="Role", required=True, default="role"),
+        "id": fields.Integer(description="Teacher or expert id"),
+        "verified": fields.Boolean(description="Whether teacher or expert is verified"),
+        "first_name": fields.String(description="First name"),
+        "last_name": fields.String(description="Last name"),
+        "parent_name": fields.String(description="Parent name"),
+        "email": fields.String(description="Email"),
+        "phone": fields.String(description="Phone"),
     },
 )
 

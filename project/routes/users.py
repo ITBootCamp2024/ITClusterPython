@@ -262,6 +262,13 @@ class Login(Resource):
                 additional_claims={"role": user_role, "tokenType": "refresh"},
             ),
             "role": user_role,
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "parent_name": user.parent_name,
+            "email": user.email,
+            "phone": user.phone,
+            "verified": user.email_confirmed,
         }
 
         if user_role == Roles.TEACHER:
@@ -280,11 +287,6 @@ class Login(Resource):
 class ConfirmMail(Resource):
     @user_ns.doc(
         description="Confirm Mail",
-        responses={
-            201: "Success confirm mail",
-            401: "The link has expired",
-            404: "Link not valid",
-        },
     )
     def get(self, token: str):
 
@@ -299,7 +301,7 @@ class ConfirmMail(Resource):
             user.email_confirmed = True
             db.session.commit()
             return "Success confirm mail", 201
-        return f"User with {email} is not registered", 404
+        return abort(404, f"User with {email} is not registered")
 
 
 @user_ns.route("/reset_password/")
@@ -366,8 +368,8 @@ class Refresh(Resource):
     @user_ns.marshal_with(user_login_response)
     def post(self):
         email = get_jwt_identity()
-        claims = get_jwt()
-        user_role = claims.get("role")
+        user = User.query.filter_by(email=email).first()
+        user_role = user.role.name
         response = {
             "access_token": "Bearer "
             + create_access_token(
@@ -380,6 +382,13 @@ class Refresh(Resource):
                 additional_claims={"role": user_role, "tokenType": "refresh"},
             ),
             "role": user_role,
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "parent_name": user.parent_name,
+            "email": user.email,
+            "phone": user.phone,
+            "verified": user.email_confirmed,
         }
 
         if user_role == Roles.TEACHER:
