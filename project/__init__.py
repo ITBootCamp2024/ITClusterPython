@@ -36,6 +36,7 @@ from project.routes.position import position_ns
 from project.routes.self_study import self_study_topics_ns
 from project.routes.service_info import service_info_ns
 from project.routes.specialty import specialty_ns
+from project.routes.statistics import statistics_ns
 from project.routes.syllabus import syllabuses_ns
 from project.routes.syllabus_general_info import gen_info_ns
 from project.routes.teachers import teachers_ns
@@ -142,6 +143,7 @@ def create_app():
     api.add_namespace(market_relation_ns)
     api.add_namespace(self_study_topics_ns)
     api.add_namespace(discipline_structure_ns)
+    api.add_namespace(statistics_ns)
     api.add_namespace(teachers_ns)
     api.add_namespace(university_ns)
     api.add_namespace(user_ns)
