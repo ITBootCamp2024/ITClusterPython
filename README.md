@@ -34,15 +34,5 @@
 Безкоштовна версія render.com передбачає за собою "засинання серверу", якщо на нього ніхто не заходив більше ніж 15 хв. Для вирішення даної проблеми було створено get-запити, які надсилаються один раз на 10 хв через сервіс [cron-job.org](https://console.cron-job.org).
 
 ---
-## 2. Endpoints
-> https://itclusterpython2024.onrender.com/department - Кафедри
-> https://itclusterpython2024.onrender.com/disciplines - Дисципліни і курси
-> https://itclusterpython2024.onrender.com/discipline-blocks - Блоки дисциплін
-> https://itclusterpython2024.onrender.com/discipline-groups - Групи дисциплін
-> https://itclusterpython2024.onrender.com/education-levels - Освітні рівні
-> https://itclusterpython2024.onrender.com/education-programs - Освітні програми
-> https://itclusterpython2024.onrender.com/position - Посади викладачів
-> https://itclusterpython2024.onrender.com/service_info - Сервісна інформація
-> https://itclusterpython2024.onrender.com/specialties - Спеціальності
-> https://itclusterpython2024.onrender.com/teachers - Викладачі
-> https://itclusterpython2024.onrender.com/universities - Університети
+## 2. Endpoints and swagger docs:
+> https://itclusterpython2024.onrender.com/
