@@ -2,16 +2,26 @@ from flask_restx import Resource, Namespace, abort
 from sqlalchemy import desc
 
 from project.extensions import db
-from project.models import EducationProgram, Specialty, EducationLevel, University
+from project.models import (
+    EducationProgram,
+    Specialty,
+    EducationLevel,
+    University,
+    Roles,
+)
+from project.schemas.authorization import authorizations
 from project.schemas.education_programs import (
     education_program_model,
-    education_program_query_model
+    education_program_query_model,
 )
 from project.schemas.service_info import serviced_education_program_model
-from project.validators import validate_site
+from project.validators import validate_site, allowed_roles
 
-
-education_programs_ns = Namespace(name="education-programs", description="info about education programs")
+education_programs_ns = Namespace(
+    name="education-programs",
+    description="info about education programs",
+    authorizations=authorizations,
+)
 
 
 def get_education_program_or_404(id):
@@ -31,9 +41,9 @@ def get_education_program_response():
         "service_info": {
             "specialty": specialties,
             "university": universities,
-            "education_levels": education_levels
+            "education_levels": education_levels,
         },
-        "totalElements": len(education_programs)
+        "totalElements": len(education_programs),
     }
 
 
@@ -48,7 +58,9 @@ class EducationProgramsList(Resource):
 
     @education_programs_ns.expect(education_program_query_model)
     @education_programs_ns.marshal_with(serviced_education_program_model)
-    @validate_site('http', ["syllabus_url", "program_url"])
+    @validate_site("http", ["syllabus_url", "program_url"])
+    @education_programs_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self):
         """Adds a new education program"""
         education_program = EducationProgram()
@@ -77,7 +89,9 @@ class EducationProgramsDetail(Resource):
 
     @education_programs_ns.expect(education_program_query_model, validate=False)
     @education_programs_ns.marshal_with(serviced_education_program_model)
-    @validate_site('http', ["syllabus_url", "program_url"])
+    @validate_site("http", ["syllabus_url", "program_url"])
+    @education_programs_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, id):
         """Update the education program with a given id"""
         education_program = get_education_program_or_404(id)
@@ -92,6 +106,8 @@ class EducationProgramsDetail(Resource):
         return get_education_program_response()
 
     @education_programs_ns.marshal_with(serviced_education_program_model)
+    @education_programs_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, id):
         """Delete the education program with given id"""
         education_program = get_education_program_or_404(id)

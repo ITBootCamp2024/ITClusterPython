@@ -1,11 +1,17 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import EducationLevel
+from project.models import EducationLevel, Roles
+from project.schemas.authorization import authorizations
 from project.schemas.education_levels import education_level_model
 from project.schemas.service_info import serviced_education_level_model
+from project.validators import allowed_roles
 
-education_levels_ns = Namespace(name="education-levels", description="Education levels")
+education_levels_ns = Namespace(
+    name="education-levels",
+    description="Education levels",
+    authorizations=authorizations,
+)
 
 
 def get_education_level_or_404(id):
@@ -17,10 +23,7 @@ def get_education_level_or_404(id):
 
 def get_education_level_response():
     education_levels = EducationLevel.query.all()
-    return {
-        "content": education_levels,
-        "totalElements": len(education_levels)
-    }
+    return {"content": education_levels, "totalElements": len(education_levels)}
 
 
 @education_levels_ns.route("")
@@ -34,6 +37,8 @@ class EducationLevelsList(Resource):
 
     @education_levels_ns.expect(education_level_model)
     @education_levels_ns.marshal_with(serviced_education_level_model)
+    @education_levels_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self):
         """Adds a new education level"""
         education_level = EducationLevel()
@@ -57,6 +62,8 @@ class EducationLevelsDetail(Resource):
 
     @education_levels_ns.expect(education_level_model, validate=False)
     @education_levels_ns.marshal_with(serviced_education_level_model)
+    @education_levels_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, id):
         """Update the education level with a given id"""
         education_level = get_education_level_or_404(id)
@@ -68,6 +75,8 @@ class EducationLevelsDetail(Resource):
         return get_education_level_response()
 
     @education_levels_ns.marshal_with(serviced_education_level_model)
+    @education_levels_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, id):
         """Delete the education level with a given id"""
         education_level = get_education_level_or_404(id)

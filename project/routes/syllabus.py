@@ -112,6 +112,7 @@ class BaseSyllabusInfo(Resource):
 @syllabuses_ns.route("/set-all-filling-statuses")
 class SetAllFillingStatuses(Resource):
 
+    @syllabuses_ns.doc(security="jsonWebToken")
     @allowed_roles([Roles.ADMIN])
     def post(self):
         """Set all filling statuses"""

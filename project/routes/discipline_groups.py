@@ -1,13 +1,20 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import DisciplineGroup, DisciplineBlock
-from project.schemas.discipline_groups import discipline_groups_model, discipline_groups_query_model
+from project.models import DisciplineGroup, DisciplineBlock, Roles
+from project.schemas.authorization import authorizations
+from project.schemas.discipline_groups import (
+    discipline_groups_model,
+    discipline_groups_query_model,
+)
 from project.schemas.service_info import serviced_discipline_groups_model
-from project.validators import validate_site
+from project.validators import validate_site, allowed_roles
 
-
-discipline_groups_ns = Namespace(name="discipline-groups", description="Discipline groups")
+discipline_groups_ns = Namespace(
+    name="discipline-groups",
+    description="Discipline groups",
+    authorizations=authorizations,
+)
 
 
 def get_discipline_group_or_404(id):
@@ -25,7 +32,7 @@ def get_discipline_group_response():
         "service_info": {
             "disciplineBlocks": discipline_blocks,
         },
-        "totalElements": len(discipline_groups)
+        "totalElements": len(discipline_groups),
     }
 
 
@@ -40,7 +47,9 @@ class DisciplineGroupsList(Resource):
 
     @discipline_groups_ns.expect(discipline_groups_query_model)
     @discipline_groups_ns.marshal_with(serviced_discipline_groups_model)
-    @validate_site('http', ["discipline_url"])
+    @validate_site("http", ["discipline_url"])
+    @discipline_groups_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self):
         """Create a new discipline group"""
         discipline_group = DisciplineGroup()
@@ -70,7 +79,9 @@ class DisciplineGroupsDetail(Resource):
 
     @discipline_groups_ns.expect(discipline_groups_query_model, validate=False)
     @discipline_groups_ns.marshal_with(serviced_discipline_groups_model)
-    @validate_site('http', ["discipline_url"])
+    @validate_site("http", ["discipline_url"])
+    @discipline_groups_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, id):
         """Update a discipline group with given id"""
         discipline_group = get_discipline_group_or_404(id)
@@ -85,6 +96,8 @@ class DisciplineGroupsDetail(Resource):
         return get_discipline_group_response()
 
     @discipline_groups_ns.marshal_with(serviced_discipline_groups_model)
+    @discipline_groups_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, id):
         """Delete a discipline group with given id"""
         discipline_block = get_discipline_group_or_404(id)

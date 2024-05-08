@@ -1,7 +1,6 @@
-from flask_restx import Resource, Namespace, abort
+from flask_restx import Resource, Namespace
 
 from project import Teacher
-from project.extensions import db
 from project.models import Specialist
 from project.schemas.statistics import user_statistics_model, syllabus_statistics_model
 

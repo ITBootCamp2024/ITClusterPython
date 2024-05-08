@@ -1,12 +1,17 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import DisciplineBlock
+from project.models import DisciplineBlock, Roles
+from project.schemas.authorization import authorizations
 from project.schemas.discipline_blocks import discipline_blocks_model
 from project.schemas.service_info import serviced_discipline_blocks_model
+from project.validators import allowed_roles
 
-
-discipline_blocks_ns = Namespace(name="discipline-blocks", description="Discipline blocks info")
+discipline_blocks_ns = Namespace(
+    name="discipline-blocks",
+    description="Discipline blocks info",
+    authorizations=authorizations,
+)
 
 
 def get_discipline_block_or_404(id):
@@ -18,10 +23,7 @@ def get_discipline_block_or_404(id):
 
 def get_discipline_block_response():
     discipline_blocks = DisciplineBlock.query.all()
-    return {
-        "content": discipline_blocks,
-        "totalElements": len(discipline_blocks)
-    }
+    return {"content": discipline_blocks, "totalElements": len(discipline_blocks)}
 
 
 @discipline_blocks_ns.route("")
@@ -35,6 +37,8 @@ class DisciplineBlocksList(Resource):
 
     @discipline_blocks_ns.expect(discipline_blocks_model)
     @discipline_blocks_ns.marshal_with(serviced_discipline_blocks_model)
+    @discipline_blocks_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self):
         """Create a new discipline block"""
         discipline_block = DisciplineBlock()
@@ -58,6 +62,8 @@ class DisciplineBlocksDetail(Resource):
 
     @discipline_blocks_ns.expect(discipline_blocks_model, validate=False)
     @discipline_blocks_ns.marshal_with(serviced_discipline_blocks_model)
+    @discipline_blocks_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, id):
         """Update a discipline block with given id"""
         discipline_block = get_discipline_block_or_404(id)
@@ -69,6 +75,8 @@ class DisciplineBlocksDetail(Resource):
         return get_discipline_block_response()
 
     @discipline_blocks_ns.marshal_with(serviced_discipline_blocks_model)
+    @discipline_blocks_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, id):
         """Delete a discipline block with given id"""
         discipline_block = get_discipline_block_or_404(id)

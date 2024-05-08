@@ -9,12 +9,18 @@ from project.models import (
     Syllabus,
     SyllabusBaseInfo,
     SyllabusStatus,
+    Roles,
 )
+from project.schemas.authorization import authorizations
 from project.schemas.disciplines import discipline_model, discipline_query_model
 from project.schemas.service_info import serviced_discipline_model
-from project.validators import validate_site
+from project.validators import validate_site, allowed_roles
 
-disciplines_ns = Namespace(name="disciplines", description="Disciplines information")
+disciplines_ns = Namespace(
+    name="disciplines",
+    description="Disciplines information",
+    authorizations=authorizations,
+)
 
 
 def get_discipline_or_404(id):
@@ -53,7 +59,8 @@ class DisciplinesList(Resource):
     @disciplines_ns.expect(discipline_query_model)
     @disciplines_ns.marshal_with(serviced_discipline_model)
     @validate_site("http", ["syllabus_url", "education_plan_url"])
-    # @allowed_roles(["admin", "content_manager"])
+    @disciplines_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self):
         """Adds a new education discipline"""
         discipline = Discipline()
@@ -99,6 +106,8 @@ class DisciplinesDetail(Resource):
     @disciplines_ns.expect(discipline_query_model, validate=False)
     @disciplines_ns.marshal_with(serviced_discipline_model)
     @validate_site("http", ["syllabus_url", "education_plan_url"])
+    @disciplines_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, id):
         """Update the discipline with a given id"""
         discipline = get_discipline_or_404(id)
@@ -122,6 +131,8 @@ class DisciplinesDetail(Resource):
         return get_discipline_response()
 
     @disciplines_ns.marshal_with(serviced_discipline_model)
+    @disciplines_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, id):
         """Delete the discipline with given id"""
         discipline = get_discipline_or_404(id)
@@ -135,10 +146,12 @@ class DisciplinesDetail(Resource):
 @disciplines_ns.route("/add-syllabuses-to-all-disciplines")
 class DisciplinesAddSyllabuses(Resource):
 
+    @disciplines_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self):
         disciplines_without_syllabuses = (
             db.session.query(Discipline)
-            .filter(~Discipline.id.in_(db.session.query(Syllabus.discipline_id)))
+            .filter(~Discipline.id.in_(db.session.query(Syllabus.discipline_id)))  # noqa
             .all()
         )
 

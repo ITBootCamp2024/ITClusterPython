@@ -1,13 +1,16 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import University
+from project.models import University, Roles
+from project.schemas.authorization import authorizations
 from project.schemas.service_info import serviced_university_model
 from project.schemas.universities import university_model
-from project.validators import validate_site
+from project.validators import validate_site, allowed_roles
 
 university_ns = Namespace(
-    name="universities", description="university with appropriate programs"
+    name="universities",
+    description="university with appropriate programs",
+    authorizations=authorizations,
 )
 
 
@@ -20,15 +23,12 @@ def get_university_or_404(id):
 
 def get_university_response():
     universities = University.query.all()
-    return {
-        "content": universities,
-        "totalElements": len(universities)
-    }
+    return {"content": universities, "totalElements": len(universities)}
 
 
 @university_ns.route("")
 class UniversitylList(Resource):
-    """Shows a list of all universities, available in our site """
+    """Shows a list of all universities, available in our site"""
 
     @university_ns.marshal_with(serviced_university_model)
     def get(self):
@@ -38,14 +38,17 @@ class UniversitylList(Resource):
 
     @university_ns.expect(university_model)
     @university_ns.marshal_with(serviced_university_model)
-    @validate_site('http', ["url", "programs_list_url"])
+    @validate_site("http", ["url", "programs_list_url"])
+    @university_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self):
         """Create a new university"""
-        university = University(name=university_ns.payload["name"],
-                                url=university_ns.payload["url"],
-                                abbr=university_ns.payload["abbr"],
-                                programs_list_url=university_ns.payload["programs_list_url"],
-                                )
+        university = University(
+            name=university_ns.payload["name"],
+            url=university_ns.payload["url"],
+            abbr=university_ns.payload["abbr"],
+            programs_list_url=university_ns.payload["programs_list_url"],
+        )
         db.session.add(university)
         db.session.commit()
         return get_university_response()
@@ -64,7 +67,9 @@ class UniversityDetail(Resource):
 
     @university_ns.expect(university_model, validate=False)
     @university_ns.marshal_with(serviced_university_model)
-    @validate_site('http', ["url", "programs_list_url"])
+    @validate_site("http", ["url", "programs_list_url"])
+    @university_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, id: int):
         """Update a certain university"""
         university = get_university_or_404(id)
@@ -78,6 +83,8 @@ class UniversityDetail(Resource):
         return get_university_response()
 
     @university_ns.marshal_with(serviced_university_model)
+    @university_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, id: int):
         """Delete the University according to ID"""
         university = get_university_or_404(id)
