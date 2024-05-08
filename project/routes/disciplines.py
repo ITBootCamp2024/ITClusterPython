@@ -1,8 +1,15 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import Discipline, Teacher, EducationProgram, DisciplineBlock, Syllabus, SyllabusBaseInfo, \
-    SyllabusStatus
+from project.models import (
+    Discipline,
+    Teacher,
+    EducationProgram,
+    DisciplineBlock,
+    Syllabus,
+    SyllabusBaseInfo,
+    SyllabusStatus,
+)
 from project.schemas.disciplines import discipline_model, discipline_query_model
 from project.schemas.service_info import serviced_discipline_model
 from project.validators import validate_site
@@ -29,7 +36,7 @@ def get_discipline_response():
             "education_program": education_programs,
             "disciplineBlocks": discipline_blocks,
         },
-        "totalElements": len(disciplines)
+        "totalElements": len(disciplines),
     }
 
 
@@ -45,7 +52,7 @@ class DisciplinesList(Resource):
     # @disciplines_ns.doc(security="jsonWebToken")
     @disciplines_ns.expect(discipline_query_model)
     @disciplines_ns.marshal_with(serviced_discipline_model)
-    @validate_site('http', ["syllabus_url", "education_plan_url"])
+    @validate_site("http", ["syllabus_url", "education_plan_url"])
     # @allowed_roles(["admin", "content_manager"])
     def post(self):
         """Adds a new education discipline"""
@@ -61,7 +68,9 @@ class DisciplinesList(Resource):
         db.session.commit()
 
         syllabus = Syllabus(
-            name=discipline.name, status=SyllabusStatus.NOT_FILLED, discipline_id=discipline.id
+            name=discipline.name,
+            status=SyllabusStatus.NOT_FILLED,
+            discipline_id=discipline.id,
         )
         db.session.add(syllabus)
         db.session.commit()
@@ -89,7 +98,7 @@ class DisciplinesDetail(Resource):
 
     @disciplines_ns.expect(discipline_query_model, validate=False)
     @disciplines_ns.marshal_with(serviced_discipline_model)
-    @validate_site('http', ["syllabus_url", "education_plan_url"])
+    @validate_site("http", ["syllabus_url", "education_plan_url"])
     def patch(self, id):
         """Update the discipline with a given id"""
         discipline = get_discipline_or_404(id)
@@ -167,7 +176,4 @@ class DisciplinesAddSyllabuses(Resource):
 
             result.append(disdict)
 
-        return {
-            "disciplines": result,
-            "totalElements": len(result)
-        }
+        return {"disciplines": result, "totalElements": len(result)}
