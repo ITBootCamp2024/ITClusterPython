@@ -1,19 +1,259 @@
 <!DOCTYPE html>
-<html lang="uk">
+
+<html lang="en" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Підтвердження Email</title>
+<title></title>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml><![endif]--><!--[if !mso]><!-->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;600;700;800;900" rel="stylesheet" type="text/css"/><!--<![endif]-->
+<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			padding: 0;
+		}
+
+		a[x-apple-data-detectors] {
+			color: inherit !important;
+			text-decoration: inherit !important;
+		}
+
+		#MessageViewBody a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		p {
+			line-height: inherit
+		}
+
+		.desktop_hide,
+		.desktop_hide table {
+			mso-hide: all;
+			display: none;
+			max-height: 0px;
+			overflow: hidden;
+		}
+
+		.image_block img+div {
+			display: none;
+		}
+
+		@media (max-width:768px) {
+			.desktop_hide table.icons-inner {
+				display: inline-block !important;
+			}
+
+			.icons-inner {
+				text-align: center;
+			}
+
+			.icons-inner td {
+				margin: 0 auto;
+			}
+
+			.mobile_hide {
+				display: none;
+			}
+
+			.row-content {
+				width: 100% !important;
+			}
+
+			.stack .column {
+				width: 100%;
+				display: block;
+			}
+
+			.mobile_hide {
+				min-height: 0;
+				max-height: 0;
+				max-width: 0;
+				overflow: hidden;
+				font-size: 0px;
+			}
+
+			.desktop_hide,
+			.desktop_hide table {
+				display: table !important;
+				max-height: none !important;
+			}
+		}
+	</style>
 </head>
-<body>
-    <div style="text-align: center;">
-        <h2>Підтвердження Email</h2>
-        <p>Шановний(а) {{ user.first_name }} {{ user.last_name }},</p>
-        <p>Дякуємо за реєстрацію. Будь ласка, натисніть на посилання нижче, щоб підтвердити свою адресу електронної пошти:</p>
-        <a href="{{ confirm_url }}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none;">Підтвердити Email</a>
-        <p>Якщо ви не реєструвалися на нашому сервісі, проігноруйте цей лист.</p>
-        <p>З повагою,<br>It Cluster</p>
-    </div>
+<body style="background-color: #f6f6f6; margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
+<table border="0" cellpadding="0" cellspacing="0" class="nl-container" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #f6f6f6;" width="100%">
+<tbody>
+<tr>
+<td>
+<table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-1" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+<tbody>
+<tr>
+<td>
+<table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; color: #000000; width: 900px; margin: 0 auto;" width="900">
+<tbody>
+<tr>
+<td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
+<table border="0" cellpadding="0" cellspacing="0" class="image_block block-1" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+<tr>
+<td class="pad" style="width:100%;">
+<div align="center" class="alignment" style="line-height:10px">
+<div style="max-width: 900px;"><img height="auto" src="{{ url_for('static', filename='Header.png', _external=True) }}" style="display: block; height: auto; border: 0; width: 100%;" width="900"/></div>
+</div>
+</td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" class="heading_block block-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+<tr>
+<td class="pad" style="padding-left:10px;padding-right:10px;padding-top:60px;text-align:center;width:100%;">
+<h1 style="margin: 0; color: #00544d; direction: ltr; font-family: 'Roboto', Tahoma, Verdana, Segoe, sans-serif; font-size: 28px; font-weight: 400; letter-spacing: normal; line-height: 180%; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 50.4px;"><span class="tinyMce-placeholder">Education UA</span></h1>
+</td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" class="heading_block block-3" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+<tr>
+<td class="pad" style="padding-bottom:10px;padding-left:10px;padding-right:10px;text-align:center;width:100%;">
+<h1 style="margin: 0; color: #00544d; direction: ltr; font-family: 'Roboto', Tahoma, Verdana, Segoe, sans-serif; font-size: 28px; font-weight: 400; letter-spacing: normal; line-height: 180%; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 50.4px;"><span class="tinyMce-placeholder">Вітаємо!</span></h1>
+</td>
+</tr>
+</table>
+<table border="0" cellpadding="10" cellspacing="0" class="paragraph_block block-4" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;" width="100%">
+<tr>
+<td class="pad">
+<div style="color:#111010;direction:ltr;font-family:'Roboto', Tahoma, Verdana, Segoe, sans-serif;font-size:20px;font-weight:400;letter-spacing:0px;line-height:180%;text-align:left;mso-line-height-alt:36px;">
+<p style="margin: 0;">Шановний(а) {{ user.first_name }} {{ user.last_name }}! Ви отримали цей лист, тому що ввели ваші особисті дані на платформі Education UA. Для підтвердження вашої електронної пошти перейдіть по посиланню, яке знаходиться нижче</p>
+</div>
+</td>
+</tr>
+</table>
+<table border="0" cellpadding="10" cellspacing="0" class="paragraph_block block-5" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;" width="100%">
+<tr>
+<td class="pad">
+<div style="color:#111010;direction:ltr;font-family:'Roboto', Tahoma, Verdana, Segoe, sans-serif;font-size:20px;font-weight:400;letter-spacing:0px;line-height:180%;text-align:left;mso-line-height-alt:36px;">
+<p style="margin: 0;">Ми сприяємо освіті, надаючи користувачам найкращі ІТ-ресурси!</p>
+</div>
+</td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" class="paragraph_block block-6" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;" width="100%">
+<tr>
+<td class="pad" style="padding-bottom:40px;padding-left:10px;padding-right:10px;padding-top:10px;">
+<div style="color:#111010;direction:ltr;font-family:'Roboto', Tahoma, Verdana, Segoe, sans-serif;font-size:20px;font-weight:400;letter-spacing:0px;line-height:180%;text-align:left;mso-line-height-alt:36px;">
+<p style="margin: 0;">Станьте частиною інновацій, щоб разом формувати майбутнє освіти!</p>
+</div>
+</td>
+</tr>
+</table>
+<table border="0" cellpadding="10" cellspacing="0" class="divider_block block-7" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+<tr>
+<td class="pad">
+<div align="center" class="alignment">
+<table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+<tr>
+<td class="divider_inner" style="font-size: 1px; line-height: 1px; border-top: 1px solid #00544d;"><span> </span></td>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" class="paragraph_block block-8" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;" width="100%">
+<tr>
+<td class="pad" style="padding-bottom:20px;padding-left:10px;padding-right:10px;padding-top:40px;">
+<div style="color:#101112;direction:ltr;font-family:'Roboto', Tahoma, Verdana, Segoe, sans-serif;font-size:20px;font-weight:400;letter-spacing:0px;line-height:180%;text-align:center;mso-line-height-alt:36px;">
+<p style="margin: 0;">Для підтвердження пошти перейдіть по посиланню</p>
+</div>
+</td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" class="button_block block-9" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+<tr>
+<td class="pad" style="padding-bottom:40px;padding-left:10px;padding-right:10px;padding-top:10px;text-align:center;">
+<div align="center" class="alignment"><!--[if mso]>
+<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" style="height:53px;width:294px;v-text-anchor:middle;" arcsize="9%" strokeweight="0.75pt" strokecolor="#00544d" fillcolor="#f3c80b">
+<w:anchorlock/>
+<v:textbox inset="0px,0px,0px,0px">
+<center style="color:#101112; font-family:Tahoma, Verdana, sans-serif; font-size:20px">
+<![endif]-->
+<div style="text-decoration:none;display:inline-block;color:#101112;background-color:#f3c80b;border-radius:4px;width:auto;border-top:1px solid #00544d;font-weight:400;border-right:1px solid #00544d;border-bottom:1px solid #00544d;border-left:1px solid #00544d;padding-top:4px;padding-bottom:4px;font-family:'Roboto', Tahoma, Verdana, Segoe, sans-serif;font-size:20px;text-align:center;mso-border-alt:none;word-break:keep-all;"><span style="padding-left:60px;padding-right:60px;font-size:20px;display:inline-block;letter-spacing:normal;"><span style="word-break: break-word; line-height: 40px;"><a href="{{ confirm_url }}">Верифікувати email</a></span></span></div><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
+</div>
+</td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" class="heading_block block-10" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+<tr>
+<td class="pad" style="padding-bottom:20px;padding-left:10px;padding-right:10px;padding-top:20px;text-align:center;width:100%;">
+<h1 style="margin: 0; color: #00544d; direction: ltr; font-family: 'Roboto', Tahoma, Verdana, Segoe, sans-serif; font-size: 24px; font-weight: 400; letter-spacing: normal; line-height: 180%; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 43.2px;"><span class="tinyMce-placeholder">Дякуємо, що ви з нами!</span></h1>
+</td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" class="image_block block-11" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+<tr>
+<td class="pad" style="width:100%;padding-right:0px;padding-left:0px;">
+<div align="center" class="alignment" style="line-height:10px">
+<div style="max-width: 270px;"><img height="auto" src="{{ url_for('static', filename='Picture_Building_5.png', _external=True) }}" style="display: block; height: auto; border: 0; width: 100%;" width="270"/></div>
+</div>
+</td>
+</tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" class="paragraph_block block-12" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;" width="100%">
+<tr>
+<td class="pad" style="padding-bottom:60px;padding-left:10px;padding-right:10px;padding-top:60px;">
+<div style="color:#101112;direction:ltr;font-family:'Roboto', Tahoma, Verdana, Segoe, sans-serif;font-size:14px;font-weight:400;letter-spacing:0px;line-height:180%;text-align:center;mso-line-height-alt:25.2px;">
+<p style="margin: 0;">Education UA. 2024 Всі права захищені</p>
+</div>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-2" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff;" width="100%">
+<tbody>
+<tr>
+<td>
+<table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; color: #000000; width: 900px; margin: 0 auto;" width="900">
+<tbody>
+<tr>
+<td class="column column-1" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;" width="100%">
+<table border="0" cellpadding="0" cellspacing="0" class="icons_block block-1" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; text-align: center;" width="100%">
+<tr>
+<td class="pad" style="vertical-align: middle; color: #1e0e4b; font-family: 'Inter', sans-serif; font-size: 15px; padding-bottom: 5px; padding-top: 5px; text-align: center;">
+<table cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+<tr>
+<td class="alignment" style="vertical-align: middle; text-align: center;"><!--[if vml]><table align="center" cellpadding="0" cellspacing="0" role="presentation" style="display:inline-block;padding-left:0px;padding-right:0px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;"><![endif]-->
+<!--[if !vml]><!-->
+<table cellpadding="0" cellspacing="0" class="icons-inner" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: -4px; padding-left: 0px; padding-right: 0px;"><!--<![endif]-->
+<tr>
+<td style="vertical-align: middle; text-align: center; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 6px;"><a href="http://designedwithbeefree.com/" style="text-decoration: none;" target="_blank"><img align="center" alt="Beefree Logo" class="icon" height="auto" src="{{ url_for('static', filename='Beefree-logo.png', _external=True) }}" style="display: block; height: auto; margin: 0 auto; border: 0;" width="34"/></a></td>
+<td style="font-family: 'Inter', sans-serif; font-size: 15px; font-weight: undefined; color: #1e0e4b; vertical-align: middle; letter-spacing: undefined; text-align: center;"><a href="http://designedwithbeefree.com/" style="color: #1e0e4b; text-decoration: none;" target="_blank">Designed with Beefree</a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table><!-- End -->
 </body>
 </html>
