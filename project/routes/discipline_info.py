@@ -2,7 +2,7 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
 from project.models import DisciplineInfo, Roles
-from project.routes.syllabus import get_syllabus_or_404
+from project.routes.syllabus import get_syllabus_or_404, set_syllabus_filling_status
 from project.schemas.authorization import authorizations
 from project.schemas.discipline_info import (
     discipline_info_response_model,
@@ -66,6 +66,8 @@ class DisciplineInfoList(Resource):
         db.session.add(discipline_info)
         db.session.commit()
 
+        set_syllabus_filling_status(syllabus_id)
+
         return get_discipline_info_response(syllabus_id)
 
     @discipline_info_ns.expect(discipline_info_model)
@@ -85,6 +87,8 @@ class DisciplineInfoList(Resource):
                 setattr(discipline_info, key, value)
         db.session.commit()
 
+        set_syllabus_filling_status(syllabus_id)
+
         return get_discipline_info_response(syllabus_id)
 
     @discipline_info_ns.marshal_with(discipline_info_response_model, envelope="content")
@@ -99,5 +103,7 @@ class DisciplineInfoList(Resource):
 
         db.session.delete(discipline_info)
         db.session.commit()
+
+        set_syllabus_filling_status(syllabus_id)
 
         return get_discipline_info_response(syllabus_id)

@@ -2,7 +2,7 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
 from project.models import SelfStudyTopic, Roles
-from project.routes.syllabus import get_syllabus_or_404
+from project.routes.syllabus import get_syllabus_or_404, set_syllabus_filling_status
 from project.schemas.authorization import authorizations
 from project.schemas.self_study import (
     self_study_topic_response_model,
@@ -74,6 +74,8 @@ class SelfStudyTopicsList(Resource):
             syllabus_id, self_study_topics_ns.payload.get("self_study_topics")
         )
 
+        set_syllabus_filling_status(syllabus_id)
+
         return get_self_study_response(syllabus_id)
 
 
@@ -100,6 +102,8 @@ class SelfStudyTopicDetail(Resource):
                 setattr(topic, key, value)
 
         db.session.commit()
+        set_syllabus_filling_status(syllabus.id)
+
         return get_self_study_response(syllabus.id)
 
     @self_study_topics_ns.marshal_with(
@@ -116,4 +120,6 @@ class SelfStudyTopicDetail(Resource):
 
         db.session.delete(topic)
         db.session.commit()
+        set_syllabus_filling_status(syllabus.id)
+
         return get_self_study_response(syllabus.id)

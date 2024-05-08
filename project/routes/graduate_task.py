@@ -2,7 +2,7 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
 from project.models import GraduateTask, Roles
-from project.routes.syllabus import get_syllabus_or_404
+from project.routes.syllabus import get_syllabus_or_404, set_syllabus_filling_status
 from project.schemas.authorization import authorizations
 from project.schemas.graduate_task import (
     graduate_task_response_model,
@@ -72,6 +72,8 @@ class GraduateTasksList(Resource):
             syllabus_id, graduate_tasks_ns.payload.get("graduate_tasks")
         )
 
+        set_syllabus_filling_status(syllabus_id)
+
         return get_graduate_task_response(syllabus_id)
 
 
@@ -96,6 +98,9 @@ class GraduateTaskDetail(Resource):
                 setattr(graduate_task, key, value)
 
         db.session.commit()
+
+        set_syllabus_filling_status(syllabus.id)
+
         return get_graduate_task_response(syllabus.id)
 
     @graduate_tasks_ns.marshal_with(graduate_task_response_model, envelope="content")
@@ -109,4 +114,7 @@ class GraduateTaskDetail(Resource):
 
         db.session.delete(graduate_task)
         db.session.commit()
+
+        set_syllabus_filling_status(syllabus.id)
+
         return get_graduate_task_response(syllabus.id)
