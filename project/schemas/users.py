@@ -65,3 +65,6 @@ teacher_register_parser.add_argument("comments", type=str, required=False, locat
 user_change_password_parser = reqparse.RequestParser()
 user_change_password_parser.add_argument("old_password", type=str, required=True, location="form")
 user_change_password_parser.add_argument("new_password", type=str, required=True, location="form")
+
+token_parser = reqparse.RequestParser()
+token_parser.add_argument("token", type=str, required=True)

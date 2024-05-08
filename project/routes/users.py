@@ -3,7 +3,14 @@ from datetime import datetime, timedelta
 from string import ascii_letters, digits, punctuation
 
 import jwt
-from flask import request, url_for, render_template, current_app, redirect
+from flask import (
+    request,
+    url_for,
+    render_template,
+    current_app,
+    redirect,
+    make_response,
+)
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -27,6 +34,7 @@ from project.schemas.users import (
     expert_register_parser,
     teacher_register_parser,
     email_parser,
+    token_parser,
 )
 from project.models import User, Teacher, Role, Roles, Specialist, Position, University
 
@@ -374,19 +382,17 @@ class ResetPassword(Resource):
 
         return {"message": "The email with instructions was sent successfully"}, 201
 
-
-@user_ns.route("/reset_password/<string:token>")
-@user_ns.param("token", "Encrypted token")
-class ResetPasswordPatch(Resource):
-
     @user_ns.doc(
         description="Send email with new password",
         responses={
-            201: "Новий пароль було відправлено на {email}",
+            200: "Новий пароль було відправлено на {email}",
             404: "User with email '{email}' does not exist",
         },
     )
-    def get(self, token: str):
+    @user_ns.expect(token_parser)
+    def get(self):
+        args = token_parser.parse_args()
+        token = args.get("token")
         decrypted_data = SecurityUtils.decrypt_data(token)
         email = decrypted_data.get("email")
         user = User.query.filter_by(email=email).first()
@@ -404,12 +410,7 @@ class ResetPasswordPatch(Resource):
         )
         SecurityUtils.send_mail(user, subject=subject, template=body)
 
-        return (
-            f'<h1 style="text-align:center; font-size: 24px; '
-            f"font-family: 'Roboto', Tahoma, Verdana, Segoe, sans-serif\">"
-            f"Новий пароль було відправлено на {email}</h1>",
-            201,
-        )
+        return make_response(render_template("new_password_page.html", user=user), 200)
 
 
 @user_ns.route("/refresh")
