@@ -15,6 +15,7 @@ from jwt import ExpiredSignatureError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from project.extensions import db, mail
+from project.schemas.authorization import authorizations
 from project.schemas.service_info import service_info_for_teacher
 from project.schemas.users import (
     user_model,
@@ -29,7 +30,9 @@ from project.schemas.users import (
 )
 from project.models import User, Teacher, Role, Roles, Specialist, Position, University
 
-user_ns = Namespace(name="user", description="User related endpoints")
+user_ns = Namespace(
+    name="user", description="User related endpoints", authorizations=authorizations
+)
 
 
 def create_expert(args):

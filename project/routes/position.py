@@ -1,11 +1,15 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import Position
+from project.models import Position, Roles
+from project.schemas.authorization import authorizations
 from project.schemas.position import position_model
 from project.schemas.service_info import serviced_position_model
+from project.validators import allowed_roles
 
-position_ns = Namespace(name="position", description="positions of teachers")
+position_ns = Namespace(
+    name="position", description="positions of teachers", authorizations=authorizations
+)
 
 
 def get_position_or_404(id):
@@ -17,10 +21,7 @@ def get_position_or_404(id):
 
 def get_position_response():
     positions = Position.query.all()
-    return {
-        "content": positions,
-        "totalElements": len(positions)
-    }
+    return {"content": positions, "totalElements": len(positions)}
 
 
 @position_ns.route("")
@@ -34,6 +35,8 @@ class PositionList(Resource):
 
     @position_ns.expect(position_model)
     @position_ns.marshal_with(serviced_position_model)
+    @position_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self):
         """Adds a new position"""
         position = Position()
@@ -57,6 +60,8 @@ class PositionsDetail(Resource):
 
     @position_ns.expect(position_model, validate=False)
     @position_ns.marshal_with(serviced_position_model)
+    @position_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, id):
         """Update the position with a given id"""
         position = get_position_or_404(id)
@@ -68,6 +73,8 @@ class PositionsDetail(Resource):
         return get_position_response()
 
     @position_ns.marshal_with(serviced_position_model)
+    @position_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, id):
         """Delete the position with a given id"""
         position = get_position_or_404(id)

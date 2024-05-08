@@ -1,16 +1,21 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import Department, University
+from project.models import Department, University, Roles
+from project.schemas.authorization import authorizations
 from project.schemas.departments import (
     department_model,
     department_query_model,
-    contacts_model
+    contacts_model,
 )
 from project.schemas.service_info import serviced_department_model
-from project.validators import validate_site
+from project.validators import validate_site, allowed_roles
 
-departments_ns = Namespace(name="department", description="info about departments")
+departments_ns = Namespace(
+    name="department",
+    description="info about departments",
+    authorizations=authorizations,
+)
 
 
 def get_department_or_404(id):
@@ -31,7 +36,7 @@ def get_department_response():
         "service_info": {
             "university": universities,
         },
-        "totalElements": len(departments)
+        "totalElements": len(departments),
     }
 
 
@@ -46,7 +51,9 @@ class DepartmentsList(Resource):
 
     @departments_ns.expect(department_query_model)
     @departments_ns.marshal_with(serviced_department_model)
-    @validate_site('http', ["url"])
+    @validate_site("http", ["url"])
+    @departments_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def post(self):
         """Adds a new department"""
         department = Department()
@@ -57,7 +64,9 @@ class DepartmentsList(Resource):
                 setattr(department, key, value)
             elif key in nested_ids:
                 setattr(department, key + "_id", value.get("id"))
-        department.contacts = {key: departments_ns.payload.get(key) for key in contacts_model.keys()}
+        department.contacts = {
+            key: departments_ns.payload.get(key) for key in contacts_model.keys()
+        }
         db.session.add(department)
         db.session.commit()
         return get_department_response()
@@ -76,7 +85,9 @@ class DepartmentDetail(Resource):
 
     @departments_ns.expect(department_query_model, validate=False)
     @departments_ns.marshal_with(serviced_department_model)
-    @validate_site('http', ["url"])
+    @validate_site("http", ["url"])
+    @departments_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def patch(self, id):
         """Update the department with a given id"""
         department = get_department_or_404(id)
@@ -87,11 +98,15 @@ class DepartmentDetail(Resource):
                 setattr(department, key, value)
             elif key in nested_ids:
                 setattr(department, key + "_id", value.get("id"))
-        department.contacts = {key: departments_ns.payload.get(key) for key in contacts_model.keys()}
+        department.contacts = {
+            key: departments_ns.payload.get(key) for key in contacts_model.keys()
+        }
         db.session.commit()
         return get_department_response()
 
     @departments_ns.marshal_with(serviced_department_model)
+    @departments_ns.doc(security="jsonWebToken")
+    @allowed_roles([Roles.ADMIN, Roles.CONTENT_MANAGER])
     def delete(self, id):
         """Delete the department with given id"""
         department = get_department_or_404(id)
