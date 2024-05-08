@@ -386,7 +386,7 @@ class ResetPasswordPatch(Resource):
             404: "User with email '{email}' does not exist",
         },
     )
-    def patch(self, token: str):
+    def get(self, token: str):
         decrypted_data = SecurityUtils.decrypt_data(token)
         email = decrypted_data.get("email")
         user = User.query.filter_by(email=email).first()
