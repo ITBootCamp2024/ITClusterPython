@@ -1,4 +1,6 @@
+import random
 from datetime import datetime, timedelta
+from string import ascii_letters, digits, punctuation
 
 import jwt
 from flask import request, url_for, render_template, current_app, redirect
@@ -22,8 +24,6 @@ from project.schemas.users import (
     user_login_response,
     user_register_parser,
     user_change_password_parser,
-    email_schema,
-    password_schema,
     expert_register_parser,
     teacher_register_parser,
     email_parser,
@@ -115,6 +115,11 @@ def create_user(args, role: Roles):
     return user
 
 
+def generate_password(length=12):
+    characters = ascii_letters + digits + punctuation
+    return "".join(random.choice(characters) for i in range(length))
+
+
 class SecurityUtils:
     @staticmethod
     def encrypt_data(data):
@@ -141,6 +146,7 @@ class SecurityUtils:
         token = SecurityUtils.encrypt_data(
             {"email": user.email, "front_url": front_url}
         )
+
         url_confirm = url_for("user_confirm_mail", token=token, _external=True)
         confirm_mail = render_template(
             "confirm_email.html", confirm_url=url_confirm, user=user
@@ -315,9 +321,13 @@ class ConfirmMail(Resource):
 @user_ns.route("/resend-confirm-email")
 class ResendConfirmEmail(Resource):
     @user_ns.expect(email_parser)
-    @user_ns.doc(responses={201: "The email was sent successfully",
-                            400: "User with {email} is already confirmed",
-                            404: "User with {email} is not registered"})
+    @user_ns.doc(
+        responses={
+            201: "The email was sent successfully",
+            400: "User with {email} is already confirmed",
+            404: "User with {email} is not registered",
+        }
+    )
     def post(self):
         """Resend confirmation email"""
         args = email_parser.parse_args()
@@ -333,60 +343,73 @@ class ResendConfirmEmail(Resource):
         return {"message": "The email was sent successfully"}, 201
 
 
-# TODO add logic to reset password
-@user_ns.route("/reset_password/")
+@user_ns.route("/reset_password")
 class ResetPassword(Resource):
 
     @user_ns.doc(
-        description="When client recover your password, an email is sent with the link",
+        description="When client resets his password, an email is sent with the link",
         responses={
-            201: "The email was sent successfully",
-            401: "Send correct mail",
+            201: "The email with instructions was sent successfully",
             404: "User with email '{email}' does not exist",
         },
     )
-    @user_ns.expect(email_schema)
+    @user_ns.expect(email_parser)
     def post(self):
-        data = request.json
-
-        email = data.get("email")
-        if not email:
-            abort(401, "Send correct mail")
-
+        args = email_parser.parse_args()
+        email = args.get("email")
         user = User.query.filter_by(email=email).first()
         if not user:
             abort(404, f"User with email '{email}' does not exist")
 
-        data_to_encrypt = {"user_id": user.id, "email": user.email}
-        encrypted_data = SecurityUtils.encrypt_data(data_to_encrypt)
-        link = url_for("user_reset_password", token=encrypted_data, _external=True)
-        subject_mail = "It Cluster - Reset Password"
-        confirm_mail = render_template("reset_password.html", url=link, user=user)
-        SecurityUtils.send_mail(user, subject=subject_mail, template=confirm_mail)
-        return {"message": "The email was sent successfully"}, 201
+        data_to_encrypt = {
+            "front_url": request.headers.get("Origin"),
+            "email": email,
+        }
+        token = SecurityUtils.encrypt_data(data_to_encrypt)
+
+        reset_url = url_for("user_reset_password", token=token, _external=True)
+        subject = "Education UA - Reset Password"
+        body = render_template("reset_password.html", reset_url=reset_url, user=user)
+        SecurityUtils.send_mail(user, subject=subject, template=body)
+
+        return {"message": "The email with instructions was sent successfully"}, 201
 
 
-# TODO add logic to reset password patch
 @user_ns.route("/reset_password/<string:token>")
+@user_ns.param("token", "Encrypted token")
 class ResetPasswordPatch(Resource):
 
-    @staticmethod
     @user_ns.doc(
-        description="When a token and password are transferred, the password of the user with this token is changed.",
-        responses={201: "Done", 404: "Password or user not found"},
+        description="Send email with new password",
+        responses={
+            201: "Новий пароль було відправлено на {email}",
+            404: "User with email '{email}' does not exist",
+        },
     )
-    @user_ns.expect(password_schema)
-    def patch(token: str):
-        data = request.json
+    def patch(self, token: str):
         decrypted_data = SecurityUtils.decrypt_data(token)
-        user_id, email = decrypted_data.values()
+        email = decrypted_data.get("email")
         user = User.query.filter_by(email=email).first()
-        password = data.get("password")
-        if user and password:
-            user.password_hash = generate_password_hash(password)
-            db.session.commit()
-            return "Done", 201
-        return {"message": "Password or user not found"}, 404
+        if not user:
+            return abort(404, f"User with email '{email}' does not exist")
+
+        password = generate_password()
+        user.password_hash = generate_password_hash(password)
+        db.session.commit()
+
+        front_url = decrypted_data.get("front_url") + "/auth"
+        subject = "Education UA - New Password"
+        body = render_template(
+            "new_password.html", front_url=front_url, user=user, password=password
+        )
+        SecurityUtils.send_mail(user, subject=subject, template=body)
+
+        return (
+            f'<h1 style="text-align:center; font-size: 24px; '
+            f"font-family: 'Roboto', Tahoma, Verdana, Segoe, sans-serif\">"
+            f"Новий пароль було відправлено на {email}</h1>",
+            201,
+        )
 
 
 @user_ns.route("/refresh")
