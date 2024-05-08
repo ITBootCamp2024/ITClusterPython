@@ -386,6 +386,15 @@ class SyllabusModule(db.Model):
     syllabus = db.relationship("Syllabus", back_populates="modules")
 
 
+class SyllabusStatus(str, Enum):
+    NOT_FILLED = "Не заповнено"
+    ON_FILLING = "На заповненні"
+    FILLED = "Заповнено"
+    PROPOSED = "Відправлено на рецензію"
+    ACCEPTED = "Прийнято на рецензування"
+    REVIEWED = "Рецензовано"
+
+
 class Teacher(db.Model):
     __tablename__ = "teachers"
     id: int = db.Column(db.Integer, primary_key=True)

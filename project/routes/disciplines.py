@@ -1,7 +1,8 @@
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import Discipline, Teacher, EducationProgram, DisciplineBlock, Syllabus, SyllabusBaseInfo
+from project.models import Discipline, Teacher, EducationProgram, DisciplineBlock, Syllabus, SyllabusBaseInfo, \
+    SyllabusStatus
 from project.schemas.disciplines import discipline_model, discipline_query_model
 from project.schemas.service_info import serviced_discipline_model
 from project.validators import validate_site
@@ -60,7 +61,7 @@ class DisciplinesList(Resource):
         db.session.commit()
 
         syllabus = Syllabus(
-            name=discipline.name, status="Не заповнено", discipline_id=discipline.id
+            name=discipline.name, status=SyllabusStatus.NOT_FILLED, discipline_id=discipline.id
         )
         db.session.add(syllabus)
         db.session.commit()

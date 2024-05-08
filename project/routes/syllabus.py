@@ -1,7 +1,19 @@
+from flask import jsonify
 from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
-from project.models import Syllabus, SyllabusBaseInfo, Roles
+from project.models import (
+    Syllabus,
+    SyllabusBaseInfo,
+    Roles,
+    MarketRelation,
+    DisciplineInfo,
+    SyllabusModule,
+    SelfStudyTopic,
+    GraduateTask,
+    SyllabusStatus,
+    Assessment,
+)
 from project.schemas.authorization import authorizations
 from project.schemas.syllabus import (
     syllabus_base_info_response_model,
@@ -38,6 +50,34 @@ def get_syllabus_base_info_response(syllabus_id):
     }
 
 
+def set_syllabus_filling_status(syllabus_id):
+    """Set the syllabus status ot FILLED if all tables are filled. Else set it to ON_FILLING"""
+
+    syllabus = get_syllabus_or_404(syllabus_id)
+
+    tables = [MarketRelation, DisciplineInfo, SyllabusModule, SelfStudyTopic, GraduateTask, Assessment]
+
+    not_filled_table_exists = False
+    filled_table_exists = False
+
+    for table in tables:
+        if table.query.filter_by(syllabus_id=syllabus_id).first():
+            filled_table_exists = True
+        else:
+            not_filled_table_exists = True
+        if filled_table_exists and not_filled_table_exists:
+            syllabus.status = SyllabusStatus.ON_FILLING
+            db.session.commit()
+            return
+
+    if filled_table_exists:
+        syllabus.status = SyllabusStatus.FILLED
+    else:
+        syllabus.status = SyllabusStatus.NOT_FILLED
+
+    db.session.commit()
+
+
 @syllabuses_ns.route("/base-info/<int:syllabus_id>")
 @syllabuses_ns.param("syllabus_id", "The syllabus unique identifier")
 class BaseSyllabusInfo(Resource):
@@ -67,3 +107,27 @@ class BaseSyllabusInfo(Resource):
         db.session.commit()
 
         return get_syllabus_base_info_response(syllabus_id)
+
+
+@syllabuses_ns.route("/set-all-filling-statuses")
+class SetAllFillingStatuses(Resource):
+
+    @allowed_roles([Roles.ADMIN])
+    def post(self):
+        """Set all filling statuses"""
+        response = []
+
+        syllabuses = Syllabus.query.all()
+        for syllabus in syllabuses:
+            status_before = syllabus.status
+            set_syllabus_filling_status(syllabus.id)
+            response.append(
+                {
+                    "syllabus_id": syllabus.id,
+                    "status_before": status_before,
+                    "status_after": syllabus.status,
+                    "name": syllabus.name,
+                }
+            )
+
+        return jsonify({"syllabuses": response})
