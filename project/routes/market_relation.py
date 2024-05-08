@@ -2,7 +2,7 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
 from project.models import MarketRelation, Roles
-from project.routes.syllabus import get_syllabus_or_404
+from project.routes.syllabus import get_syllabus_or_404, set_syllabus_filling_status
 from project.schemas.authorization import authorizations
 from project.schemas.market_relation import (
     market_relation_response_model,
@@ -74,6 +74,8 @@ class MarketRelationsList(Resource):
             syllabus_id, market_relation_ns.payload.get("market_relations")
         )
 
+        set_syllabus_filling_status(syllabus_id)
+
         return get_market_relation_response(syllabus_id)
 
 
@@ -98,6 +100,8 @@ class MarketRelationsDetail(Resource):
                 setattr(market_relation, key, value)
         db.session.commit()
 
+        set_syllabus_filling_status(syllabus.id)
+
         return get_market_relation_response(syllabus.id)
 
     @market_relation_ns.marshal_with(market_relation_response_model, envelope="content")
@@ -112,5 +116,7 @@ class MarketRelationsDetail(Resource):
 
         db.session.delete(market_relation)
         db.session.commit()
+
+        set_syllabus_filling_status(syllabus.id)
 
         return get_market_relation_response(syllabus.id)

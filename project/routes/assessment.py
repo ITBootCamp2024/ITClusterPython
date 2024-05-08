@@ -2,7 +2,7 @@ from flask_restx import Resource, Namespace, abort
 
 from project.extensions import db
 from project.models import Assessment, Roles
-from project.routes.syllabus import get_syllabus_or_404
+from project.routes.syllabus import get_syllabus_or_404, set_syllabus_filling_status
 from project.schemas.assessment import assessment_model, assessment_response_model
 from project.schemas.authorization import authorizations
 from project.validators import allowed_roles, verify_teacher
@@ -65,6 +65,8 @@ class AssessmentsList(Resource):
 
         create_assessments(syllabus_id, assessment_ns.payload.get("assessments"))
 
+        set_syllabus_filling_status(syllabus_id)
+
         return get_assessment_response(syllabus_id)
 
 
@@ -89,6 +91,9 @@ class TeachersDetail(Resource):
                 setattr(assessment, key, value)
 
         db.session.commit()
+
+        set_syllabus_filling_status(syllabus.id)
+
         return get_assessment_response(syllabus.id)
 
     @allowed_roles([Roles.TEACHER, Roles.ADMIN, Roles.CONTENT_MANAGER])
@@ -102,4 +107,7 @@ class TeachersDetail(Resource):
 
         db.session.delete(assessment)
         db.session.commit()
+
+        set_syllabus_filling_status(syllabus.id)
+
         return get_assessment_response(syllabus.id)

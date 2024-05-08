@@ -4,12 +4,13 @@ from project.extensions import db
 from project.models import SyllabusModule, DisciplineStructure, Roles
 from project.routes.graduate_task import get_graduate_task_response
 from project.routes.self_study import get_self_study_response
-from project.routes.syllabus import get_syllabus_or_404
+from project.routes.syllabus import get_syllabus_or_404, set_syllabus_filling_status
 from project.schemas.authorization import authorizations
 from project.schemas.discipline_structure import (
     syllabus_module_response_model,
     base_syllabus_module_model,
-    base_structure_topics_model, syllabus_structure_three_model,
+    base_structure_topics_model,
+    syllabus_structure_three_model,
 )
 from project.validators import allowed_roles, verify_teacher
 
@@ -129,6 +130,9 @@ class DisciplineStructureList(Resource):
         syllabus = get_syllabus_or_404(syllabus_id)
         verify_teacher(syllabus)
         add_syllabus_modules(syllabus_id)
+
+        set_syllabus_filling_status(syllabus_id)
+
         return get_syllabus_modules_response(syllabus_id)
 
 
@@ -156,6 +160,8 @@ class DisciplineStructureModuleDetail(Resource):
         db.session.add(syllabus_topic)
         db.session.commit()
 
+        set_syllabus_filling_status(syllabus.id)
+
         return get_syllabus_modules_response(syllabus.id)
 
     @discipline_structure_ns.expect(base_syllabus_module_model)
@@ -171,6 +177,8 @@ class DisciplineStructureModuleDetail(Resource):
         verify_teacher(syllabus)
         module.name = discipline_structure_ns.payload.get("name")
         db.session.commit()
+        set_syllabus_filling_status(syllabus.id)
+
         return get_syllabus_modules_response(syllabus.id)
 
     @discipline_structure_ns.marshal_with(
@@ -184,6 +192,8 @@ class DisciplineStructureModuleDetail(Resource):
         syllabus = module.syllabus
         verify_teacher(syllabus)
         delete_module(module_id)
+        set_syllabus_filling_status(syllabus.id)
+
         return get_syllabus_modules_response(syllabus.id)
 
 
@@ -207,6 +217,8 @@ class DisciplineStructureTopicDetail(Resource):
             if key in topic_params:
                 setattr(topic, key, value)
         db.session.commit()
+        set_syllabus_filling_status(syllabus.id)
+
         return get_syllabus_modules_response(syllabus.id)
 
     @discipline_structure_ns.marshal_with(
@@ -221,4 +233,6 @@ class DisciplineStructureTopicDetail(Resource):
         verify_teacher(syllabus)
         db.session.delete(topic)
         db.session.commit()
+        set_syllabus_filling_status(syllabus.id)
+
         return get_syllabus_modules_response(syllabus.id)
