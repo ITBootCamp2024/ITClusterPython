@@ -26,6 +26,7 @@ from project.schemas.users import (
     password_schema,
     expert_register_parser,
     teacher_register_parser,
+    email_parser,
 )
 from project.models import User, Teacher, Role, Roles, Specialist, Position, University
 
@@ -311,6 +312,28 @@ class ConfirmMail(Resource):
         return "Success confirm mail", 201
 
 
+@user_ns.route("/resend-confirm-email")
+class ResendConfirmEmail(Resource):
+    @user_ns.expect(email_parser)
+    @user_ns.doc(responses={201: "The email was sent successfully",
+                            400: "User with {email} is already confirmed",
+                            404: "User with {email} is not registered"})
+    def post(self):
+        """Resend confirmation email"""
+        args = email_parser.parse_args()
+        email = args.get("email")
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return abort(404, f"User with {email} is not registered")
+        if user.email_confirmed:
+            return abort(400, f"User with {email} is already confirmed")
+
+        SecurityUtils.send_confirm_token(user, request.headers.get("Origin"))
+
+        return {"message": "The email was sent successfully"}, 201
+
+
+# TODO add logic to reset password
 @user_ns.route("/reset_password/")
 class ResetPassword(Resource):
 
@@ -343,6 +366,7 @@ class ResetPassword(Resource):
         return {"message": "The email was sent successfully"}, 201
 
 
+# TODO add logic to reset password patch
 @user_ns.route("/reset_password/<string:token>")
 class ResetPasswordPatch(Resource):
 
