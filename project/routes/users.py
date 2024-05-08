@@ -375,7 +375,6 @@ class ResetPassword(Resource):
         return {"message": "The email with instructions was sent successfully"}, 201
 
 
-# TODO add logic to reset password patch
 @user_ns.route("/reset_password/<string:token>")
 @user_ns.param("token", "Encrypted token")
 class ResetPasswordPatch(Resource):
