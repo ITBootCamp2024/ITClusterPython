@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
 
 import jwt
-from flask import request, url_for, render_template, current_app
+from flask import request, url_for, render_template, current_app, redirect
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
-    get_jwt,
     get_jwt_identity,
     jwt_required,
 )
@@ -137,9 +136,10 @@ class SecurityUtils:
         return decrypted_data
 
     @staticmethod
-    def send_confirm_token(user):
-        # TODO add to token the link of frontend login page
-        token = SecurityUtils.encrypt_data({"email": user.email})
+    def send_confirm_token(user, front_url):
+        token = SecurityUtils.encrypt_data(
+            {"email": user.email, "front_url": front_url}
+        )
         url_confirm = url_for("user_confirm_mail", token=token, _external=True)
         confirm_mail = render_template(
             "confirm_email.html", confirm_url=url_confirm, user=user
@@ -168,7 +168,7 @@ class RegisterUser(Resource):
         args = user_register_parser.parse_args()
         user = create_user(args, Roles.USER)
 
-        SecurityUtils.send_confirm_token(user)
+        SecurityUtils.send_confirm_token(user, request.headers.get("Origin"))
 
         db.session.add(user)
         db.session.commit()
@@ -187,7 +187,7 @@ class RegisterExpert(Resource):
         user_expert = create_user(args, Roles.SPECIALIST)
         expert = create_expert(args)
 
-        SecurityUtils.send_confirm_token(user_expert)
+        SecurityUtils.send_confirm_token(user_expert, request.headers.get("Origin"))
 
         db.session.add(user_expert)
         db.session.add(expert)
@@ -214,7 +214,7 @@ class RegisterTeacher(Resource):
         user_teacher = create_user(args, Roles.TEACHER)
         teacher = create_teacher(args)
 
-        SecurityUtils.send_confirm_token(user_teacher)
+        SecurityUtils.send_confirm_token(user_teacher, request.headers.get("Origin"))
 
         db.session.add(user_teacher)
         if teacher:
@@ -288,23 +288,27 @@ class Login(Resource):
 
 @user_ns.route("/confirm_mail/<string:token>")
 class ConfirmMail(Resource):
-    @user_ns.doc(
-        description="Confirm Mail",
-    )
+    @user_ns.doc(description="Confirm Mail")
     def get(self, token: str):
 
         try:
             decrypted_data = SecurityUtils.decrypt_data(token)
         except ExpiredSignatureError:
-            return "The link has expired", 401
+            return abort(401, "The link has expired")
 
-        email = decrypted_data["email"]
+        email = decrypted_data.get("email")
         user = User.query.filter_by(email=email).first()
-        if user:
-            user.email_confirmed = True
-            db.session.commit()
-            return "Success confirm mail", 201
-        return abort(404, f"User with {email} is not registered")
+        if not user:
+            return abort(404, f"User with {email} is not registered")
+
+        user.email_confirmed = True
+        db.session.commit()
+
+        front_url = decrypted_data.get("front_url")
+        if front_url:
+            return redirect(front_url + "/auth")
+
+        return "Success confirm mail", 201
 
 
 @user_ns.route("/reset_password/")
