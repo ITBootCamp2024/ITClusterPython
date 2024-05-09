@@ -62,6 +62,16 @@ teacher_register_parser.add_argument("position_id", type=int, required=True, loc
 teacher_register_parser.add_argument("degree_level", type=str, required=False, location="form")
 teacher_register_parser.add_argument("comments", type=str, required=False, location="form")
 
+teacher_register_request_model = api.model(
+    "TeacherRegisterRequestModel",
+    {
+        "name": fields.String(description="Teacher's name", required=True),
+        "university": fields.String(description="university", required=True),
+        "department": fields.String(description="department", required=True),
+        "email": fields.String(description="email", required=True),
+    }
+)
+
 user_change_password_parser = reqparse.RequestParser()
 user_change_password_parser.add_argument("old_password", type=str, required=True, location="form")
 user_change_password_parser.add_argument("new_password", type=str, required=True, location="form")

@@ -36,6 +36,7 @@ from project.schemas.users import (
     teacher_register_parser,
     email_parser,
     token_parser,
+    teacher_register_request_model,
 )
 from project.models import User, Teacher, Role, Roles, Specialist, Position, University
 
@@ -524,4 +525,24 @@ class VerifyRequestOnMail(Resource):
 
         return {
             "message": f"Request for verification was successfully sent to the administrator's email {admin_email}"
+        }, 200
+
+
+@user_ns.route("/teacher-register-request-on-mail")
+class TeacherRegisterRequestOnMail(Resource):
+
+    @user_ns.doc(
+        description="Teacher register request on mail",
+        responses={
+            200: "Request for registration was successfully sent to the administrator's email"
+        },
+    )
+    @user_ns.expect(teacher_register_request_model)
+    def post(self):
+        """send request for teacher registration to the administrator's email"""
+
+        admin_email = current_app.config["MAIL_USERNAME"]
+
+        return {
+            "message": f"Request for registration was successfully sent to the administrator's email {admin_email}"
         }, 200
