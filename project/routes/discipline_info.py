@@ -56,14 +56,17 @@ class DisciplineInfoList(Resource):
         syllabus = get_syllabus_or_404(syllabus_id)
         verify_teacher(syllabus)
 
-        discipline_info = DisciplineInfo(syllabus_id=syllabus_id)
+        discipline_info = DisciplineInfo.query.filter_by(syllabus_id=syllabus_id).first()
+        if not discipline_info:
+            discipline_info = DisciplineInfo(syllabus_id=syllabus_id)
+            db.session.add(discipline_info)
+            db.session.commit()
 
         params = discipline_info_model.keys()
         for key, value in discipline_info_ns.payload.items():
             if key in params:
                 setattr(discipline_info, key, value)
 
-        db.session.add(discipline_info)
         db.session.commit()
 
         set_syllabus_filling_status(syllabus_id)
