@@ -1,6 +1,7 @@
 import random
 from datetime import datetime, timedelta
 from string import ascii_letters, digits, punctuation
+from typing import List, Optional
 
 import jwt
 from flask import (
@@ -164,12 +165,18 @@ class SecurityUtils:
         )
 
     @staticmethod
-    def send_mail(user, subject, template):
+    def send_mail(
+        user: User, subject: str, template, recipients: Optional[List] = None
+    ) -> None:
+
+        recipients = recipients or [user.email]
+
         msg = Message(
             subject=subject,
-            recipients=[user.email],
+            recipients=recipients,
             html=template,
         )
+
         mail.send(msg)
 
 
@@ -484,3 +491,37 @@ class ChangePassword(Resource):
         user.password_hash = generate_password_hash(new_password)
         db.session.commit()
         return {"message": "Password changed"}, 200
+
+
+@user_ns.route("/verify-request-on-mail")
+class VerifyRequestOnMail(Resource):
+    @user_ns.doc(
+        security="jsonWebToken",
+        description="Verify request on mail",
+        responses={
+            200: "Request for verification was successfully sent to the administrator's email",
+            404: "User with email '{email}' does not exist",
+        },
+    )
+    @jwt_required()
+    def post(self):
+        """send request for verification to the administrator's email"""
+        email = get_jwt_identity()
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            abort(404, f"User with email '{email}' does not exist")
+
+        subject = "Education UA - Request for verification"
+        body = render_template("verify_request.html", user=user)
+        admin_email = current_app.config["MAIL_USERNAME"]
+
+        SecurityUtils.send_mail(
+            user=user,
+            subject=subject,
+            template=body,
+            recipients=[admin_email],
+        )
+
+        return {
+            "message": f"Request for verification was successfully sent to the administrator's email {admin_email}"
+        }, 200
