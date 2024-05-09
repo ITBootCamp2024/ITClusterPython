@@ -162,15 +162,13 @@ class SecurityUtils:
             "confirm_email.html", confirm_url=url_confirm, user=user
         )
         SecurityUtils.send_mail(
-            user, subject="Education UA - Confirm email", template=confirm_mail
+            subject="Education UA - Confirm email",
+            template=confirm_mail,
+            recipients=[user.email],
         )
 
     @staticmethod
-    def send_mail(
-        user: User, subject: str, template, recipients: Optional[List] = None
-    ) -> None:
-
-        recipients = recipients or [user.email]
+    def send_mail(subject: str, template, recipients: List) -> None:
 
         msg = Message(
             subject=subject,
@@ -386,7 +384,7 @@ class ResetPassword(Resource):
         reset_url = url_for("user_reset_password", token=token, _external=True)
         subject = "Education UA - Reset Password"
         body = render_template("reset_password.html", reset_url=reset_url, user=user)
-        SecurityUtils.send_mail(user, subject=subject, template=body)
+        SecurityUtils.send_mail(subject=subject, template=body, recipients=[user.email])
 
         return {"message": "The email with instructions was sent successfully"}, 201
 
@@ -416,7 +414,7 @@ class ResetPassword(Resource):
         body = render_template(
             "new_password.html", front_url=front_url, user=user, password=password
         )
-        SecurityUtils.send_mail(user, subject=subject, template=body)
+        SecurityUtils.send_mail(subject=subject, template=body, recipients=[user.email])
 
         return make_response(render_template("new_password_page.html", user=user), 200)
 
@@ -517,10 +515,7 @@ class VerifyRequestOnMail(Resource):
         admin_email = current_app.config["MAIL_USERNAME"]
 
         SecurityUtils.send_mail(
-            user=user,
-            subject=subject,
-            template=body,
-            recipients=[admin_email],
+            subject=subject, template=body, recipients=[admin_email]
         )
 
         return {
@@ -542,6 +537,23 @@ class TeacherRegisterRequestOnMail(Resource):
         """send request for teacher registration to the administrator's email"""
 
         admin_email = current_app.config["MAIL_USERNAME"]
+        teacher_email = user_ns.payload.get("email")
+
+        SecurityUtils.send_mail(
+            subject="Education UA - Request for teacher registration",
+            template=render_template(
+                "teacher_register_request_for_admin.html", data=user_ns.payload
+            ),
+            recipients=[admin_email],
+        )
+
+        SecurityUtils.send_mail(
+            subject="Education UA - Request for teacher registration",
+            template=render_template(
+                "teacher_register_request_for_teacher.html", data=user_ns.payload
+            ),
+            recipients=[teacher_email],
+        )
 
         return {
             "message": f"Request for registration was successfully sent to the administrator's email {admin_email}"
