@@ -21,8 +21,8 @@ class StatisticsUsers(Resource):
         verified_experts = Specialist.query.filter_by(verified=True).count()
 
         # TODO: add students statistics
-        total_students = 0
-        verified_students = 0
+        total_students = 5
+        verified_students = 3
 
         return {
             "teachers": {
