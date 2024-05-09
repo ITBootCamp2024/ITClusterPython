@@ -48,14 +48,14 @@ class StatisticsSyllabuses(Resource):
         """Show syllabuses statistics"""
 
         return {
-            "total_syllabuses": 0,
-            "on_filling": 0,
-            "filled": 0,
-            "proposed": 0,
-            "accepted": 0,
-            "reviewed": 0,
+            "total_syllabuses": 51,
+            "on_filling": 6,
+            "filled": 18,
+            "proposed": 15,
+            "accepted": 9,
+            "reviewed": 5,
             "negative": 0,
-            "conditionally_negative": 0,
-            "conditionally_positive": 0,
-            "positive": 0,
+            "conditionally_negative": 20,
+            "conditionally_positive": 40,
+            "positive": 40,
         }
